@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  --font-size-fluid-xs: clamp(0.625rem, 0.1vw + 0.6rem, 0.75rem);
+  --font-size-fluid-sm: clamp(0.8rem, 0.17vw + 0.76rem, 0.89rem);
+  --font-size-fluid-base: clamp(1rem, 0.34vw + 0.91rem, 1.19rem);
+  --font-size-fluid-lg: clamp(1.25rem, 0.61vw + 1.1rem, 1.58rem);
+  --font-size-fluid-xl: clamp(1.56rem, 1vw + 1.31rem, 2.11rem);
+  --font-size-fluid-2xl: clamp(1.95rem, 1.56vw + 1.56rem, 2.81rem);
+  --font-size-fluid-3xl: clamp(2.44rem, 2.38vw + 1.85rem, 3.75rem);
+  --font-size-fluid-4xl: clamp(3.05rem, 3.54vw + 2.17rem, 5rem);
+  --font-size-hero: clamp(2.5rem, 8vw + 1rem, 5.5rem);
+}
+
+@layer utilities {
+  .shadow-soft {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  }
+  .shadow-soft-xl {
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1), 0 10px 15px -5px rgba(0, 0, 0, 0.05);
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased transition-colors duration-300;
+}

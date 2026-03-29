@@ -1,0 +1,148 @@
+const Class = require("../models/classSchema");
+const Teacher = require("../models/teacherSchema");
+
+exports.createClass = async (req, res) => {
+  try {
+    const { grade, section, teacherId } = req.body;
+    const existingClass = await Class.findOne({ grade, section });
+    if (existingClass) {
+      return res.status(400).json({ message: "Class already exists" });
+    }
+
+    if (teacherId) {
+        const teacherAssigned = await Class.findOne({ classTeacher: teacherId });
+        if (teacherAssigned) {
+            return res.status(400).json({ 
+                message: "This teacher is already assigned to another class as a class teacher." 
+            });
+        }
+    }
+
+    const sClass = await Class.create({ 
+        grade, 
+        section, 
+        classTeacher: teacherId || null 
+    });
+
+    // If a teacher was assigned, update the Teacher record
+    if (teacherId) {
+        await Teacher.findByIdAndUpdate(teacherId, { sClass: sClass._id });
+    }
+
+    res.status(201).json({ message: "Class created successfully", sClass });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.assignTeacher = async (req, res) => {
+  try {
+    const { classId, teacherId } = req.body;
+    
+    // Case 1: Unassigning the teacher
+    if (teacherId === "None" || !teacherId) {
+        const sClass = await Class.findById(classId);
+        if (sClass.classTeacher) {
+            await Teacher.findByIdAndUpdate(sClass.classTeacher, { sClass: null });
+        }
+        await Class.findByIdAndUpdate(classId, { classTeacher: null });
+        return res.status(200).json({ message: "Teacher unassigned successfully" });
+    }
+
+    // Case 2: Assigning/Changing the teacher
+    
+    // Check if the teacher is already a class teacher for another class
+    const existingAssignment = await Class.findOne({ classTeacher: teacherId });
+    if (existingAssignment && existingAssignment._id.toString() !== classId) {
+        return res.status(400).json({ 
+            message: "This teacher is already assigned to another class as a class teacher." 
+        });
+    }
+
+    // Get the current class to see if there's already a teacher assigned
+    const targetClass = await Class.findById(classId);
+    
+    // If there was a previous teacher, clear their sClass reference
+    if (targetClass.classTeacher && targetClass.classTeacher.toString() !== teacherId) {
+        await Teacher.findByIdAndUpdate(targetClass.classTeacher, { sClass: null });
+    }
+    
+    // Assign teacher to the class
+    const sClass = await Class.findByIdAndUpdate(classId, { classTeacher: teacherId }, { new: true });
+    
+    // Update the Teacher's record
+    await Teacher.findByIdAndUpdate(teacherId, { sClass: classId });
+
+    res.status(200).json({ message: "Teacher assigned successfully", sClass });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getClasses = async (req, res) => {
+  try {
+    let query = {};
+    
+    // If user is a Teacher, only return classes where they are either Class Teacher or Subject Teacher
+    if (req.user && req.user.role === "Teacher") {
+        const teacher = await Teacher.findOne({ user: req.user._id });
+        if (teacher) {
+            query = {
+                $or: [
+                    { classTeacher: teacher._id },
+                    { "subjects.teacher": teacher._id }
+                ]
+            };
+        } else {
+            return res.status(200).json([]);
+        }
+    }
+
+    const classes = await Class.find(query)
+      .populate("classTeacher", "name email")
+      .populate("subjects.teacher", "name email");
+    res.status(200).json(classes);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getClassDetails = async (req, res) => {
+  try {
+    const sClass = await Class.findById(req.params.id)
+      .populate("classTeacher", "name email phone user")
+      .populate("subjects.teacher", "name email phone user");
+      
+    if (!sClass) {
+      return res.status(404).json({ message: "Class not found" });
+    }
+    res.status(200).json(sClass);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.updateSubjects = async (req, res) => {
+  try {
+    const { classId, subjects } = req.body;
+    
+    // Validate that subjects is an array
+    if (!Array.isArray(subjects)) {
+      return res.status(400).json({ message: "Subjects must be an array" });
+    }
+
+    const sClass = await Class.findByIdAndUpdate(
+      classId, 
+      { subjects }, 
+      { new: true }
+    ).populate("subjects.teacher", "name email phone user");
+
+    if (!sClass) {
+      return res.status(404).json({ message: "Class not found" });
+    }
+
+    res.status(200).json({ message: "Subjects updated successfully", subjects: sClass.subjects });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
