@@ -20,6 +20,12 @@ const schoolSchema = new mongoose.Schema({
   logo: {
     type: String, // URL to image
   },
+  sessionStart: {
+    type: Date,
+  },
+  sessionEnd: {
+    type: Date,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model("School", schoolSchema);

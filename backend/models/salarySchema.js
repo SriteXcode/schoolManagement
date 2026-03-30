@@ -1,10 +1,15 @@
 const mongoose = require("mongoose");
 
 const salarySchema = new mongoose.Schema({
-  teacher: {
+  staff: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Teacher",
     required: true,
+    refPath: "staffModel",
+  },
+  staffModel: {
+    type: String,
+    required: true,
+    enum: ["Teacher", "Staff"],
   },
   month: {
     type: String,
@@ -19,10 +24,18 @@ const salarySchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  bonuses: [{
-    name: String,
-    amount: Number,
-  }],
+  bonus: {
+    type: Number,
+    default: 0,
+  },
+  increment: {
+    type: Number,
+    default: 0,
+  },
+  hike: {
+    type: Number,
+    default: 0,
+  },
   deductions: [{
     name: String,
     amount: Number,

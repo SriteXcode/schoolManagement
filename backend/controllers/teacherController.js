@@ -129,11 +129,18 @@ exports.getTeacherAssignments = async (req, res) => {
 
 exports.getTeacherProfile = async (req, res) => {
   try {
-    const teacher = await Teacher.findOne({ user: req.user._id }).populate("sClass");
-    if (!teacher) {
-      return res.status(404).json({ message: "Teacher profile not found" });
+    let profile = await Teacher.findOne({ user: req.user._id }).populate("sClass");
+    
+    if (!profile) {
+        // Check Staff collection
+        const Staff = require("../models/staffSchema");
+        profile = await Staff.findOne({ user: req.user._id });
     }
-    res.status(200).json(teacher);
+
+    if (!profile) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+    res.status(200).json(profile);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

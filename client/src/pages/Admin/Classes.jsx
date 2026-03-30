@@ -11,6 +11,7 @@ const Classes = () => {
   const [section, setSection] = useState('');
   const [selectedTeacher, setSelectedTeacher] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   
   // Track which class is being edited
@@ -42,6 +43,7 @@ const Classes = () => {
       setGrade('');
       setSection('');
       setSelectedTeacher('');
+      setShowModal(false);
       fetchData();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to create class');
@@ -62,55 +64,100 @@ const Classes = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800">Manage Classes</h1>
-      
-      {/* Create Class Form */}
-      <div className="p-6 bg-white rounded-lg shadow-md border-t-4 border-indigo-600">
-        <h2 className="mb-4 text-xl font-semibold text-gray-700 flex items-center gap-2">
-            <FaChalkboard className="text-indigo-600"/> Add New Class
-        </h2>
-        <form onSubmit={handleAddClass} className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <input
-            type="text"
-            placeholder="Grade (e.g. 10)"
-            className="p-2 border rounded outline-none focus:ring-2 focus:ring-indigo-500"
-            value={grade}
-            onChange={(e) => setGrade(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Section (e.g. A)"
-            className="p-2 border rounded outline-none focus:ring-2 focus:ring-indigo-500"
-            value={section}
-            onChange={(e) => setSection(e.target.value)}
-            required
-          />
-          <select 
-            className="p-2 border rounded outline-none focus:ring-2 focus:ring-indigo-500"
-            value={selectedTeacher}
-            onChange={(e) => setSelectedTeacher(e.target.value)}
-          >
-            <option value="">Select Class Teacher (Optional)</option>
-            {teachers.map(t => {
-                const isAssigned = classes.some(cls => cls.classTeacher?._id === t._id);
-                return (
-                    <option key={t._id} value={t._id}>
-                        {isAssigned ? '🟢 ' : ''}{t.name}
-                    </option>
-                );
-            })}
-          </select>
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="px-6 py-2 text-white bg-indigo-600 rounded hover:bg-indigo-700 disabled:bg-gray-400 font-bold"
-          >
-            {loading ? 'Adding...' : 'Create Class'}
-          </button>
-        </form>
+    <div className="space-y-6 relative">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-800">Manage Classes</h1>
+        <button 
+          onClick={() => setShowModal(true)}
+          className="bg-indigo-600 text-white p-3 rounded-full hover:bg-indigo-700 shadow-lg transition-transform hover:scale-110 flex items-center justify-center"
+          title="Add New Class"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
       </div>
+      
+      {/* Create Class Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6 bg-indigo-600 text-white flex justify-between items-center">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                  <FaChalkboard /> Add New Class
+              </h2>
+              <button 
+                onClick={() => setShowModal(false)}
+                className="text-white hover:text-indigo-200 transition"
+              >
+                <FaTimes size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleAddClass} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Grade</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 10"
+                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                  value={grade}
+                  onChange={(e) => setGrade(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Section</label>
+                <input
+                  type="text"
+                  placeholder="e.g. A"
+                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                  value={section}
+                  onChange={(e) => setSection(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Class Teacher (Optional)</label>
+                <select 
+                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                  value={selectedTeacher}
+                  onChange={(e) => setSelectedTeacher(e.target.value)}
+                >
+                  <option value="">Select Class Teacher</option>
+                  {teachers.map(t => {
+                      const isAssigned = classes.some(cls => cls.classTeacher?._id === t._id);
+                      return (
+                          <option key={t._id} value={t._id}>
+                              {isAssigned ? '🟢 ' : ''}{t.name}
+                          </option>
+                      );
+                  })}
+                </select>
+              </div>
+              
+              <div className="pt-4 flex gap-3">
+                <button 
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 font-bold transition"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="flex-1 px-6 py-3 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 font-bold shadow-lg shadow-indigo-200 transition"
+                >
+                  {loading ? 'Creating...' : 'Create Class'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Classes List */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

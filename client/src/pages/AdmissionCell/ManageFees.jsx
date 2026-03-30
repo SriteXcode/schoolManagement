@@ -213,45 +213,45 @@ const ManageFees = () => {
   if (loading && view === 'list' && !minDue && !pendingMonth && selectedIds.length === 0) return <div className="p-20 text-center font-black text-gray-300 animate-pulse">SYNCHRONIZING FINANCIAL LEDGERS...</div>;
 
   return (
-    <div className="p-6 md:p-10 space-y-8 max-w-7xl mx-auto">
+    <div className="p-4 md:p-10 space-y-6 md:space-y-8 max-w-7xl mx-auto pb-24 md:pb-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6">
+        <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
             {view === 'detail' && (
-                <button onClick={() => setView('list')} className="p-3 bg-white rounded-2xl shadow-sm hover:bg-gray-50 transition text-indigo-600">
-                    <ArrowLeft size={20} />
+                <button onClick={() => setView('list')} className="p-2 md:p-3 bg-white rounded-xl md:rounded-2xl shadow-sm hover:bg-gray-50 transition text-indigo-600 border border-gray-100">
+                    <ArrowLeft size={18} />
                 </button>
             )}
             <div>
-                <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+                <h1 className="text-2xl md:text-4xl font-black text-gray-900 tracking-tight">
                     {view === 'list' ? "Fee Management" : "Student Ledger"}
                 </h1>
-                <p className="text-gray-500 font-bold ml-1">
+                <p className="text-xs md:text-sm text-gray-500 font-bold ml-0.5 md:ml-1">
                     {view === 'list' ? "Search and manage student monthly fees." : `${selectedFee?.student?.name} (${selectedFee?.student?.rollNum})`}
                 </p>
             </div>
         </div>
 
         {view === 'list' && (
-            <div className="flex flex-wrap gap-4 w-full md:w-auto">
+            <div className="flex flex-wrap gap-3 w-full md:w-auto">
                 <button 
                     onClick={downloadCSV}
-                    className="flex items-center justify-center gap-2 px-6 py-4 bg-green-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-green-700 transition shadow-lg shadow-green-100"
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 md:py-4 bg-green-600 text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest hover:bg-green-700 transition shadow-lg shadow-green-100 text-[10px] md:text-xs"
                 >
-                    <Download size={20} /> Export
+                    <Download size={16} className="md:w-5 md:h-5" /> <span className="hidden sm:inline">Export</span>
                 </button>
                 <button 
                     onClick={() => setActiveModal('bulk')}
-                    className="flex items-center justify-center gap-2 px-6 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg shadow-indigo-100"
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 md:py-4 bg-indigo-600 text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg shadow-indigo-100 text-[10px] md:text-xs"
                 >
-                    <PlusCircle size={20} /> Bulk Charge
+                    <PlusCircle size={16} className="md:w-5 md:h-5" /> Bulk Charge
                 </button>
-                <div className="relative flex-1 md:flex-initial md:w-80">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <div className="relative w-full md:w-80">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                     <input 
                         type="text" 
                         placeholder="Search Name or Roll..." 
-                        className="pl-12 pr-6 py-4 w-full rounded-2xl border-none bg-white shadow-sm focus:ring-4 focus:ring-indigo-50 font-bold text-gray-700"
+                        className="pl-11 pr-4 py-3 md:py-4 w-full rounded-xl md:rounded-2xl border-none bg-white shadow-sm focus:ring-4 focus:ring-indigo-50 font-bold text-gray-700 text-sm"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -262,32 +262,38 @@ const ManageFees = () => {
 
       {/* Bulk Action Bar */}
       {selectedIds.length > 0 && view === 'list' && (
-          <div className="bg-gray-900 text-white p-6 rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-6 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
-              <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center font-black text-xl text-indigo-400">
+          <div className="bg-gray-900 text-white p-4 md:p-6 rounded-2xl md:rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6 animate-in slide-in-from-top-4 duration-300 shadow-2xl sticky top-4 z-40">
+              <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center font-black text-lg md:text-xl text-indigo-400">
                       {selectedIds.length}
                   </div>
                   <div>
-                      <h4 className="font-black text-lg">Items Selected</h4>
-                      <p className="text-white/50 text-xs font-bold uppercase tracking-widest">Apply status updates to selected students</p>
+                      <h4 className="font-black text-sm md:text-lg tracking-tight">Items Selected</h4>
+                      <p className="text-white/50 text-[8px] md:text-xs font-bold uppercase tracking-widest">Apply status updates</p>
                   </div>
+                  <button 
+                    onClick={() => setSelectedIds([])}
+                    className="ml-auto md:hidden p-2 bg-white/10 rounded-lg"
+                  >
+                    <X size={16} />
+                  </button>
               </div>
-              <div className="flex gap-3 w-full md:w-auto">
+              <div className="flex gap-2 w-full md:w-auto">
                   <button 
                     onClick={() => { setBulkAction('mark-defaulter'); setActiveModal('confirm-bulk'); }}
-                    className="flex-1 md:flex-none px-6 py-3 bg-red-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-red-700 transition flex items-center gap-2"
+                    className="flex-1 md:flex-none px-3 md:px-6 py-3 bg-red-600 text-white rounded-xl font-black uppercase tracking-widest text-[8px] md:text-[10px] hover:bg-red-700 transition flex items-center justify-center gap-2"
                   >
-                      <ShieldAlert size={16} /> Mark Defaulters
+                      <ShieldAlert size={14} className="hidden sm:inline" /> Mark Defaulters
                   </button>
                   <button 
                     onClick={() => { setBulkAction('mark-regular'); setActiveModal('confirm-bulk'); }}
-                    className="flex-1 md:flex-none px-6 py-3 bg-green-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-green-700 transition flex items-center gap-2"
+                    className="flex-1 md:flex-none px-3 md:px-6 py-3 bg-green-600 text-white rounded-xl font-black uppercase tracking-widest text-[8px] md:text-[10px] hover:bg-green-700 transition flex items-center justify-center gap-2"
                   >
-                      <User size={16} /> Mark Regular
+                      <User size={14} className="hidden sm:inline" /> Mark Regular
                   </button>
                   <button 
                     onClick={() => setSelectedIds([])}
-                    className="flex-1 md:flex-none px-6 py-3 bg-white/10 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-white/20 transition"
+                    className="hidden md:block px-6 py-3 bg-white/10 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-white/20 transition"
                   >
                       Cancel
                   </button>
@@ -297,25 +303,25 @@ const ManageFees = () => {
 
       {/* Advanced Filters */}
       {view === 'list' && (
-        <div className="bg-indigo-50/50 p-6 rounded-[2rem] border border-indigo-100 flex flex-col md:flex-row gap-6 items-end">
-            <div className="flex-1 space-y-2">
-                <label className="text-[10px] font-black text-indigo-400 uppercase tracking-widest ml-1 flex items-center gap-1">
+        <div className="bg-indigo-50/50 p-4 md:p-6 rounded-2xl md:rounded-[2rem] border border-indigo-100 flex flex-col md:flex-row gap-4 md:gap-6 items-stretch md:items-end">
+            <div className="flex-1 space-y-1.5 md:space-y-2">
+                <label className="text-[8px] md:text-[10px] font-black text-indigo-400 uppercase tracking-widest ml-1 flex items-center gap-1">
                     <Filter size={10} /> Minimum Due Amount
                 </label>
                 <input 
                     type="number" 
                     placeholder="e.g. 5000"
-                    className="w-full px-6 py-4 rounded-2xl border-none bg-white shadow-sm focus:ring-4 focus:ring-indigo-500/10 font-bold text-gray-700"
+                    className="w-full px-4 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl border-none bg-white shadow-sm focus:ring-4 focus:ring-indigo-500/10 font-bold text-gray-700 text-sm md:text-base"
                     value={minDue}
                     onChange={(e) => setMinDue(e.target.value)}
                 />
             </div>
-            <div className="flex-1 space-y-2">
-                <label className="text-[10px] font-black text-indigo-400 uppercase tracking-widest ml-1 flex items-center gap-1">
+            <div className="flex-1 space-y-1.5 md:space-y-2">
+                <label className="text-[8px] md:text-[10px] font-black text-indigo-400 uppercase tracking-widest ml-1 flex items-center gap-1">
                     <Calendar size={10} /> Pending for Month
                 </label>
                 <select 
-                    className="w-full px-6 py-4 rounded-2xl border-none bg-white shadow-sm focus:ring-4 focus:ring-indigo-500/10 font-bold text-gray-700"
+                    className="w-full px-4 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl border-none bg-white shadow-sm focus:ring-4 focus:ring-indigo-500/10 font-bold text-gray-700 text-sm md:text-base appearance-none cursor-pointer"
                     value={pendingMonth}
                     onChange={(e) => setPendingMonth(e.target.value)}
                 >
@@ -325,7 +331,7 @@ const ManageFees = () => {
             </div>
             <button 
                 onClick={() => { setMinDue(''); setPendingMonth(''); setSearchTerm(''); }}
-                className="px-8 py-4 bg-white text-indigo-600 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition shadow-sm border border-indigo-100"
+                className="px-6 md:px-8 py-3 md:py-4 bg-white text-indigo-600 rounded-xl md:rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition shadow-sm border border-indigo-100 text-xs md:text-sm"
             >
                 Clear
             </button>
@@ -334,66 +340,66 @@ const ManageFees = () => {
 
       {/* Main Content */}
       {view === 'list' ? (
-        <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-                <table className="w-full text-left">
+        <div className="bg-white rounded-2xl md:rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
+            <div className="overflow-x-auto custom-scrollbar">
+                <table className="w-full text-left min-w-[800px] md:min-w-full">
                     <thead className="bg-gray-50/50 border-b border-gray-100">
                         <tr className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                            <th className="py-6 px-8 w-12">
-                                <button onClick={toggleSelectAll} className="text-indigo-600">
-                                    {selectedIds.length === filteredFees.length && filteredFees.length > 0 ? <CheckSquare size={20}/> : <Square size={20}/>}
+                            <th className="py-4 md:py-6 px-4 md:px-8 w-12">
+                                <button onClick={toggleSelectAll} className="text-indigo-600 flex items-center justify-center">
+                                    {selectedIds.length === filteredFees.length && filteredFees.length > 0 ? <CheckSquare size={18}/> : <Square size={18}/>}
                                 </button>
                             </th>
-                            <th className="py-6 px-8">Student Detail</th>
-                            <th className="py-6 px-8 text-center">Class</th>
-                            <th className="py-6 px-8 text-right">Total Paid</th>
-                            <th className="py-6 px-8 text-right">Total Due</th>
-                            <th className="py-6 px-8 text-center">Status</th>
-                            <th className="py-6 px-8 text-right">Action</th>
+                            <th className="py-4 md:py-6 px-4 md:px-8">Student Detail</th>
+                            <th className="py-4 md:py-6 px-4 md:px-8 text-center">Class</th>
+                            <th className="py-4 md:py-6 px-4 md:px-8 text-right">Total Paid</th>
+                            <th className="py-4 md:py-6 px-4 md:px-8 text-right">Total Due</th>
+                            <th className="py-4 md:py-6 px-4 md:px-8 text-center">Status</th>
+                            <th className="py-4 md:py-6 px-4 md:px-8 text-right">Action</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-gray-100">
                         {filteredFees.map(fee => (
                             <tr key={fee._id} className={`hover:bg-gray-50/50 transition-colors group ${selectedIds.includes(fee.student._id) ? 'bg-indigo-50/30' : ''}`}>
-                                <td className="py-6 px-8">
-                                    <button onClick={() => toggleSelect(fee.student._id)} className="text-indigo-600">
-                                        {selectedIds.includes(fee.student._id) ? <CheckSquare size={20}/> : <Square size={20}/>}
+                                <td className="py-4 md:py-6 px-4 md:px-8">
+                                    <button onClick={() => toggleSelect(fee.student._id)} className="text-indigo-600 flex items-center justify-center">
+                                        {selectedIds.includes(fee.student._id) ? <CheckSquare size={18}/> : <Square size={18}/>}
                                     </button>
                                 </td>
-                                <td className="py-6 px-8">
-                                    <div className="flex items-center gap-4">
+                                <td className="py-4 md:py-6 px-4 md:px-8">
+                                    <div className="flex items-center gap-3 md:gap-4">
                                         <div className="relative">
-                                            <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-black group-hover:bg-indigo-600 group-hover:text-white transition">
+                                            <div className="w-8 h-8 md:w-10 md:h-10 bg-indigo-50 text-indigo-600 rounded-lg md:rounded-xl flex items-center justify-center font-black group-hover:bg-indigo-600 group-hover:text-white transition text-xs md:text-base">
                                                 {fee.student?.name?.charAt(0)}
                                             </div>
                                             {fee.isDefaulter && (
                                                 <div className="absolute -top-1 -right-1 bg-red-600 text-white p-0.5 rounded-full border-2 border-white">
-                                                    <AlertTriangle size={8} />
+                                                    <AlertTriangle size={6} className="md:w-2 md:h-2" />
                                                 </div>
                                             )}
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <div className={`font-black ${fee.isDefaulter ? 'text-red-600' : 'text-gray-800'}`}>
+                                                <div className={`font-black text-xs md:text-sm ${fee.isDefaulter ? 'text-red-600' : 'text-gray-800'}`}>
                                                     {fee.student?.name}
-                                                    {fee.isDefaulter && <span className="ml-2 text-red-600 inline-block animate-bounce">★</span>}
+                                                    {fee.isDefaulter && <span className="ml-1 text-red-600 inline-block animate-bounce">★</span>}
                                                 </div>
                                             </div>
-                                            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{fee.student?.rollNum}</div>
+                                            <div className="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{fee.student?.rollNum}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td className="py-6 px-8 text-center">
-                                    <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-black">
+                                <td className="py-4 md:py-6 px-4 md:px-8 text-center">
+                                    <span className="px-2 md:px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-[10px] md:text-xs font-black">
                                         {fee.student?.sClass?.grade}-{fee.student?.sClass?.section}
                                     </span>
                                 </td>
-                                <td className="py-6 px-8 text-right font-black text-green-600">₹{fee.totalPaid}</td>
-                                <td className={`py-6 px-8 text-right font-black ${fee.totalDue <= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                <td className="py-4 md:py-6 px-4 md:px-8 text-right font-black text-green-600 text-xs md:text-sm">₹{fee.totalPaid}</td>
+                                <td className={`py-4 md:py-6 px-4 md:px-8 text-right font-black text-xs md:text-sm ${fee.totalDue <= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                     {fee.totalDue < 0 ? `₹${Math.abs(fee.totalDue)} (Credit)` : `₹${fee.totalDue}`}
                                 </td>
-                                <td className="py-6 px-8 text-center">
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                                <td className="py-4 md:py-6 px-4 md:px-8 text-center">
+                                    <span className={`px-2 md:px-3 py-1 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-widest border ${
                                         fee.totalDue <= 0 ? 'bg-green-100 text-green-700 border-green-200' :
                                         fee.totalPaid > 0 ? 'bg-amber-100 text-amber-700 border-amber-200' :
                                         'bg-red-100 text-red-700 border-red-200'
@@ -401,20 +407,20 @@ const ManageFees = () => {
                                         {fee.totalDue <= 0 ? 'CLEARED' : fee.totalPaid > 0 ? 'PARTIAL' : 'PENDING'}
                                     </span>
                                 </td>
-                                <td className="py-6 px-8 text-right">
-                                    <div className="flex items-center justify-end gap-2">
+                                <td className="py-4 md:py-6 px-4 md:px-8 text-right">
+                                    <div className="flex items-center justify-end gap-1.5 md:gap-2">
                                         <button 
                                             onClick={() => handleToggleDefaulter(fee.student?._id, fee.isDefaulter)}
-                                            className={`p-3 rounded-xl transition shadow-sm ${fee.isDefaulter ? 'bg-amber-100 text-amber-600 hover:bg-amber-200' : 'bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-600'}`}
+                                            className={`p-2 md:p-3 rounded-lg md:rounded-xl transition shadow-sm ${fee.isDefaulter ? 'bg-amber-100 text-amber-600 hover:bg-amber-200' : 'bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-600'}`}
                                             title={fee.isDefaulter ? "Clear Defaulter Status" : "Mark as Defaulter"}
                                         >
-                                            <AlertTriangle size={18} />
+                                            <AlertTriangle size={14} className="md:w-[18px] md:h-[18px]" />
                                         </button>
                                         <button 
                                             onClick={() => { setSelectedFee(fee); setView('detail'); }}
-                                            className="p-3 bg-gray-900 text-white rounded-xl hover:bg-indigo-600 transition shadow-sm"
+                                            className="p-2 md:p-3 bg-gray-900 text-white rounded-lg md:rounded-xl hover:bg-indigo-600 transition shadow-sm"
                                         >
-                                            <ChevronRight size={18} />
+                                            <ChevronRight size={14} className="md:w-[18px] md:h-[18px]" />
                                         </button>
                                     </div>
                                 </td>
@@ -424,22 +430,22 @@ const ManageFees = () => {
                 </table>
             </div>
             {filteredFees.length === 0 && (
-                <div className="p-20 text-center text-gray-400 font-bold italic">No financial records matching your filters...</div>
+                <div className="p-10 md:p-20 text-center text-gray-400 font-bold italic text-sm md:text-base">No financial records matching your filters...</div>
             )}
         </div>
       ) : (
         /* Detail View: Monthly Grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {selectedFee.monthlyFees.map((m, idx) => {
                 const monthTotal = m.charges.reduce((acc, c) => acc + c.amount, 0);
                 const isPaid = m.status === 'Paid';
 
                 return (
-                    <div key={idx} className={`bg-white rounded-[2rem] border overflow-hidden flex flex-col transition-all ${isPaid ? 'border-green-100 shadow-sm' : 'border-gray-100 shadow-md shadow-gray-100'}`}>
-                        <div className="p-6 flex-1">
-                            <div className="flex justify-between items-start mb-4">
-                                <h3 className="text-xl font-black text-gray-800">{m.month}</h3>
-                                <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border ${
+                    <div key={idx} className={`bg-white rounded-2xl md:rounded-[2rem] border overflow-hidden flex flex-col transition-all ${isPaid ? 'border-green-100 shadow-sm' : 'border-gray-100 shadow-md shadow-gray-100'}`}>
+                        <div className="p-5 md:p-6 flex-1">
+                            <div className="flex justify-between items-start mb-3 md:mb-4">
+                                <h3 className="text-lg md:text-xl font-black text-gray-800">{m.month}</h3>
+                                <span className={`px-2 py-0.5 rounded-full text-[7px] md:text-[8px] font-black uppercase tracking-widest border ${
                                     m.status === 'Paid' ? 'bg-green-100 text-green-700 border-green-200' :
                                     m.status === 'Partial' ? 'bg-amber-100 text-amber-700 border-amber-200' :
                                     'bg-red-100 text-red-700 border-red-200'
@@ -448,20 +454,20 @@ const ManageFees = () => {
                                 </span>
                             </div>
 
-                            <div className="space-y-2 mb-6">
+                            <div className="space-y-2 mb-4 md:mb-6">
                                 {m.charges.map((c, ci) => (
-                                    <div key={ci} className="flex justify-between text-[11px] font-bold text-gray-500">
-                                        <span>{c.name}</span>
-                                        <span>₹{c.amount}</span>
+                                    <div key={ci} className="flex justify-between text-[10px] md:text-[11px] font-bold text-gray-500">
+                                        <span className="line-clamp-1 flex-1">{c.name}</span>
+                                        <span className="ml-2">₹{c.amount}</span>
                                     </div>
                                 ))}
-                                <div className="pt-2 border-t border-dashed border-gray-200 flex justify-between text-sm font-black text-gray-800">
+                                <div className="pt-2 border-t border-dashed border-gray-200 flex justify-between text-xs md:text-sm font-black text-gray-800">
                                     <span>Total</span>
                                     <span>₹{monthTotal}</span>
                                 </div>
                             </div>
 
-                            <div className="flex justify-between text-[10px] font-black uppercase mb-4">
+                            <div className="flex justify-between text-[9px] md:text-[10px] font-black uppercase mt-auto">
                                 <span className="text-indigo-600">Paid: ₹{m.paidAmount}</span>
                                 <span className={`${monthTotal - m.paidAmount <= 0 ? 'text-green-600' : 'text-red-500'}`}>
                                     {monthTotal - m.paidAmount < 0 ? `Credit: ₹${Math.abs(monthTotal - m.paidAmount)}` : `Due: ₹${monthTotal - m.paidAmount}`}
@@ -469,7 +475,7 @@ const ManageFees = () => {
                             </div>
                         </div>
 
-                        <div className="bg-gray-50 p-4 grid grid-cols-2 gap-2">
+                        <div className="bg-gray-50 p-3 md:p-4 grid grid-cols-2 gap-2">
                         <button 
                             onClick={() => { 
                                 setTargetMonth(m.month); 
@@ -477,90 +483,94 @@ const ManageFees = () => {
                                 setFormData({ ...formData, amount: monthTotal - m.paidAmount });
                             }}
                             disabled={isPaid}
-                            className={`flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition ${isPaid ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700'}`}
+                            className={`flex items-center justify-center gap-2 py-2 md:py-2.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition ${isPaid ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700'}`}
                         >
-                            <CreditCard size={12} /> Pay
+                            <CreditCard size={12} className="md:w-3.5 md:h-3.5" /> Pay
                         </button>
                         <button 
                             onClick={() => { setTargetMonth(m.month); setActiveModal('charge'); }}
-                            className="flex items-center justify-center gap-2 py-2 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition"
+                            className="flex items-center justify-center gap-2 py-2 md:py-2.5 bg-gray-900 text-white rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition"
                         >
-                            <PlusCircle size={12} /> Charge
+                            <PlusCircle size={12} className="md:w-3.5 md:h-3.5" /> Charge
                         </button>
                         </div>
-                        </div>
-                        )
-                        })}
-                        </div>
-                        )}
+                    </div>
+                );
+            })}
+        </div>
+      )}
 
-                        {/* Bulk Confirmation Modal */}
-                        {activeModal === 'confirm-bulk' && (
-                            <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                                <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in duration-200">
-                                    <div className={`p-8 text-white ${bulkAction === 'mark-defaulter' ? 'bg-red-600' : 'bg-green-600'}`}>
-                                        <AlertTriangle className="mb-4" size={40} />
-                                        <h3 className="text-2xl font-black">Confirm Bulk Action</h3>
-                                        <p className="text-white/80 text-xs font-bold uppercase tracking-widest mt-1">
-                                            Updating {selectedIds.length} student records
-                                        </p>
-                                    </div>
-                                    <div className="p-8 space-y-6">
-                                        <p className="text-gray-600 font-bold leading-relaxed">
-                                            Are you sure you want to mark these {selectedIds.length} students as <span className="font-black underline">{bulkAction === 'mark-defaulter' ? 'DEFAULTERS' : 'REGULAR'}</span>? 
-                                            This will reflect on their ID cards and they will receive a notification.
-                                        </p>
-                                        <div className="flex gap-3">
-                                            <button onClick={closeModal} className="flex-1 py-4 text-gray-400 font-black uppercase tracking-widest hover:bg-gray-50 rounded-2xl transition">Cancel</button>
-                                            <button 
-                                                onClick={handleBulkDefaulter}
-                                                className={`flex-[2] py-4 text-white font-black uppercase tracking-widest rounded-2xl shadow-lg transition ${bulkAction === 'mark-defaulter' ? 'bg-red-600 hover:bg-red-700 shadow-red-100' : 'bg-green-600 hover:bg-green-700 shadow-green-100'}`}
-                                            >
-                                                Confirm & Notify
-                                            </button>
+      {/* Bulk Confirmation Modal */}
+      {activeModal === 'confirm-bulk' && (
+          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+              <div className="bg-white rounded-3xl md:rounded-[2.5rem] shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in duration-200">
+                  <div className={`p-6 md:p-8 text-white ${bulkAction === 'mark-defaulter' ? 'bg-red-600' : 'bg-green-600'}`}>
+                      <AlertTriangle className="mb-3 md:mb-4 w-10 h-10 md:w-12 md:h-12" />
+                      <h3 className="text-xl md:text-2xl font-black">Confirm Bulk Action</h3>
+                      <p className="text-white/80 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">
+                          Updating {selectedIds.length} student records
+                      </p>
+                  </div>
+                  <div className="p-6 md:p-8 space-y-4 md:space-y-6">
+                      <p className="text-gray-600 font-bold leading-relaxed text-sm md:text-base">
+                          Are you sure you want to mark these {selectedIds.length} students as <span className="font-black underline">{bulkAction === 'mark-defaulter' ? 'DEFAULTERS' : 'REGULAR'}</span>? 
+                          This will reflect on their ID cards and they will receive a notification.
+                      </p>
+                      <div className="flex gap-2 md:gap-3">
+                          <button onClick={closeModal} className="flex-1 py-3 md:py-4 text-gray-400 font-black uppercase tracking-widest hover:bg-gray-50 rounded-xl md:rounded-2xl transition text-xs md:text-sm">Cancel</button>
+                          <button 
+                              onClick={handleBulkDefaulter}
+                              className={`flex-[2] py-3 md:py-4 text-white font-black uppercase tracking-widest rounded-xl md:rounded-2xl shadow-lg transition text-xs md:text-sm ${bulkAction === 'mark-defaulter' ? 'bg-red-600 hover:bg-red-700 shadow-red-100' : 'bg-green-600 hover:bg-green-700 shadow-green-100'}`}
+                          >
+                              Confirm & Notify
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      )}
+
+      {/* Payment Modal */}
+      {activeModal === 'payment' && (
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+            <div className="bg-white rounded-2xl md:rounded-[2.5rem] shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+                <div className="bg-green-600 p-6 md:p-8 text-white relative flex-shrink-0">
+                    <button onClick={closeModal} className="absolute top-4 right-4 p-2 text-white/50 hover:text-white transition">
+                        <X size={20} />
+                    </button>
+                    <h3 className="text-xl md:text-2xl font-black">Record Payment</h3>
+                    <p className="text-green-100 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Collecting for {targetMonth}</p>
+                </div>
+                <form onSubmit={handlePayment} className="p-6 md:p-8 space-y-4 md:space-y-5 overflow-y-auto custom-scrollbar">
+                    <div>
+                        <div className="flex justify-between items-end mb-2 px-1">
+                            <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment Amount (₹)</label>
+                            {(() => {
+                                const m = selectedFee.monthlyFees.find(mf => mf.month === targetMonth);
+                                const currentDue = m.charges.reduce((acc, c) => acc + c.amount, 0) - m.paidAmount;
+                                const remaining = currentDue - (Number(formData.amount) || 0);
+                                return (
+                                    <div className="text-right">
+                                        <div className="text-[7px] md:text-[8px] font-black text-gray-400 uppercase">Remaining Due</div>
+                                        <div className={`text-[10px] md:text-xs font-black ${remaining <= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                                            ₹{remaining.toFixed(2)}
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Payment Modal */}
-                        {activeModal === 'payment' && (
-                        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                        <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in duration-200">
-                        <div className="bg-green-600 p-8 text-white">
-                        <h3 className="text-2xl font-black">Record Payment</h3>
-                        <p className="text-green-100 text-xs font-bold uppercase tracking-widest mt-1">Collecting for {targetMonth}</p>
-                        </div>
-                        <form onSubmit={handlePayment} className="p-8 space-y-5">
-                        <div>
-                        <div className="flex justify-between items-end mb-2 px-1">
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment Amount (₹)</label>
-                        {(() => {
-                            const m = selectedFee.monthlyFees.find(mf => mf.month === targetMonth);
-                            const currentDue = m.charges.reduce((acc, c) => acc + c.amount, 0) - m.paidAmount;
-                            const remaining = currentDue - (Number(formData.amount) || 0);
-                            return (
-                                <div className="text-right">
-                                    <div className="text-[8px] font-black text-gray-400 uppercase">Remaining Due</div>
-                                    <div className={`text-xs font-black ${remaining <= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                                        ₹{remaining.toFixed(2)}
-                                    </div>
-                                </div>
-                            );
-                        })()}
+                                );
+                            })()}
                         </div>
                         <input 
-                        type="number" required
-                        className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-green-50 font-black text-gray-700"
-                        placeholder="0.00"
-                        value={formData.amount}
-                        onChange={(e) => setFormData({...formData, amount: e.target.value})}
+                            type="number" required
+                            className="w-full p-3 md:p-4 bg-gray-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-green-50 font-black text-gray-700 text-sm md:text-base"
+                            placeholder="0.00"
+                            value={formData.amount}
+                            onChange={(e) => setFormData({...formData, amount: e.target.value})}
                         />
-                        </div>                    <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Payment Mode</label>
+                    </div>
+                    <div>
+                        <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Payment Mode</label>
                         <select 
-                            className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-green-50 font-black text-gray-700"
+                            className="w-full p-3 md:p-4 bg-gray-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-green-50 font-black text-gray-700 text-sm md:text-base appearance-none cursor-pointer"
                             value={formData.paymentMethod}
                             onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
                         >
@@ -571,18 +581,18 @@ const ManageFees = () => {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Internal Remarks</label>
+                        <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Internal Remarks</label>
                         <input 
                             type="text"
-                            className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-green-50 font-bold text-gray-700"
-                            placeholder="Transaction ID or Receipt No..."
+                            className="w-full p-3 md:p-4 bg-gray-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-green-50 font-bold text-gray-700 text-sm md:text-base"
+                            placeholder="Txn ID or Receipt No..."
                             value={formData.remarks}
                             onChange={(e) => setFormData({...formData, remarks: e.target.value})}
                         />
                     </div>
-                    <div className="pt-4 flex gap-3">
-                        <button type="button" onClick={closeModal} className="flex-1 py-4 text-gray-400 font-black uppercase tracking-widest hover:bg-gray-50 rounded-2xl transition">Cancel</button>
-                        <button type="submit" className="flex-[2] py-4 bg-green-600 text-white font-black uppercase tracking-widest hover:bg-green-700 rounded-2xl shadow-lg shadow-green-100 transition">Complete Transaction</button>
+                    <div className="pt-4 flex gap-2 md:gap-3 flex-shrink-0">
+                        <button type="button" onClick={closeModal} className="flex-1 py-3 md:py-4 text-gray-400 font-black uppercase tracking-widest hover:bg-gray-50 rounded-xl md:rounded-2xl transition text-xs md:text-sm">Cancel</button>
+                        <button type="submit" className="flex-[2] py-3 md:py-4 bg-green-600 text-white font-black uppercase tracking-widest hover:bg-green-700 rounded-xl md:rounded-2xl shadow-lg shadow-green-100 transition text-xs md:text-sm">Complete</button>
                     </div>
                 </form>
             </div>
@@ -591,46 +601,49 @@ const ManageFees = () => {
 
       {/* Extra Charge Modal */}
       {activeModal === 'charge' && (
-        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in duration-200">
-                <div className="bg-gray-900 p-8 text-white">
-                    <h3 className="text-2xl font-black">Apply New Charge</h3>
-                    <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Adding item to {targetMonth} invoice</p>
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+            <div className="bg-white rounded-2xl md:rounded-[2.5rem] shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+                <div className="bg-gray-900 p-6 md:p-8 text-white relative flex-shrink-0">
+                    <button onClick={closeModal} className="absolute top-4 right-4 p-2 text-white/50 hover:text-white transition">
+                        <X size={20} />
+                    </button>
+                    <h3 className="text-xl md:text-2xl font-black">Apply New Charge</h3>
+                    <p className="text-gray-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Adding to {targetMonth} invoice</p>
                 </div>
-                <form onSubmit={handleAddCharge} className="p-8 space-y-5">
+                <form onSubmit={handleAddCharge} className="p-6 md:p-8 space-y-4 md:space-y-5 overflow-y-auto custom-scrollbar">
                     <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Charge Type/Name</label>
+                        <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Charge Type/Name</label>
                         <input 
                             type="text" required
-                            className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700"
-                            placeholder="e.g. Exam Fee, Annual Tour, Library Fine"
+                            className="w-full p-3 md:p-4 bg-gray-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700 text-sm md:text-base"
+                            placeholder="e.g. Exam Fee, Library Fine"
                             value={formData.chargeName}
                             onChange={(e) => setFormData({...formData, chargeName: e.target.value})}
                         />
                     </div>
                     <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Amount (₹)</label>
+                        <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Amount (₹)</label>
                         <input 
                             type="number" required
-                            className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700"
+                            className="w-full p-3 md:p-4 bg-gray-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700 text-sm md:text-base"
                             placeholder="0.00"
                             value={formData.amount}
                             onChange={(e) => setFormData({...formData, amount: e.target.value})}
                         />
                     </div>
                     <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Description (Optional)</label>
+                        <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Description</label>
                         <input 
                             type="text"
-                            className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-50 font-bold text-gray-700"
-                            placeholder="Brief details for the student..."
+                            className="w-full p-3 md:p-4 bg-gray-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-indigo-50 font-bold text-gray-700 text-sm md:text-base"
+                            placeholder="Brief details..."
                             value={formData.chargeDescription}
                             onChange={(e) => setFormData({...formData, chargeDescription: e.target.value})}
                         />
                     </div>
-                    <div className="pt-4 flex gap-3">
-                        <button type="button" onClick={closeModal} className="flex-1 py-4 text-gray-400 font-black uppercase tracking-widest hover:bg-gray-50 rounded-2xl transition">Cancel</button>
-                        <button type="submit" className="flex-[2] py-4 bg-indigo-600 text-white font-black uppercase tracking-widest hover:bg-indigo-700 rounded-2xl shadow-lg shadow-indigo-100 transition">Apply to Ledger</button>
+                    <div className="pt-4 flex gap-2 md:gap-3 flex-shrink-0">
+                        <button type="button" onClick={closeModal} className="flex-1 py-3 md:py-4 text-gray-400 font-black uppercase tracking-widest hover:bg-gray-50 rounded-xl md:rounded-2xl transition text-xs md:text-sm">Cancel</button>
+                        <button type="submit" className="flex-[2] py-3 md:py-4 bg-indigo-600 text-white font-black uppercase tracking-widest hover:bg-indigo-700 rounded-xl md:rounded-2xl shadow-lg shadow-indigo-100 transition text-xs md:text-sm">Apply Charge</button>
                     </div>
                 </form>
             </div>
@@ -639,82 +652,61 @@ const ManageFees = () => {
 
       {/* Bulk Apply Modal */}
       {activeModal === 'bulk' && (
-        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden animate-in zoom-in duration-200">
-                <div className="bg-indigo-600 p-8 text-white">
-                    <h3 className="text-2xl font-black">Bulk Charge Operation</h3>
-                    <p className="text-indigo-100 text-xs font-bold uppercase tracking-widest mt-1">Apply charges to multiple students at once</p>
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+            <div className="bg-white rounded-2xl md:rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden animate-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+                <div className="bg-indigo-600 p-6 md:p-8 text-white relative flex-shrink-0">
+                    <button onClick={closeModal} className="absolute top-4 right-4 p-2 text-white/50 hover:text-white transition">
+                        <X size={20} />
+                    </button>
+                    <h3 className="text-xl md:text-2xl font-black">Bulk Charge Operation</h3>
+                    <p className="text-indigo-100 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Apply to multiple students</p>
                 </div>
-                <form onSubmit={handleBulkApply} className="p-8 space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form onSubmit={handleBulkApply} className="p-6 md:p-8 space-y-4 md:space-y-6 overflow-y-auto custom-scrollbar">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Target Group</label>
+                                <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Target Group</label>
                                 <select 
-                                    className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700"
+                                    className="w-full p-3 md:p-4 bg-gray-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700 text-sm md:text-base appearance-none cursor-pointer"
                                     value={bulkData.type}
                                     onChange={(e) => setBulkData({...bulkData, type: e.target.value, targetIds: []})}
                                 >
-                                    <option value="all">Everyone (All Students)</option>
-                                    <option value="class">Specific Class</option>
+                                    <option value="all">Everyone</option>
+                                    <option value="class">Specific Grade</option>
                                     <option value="section">Specific Section</option>
-                                    <option value="students">Specific Students (Multi-select)</option>
+                                    <option value="students">Specific Students</option>
                                 </select>
                             </div>
 
-                            {bulkData.type === 'class' && (
-                                <div>
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Select Class</label>
+                            {bulkData.type !== 'all' && (
+                                <div className="animate-in slide-in-from-top-2">
+                                    <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">
+                                        Select {bulkData.type === 'class' ? 'Grades' : bulkData.type === 'section' ? 'Sections' : 'Students'}
+                                    </label>
                                     <select 
                                         multiple
-                                        className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700 min-h-[120px]"
+                                        className="w-full p-3 md:p-4 bg-gray-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700 min-h-[100px] md:min-h-[120px] text-xs md:text-sm"
                                         value={bulkData.targetIds}
                                         onChange={(e) => setBulkData({...bulkData, targetIds: Array.from(e.target.selectedOptions, option => option.value)})}
                                     >
-                                        {Array.from(new Set(classes.map(c => c.grade))).map(grade => (
+                                        {bulkData.type === 'class' && Array.from(new Set(classes.map(c => c.grade))).map(grade => (
                                             <option key={grade} value={grade}>Grade {grade}</option>
                                         ))}
-                                    </select>
-                                    <p className="text-[9px] text-gray-400 mt-1 ml-1 font-bold">Hold Ctrl/Cmd to select multiple grades</p>
-                                </div>
-                            )}
-
-                            {bulkData.type === 'section' && (
-                                <div>
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Select Sections</label>
-                                    <select 
-                                        multiple
-                                        className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700 min-h-[120px]"
-                                        value={bulkData.targetIds}
-                                        onChange={(e) => setBulkData({...bulkData, targetIds: Array.from(e.target.selectedOptions, option => option.value)})}
-                                    >
-                                        {classes.map(c => (
+                                        {bulkData.type === 'section' && classes.map(c => (
                                             <option key={c._id} value={c._id}>{c.grade}-{c.section}</option>
                                         ))}
-                                    </select>
-                                </div>
-                            )}
-
-                            {bulkData.type === 'students' && (
-                                <div>
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Select Students</label>
-                                    <select 
-                                        multiple
-                                        className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700 min-h-[120px]"
-                                        value={bulkData.targetIds}
-                                        onChange={(e) => setBulkData({...bulkData, targetIds: Array.from(e.target.selectedOptions, option => option.value)})}
-                                    >
-                                        {fees.map(f => (
+                                        {bulkData.type === 'students' && fees.map(f => (
                                             <option key={f.student?._id} value={f.student?._id}>{f.student?.name} ({f.student?.rollNum})</option>
                                         ))}
                                     </select>
+                                    <p className="text-[7px] md:text-[8px] text-gray-400 mt-1.5 ml-1 font-bold uppercase">Hold Ctrl/Cmd to multi-select</p>
                                 </div>
                             )}
 
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Target Month</label>
+                                <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Target Month</label>
                                 <select 
-                                    className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700"
+                                    className="w-full p-3 md:p-4 bg-gray-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700 text-sm md:text-base appearance-none cursor-pointer"
                                     value={bulkData.month}
                                     onChange={(e) => setBulkData({...bulkData, month: e.target.value})}
                                 >
@@ -725,29 +717,29 @@ const ManageFees = () => {
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Charge Name</label>
+                                <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Charge Name</label>
                                 <input 
                                     type="text" required
-                                    className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700"
+                                    className="w-full p-3 md:p-4 bg-gray-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700 text-sm md:text-base"
                                     placeholder="e.g. Annual Sports Fee"
                                     value={bulkData.name}
                                     onChange={(e) => setBulkData({...bulkData, name: e.target.value})}
                                 />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Amount (₹)</label>
+                                <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Amount (₹)</label>
                                 <input 
                                     type="number" required
-                                    className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700"
+                                    className="w-full p-3 md:p-4 bg-gray-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-indigo-50 font-black text-gray-700 text-sm md:text-base"
                                     placeholder="0.00"
                                     value={bulkData.amount}
                                     onChange={(e) => setBulkData({...bulkData, amount: e.target.value})}
                                 />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Description</label>
+                                <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Description</label>
                                 <textarea 
-                                    className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-50 font-bold text-gray-700 min-h-[100px]"
+                                    className="w-full p-3 md:p-4 bg-gray-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-indigo-50 font-bold text-gray-700 min-h-[80px] md:min-h-[100px] text-sm md:text-base"
                                     placeholder="Optional details..."
                                     value={bulkData.description}
                                     onChange={(e) => setBulkData({...bulkData, description: e.target.value})}
@@ -756,9 +748,9 @@ const ManageFees = () => {
                         </div>
                     </div>
 
-                    <div className="pt-4 flex gap-3">
-                        <button type="button" onClick={closeModal} className="flex-1 py-4 text-gray-400 font-black uppercase tracking-widest hover:bg-gray-50 rounded-2xl transition">Cancel</button>
-                        <button type="submit" className="flex-[2] py-4 bg-indigo-600 text-white font-black uppercase tracking-widest hover:bg-indigo-700 rounded-2xl shadow-lg shadow-indigo-100 transition">Execute Bulk Charge</button>
+                    <div className="pt-2 flex gap-2 md:gap-3 flex-shrink-0">
+                        <button type="button" onClick={closeModal} className="flex-1 py-3 md:py-4 text-gray-400 font-black uppercase tracking-widest hover:bg-gray-50 rounded-xl md:rounded-2xl transition text-xs md:text-sm">Cancel</button>
+                        <button type="submit" className="flex-[2] py-3 md:py-4 bg-indigo-600 text-white font-black uppercase tracking-widest hover:bg-indigo-700 rounded-xl md:rounded-2xl shadow-lg shadow-indigo-100 transition text-xs md:text-sm">Execute Bulk Charge</button>
                     </div>
                 </form>
             </div>

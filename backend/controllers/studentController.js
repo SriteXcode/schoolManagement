@@ -5,7 +5,7 @@ const Fee = require("../models/feeSchema");
 
 exports.registerStudent = async (req, res) => {
   try {
-    const { name, classId, gender, guardianName, phone } = req.body;
+    const { name, classId, gender, guardianName, phone, transportMode, bus } = req.body;
 
     if (!classId || !name || !phone) {
         return res.status(400).json({ message: "Name, Class, and Phone are required." });
@@ -50,6 +50,8 @@ exports.registerStudent = async (req, res) => {
       sClass: classId,
       gender,
       guardianName,
+      transportMode: transportMode || "By Foot",
+      bus: transportMode === "Bus" ? bus : null
     });
 
     // Initial Fee Record
@@ -70,7 +72,7 @@ exports.registerStudent = async (req, res) => {
 
 exports.getStudents = async (req, res) => {
   try {
-    const students = await Student.find().populate("user", "-password").populate("sClass");
+    const students = await Student.find().populate("user", "-password").populate("sClass").populate("bus");
     res.status(200).json(students);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -82,6 +84,7 @@ exports.getStudentsByClass = async (req, res) => {
     const { id } = req.params;
     const students = await Student.find({ sClass: id })
       .populate("user", "-password")
+      .populate("bus")
       .populate("reviews.reviewer", "name role");
     
     // Fetch fee records to check for defaulters
@@ -140,6 +143,7 @@ exports.getStudentProfile = async (req, res) => {
   try {
     const student = await Student.findOne({ user: req.user._id })
         .populate("sClass")
+        .populate("bus")
         .populate("reviews.reviewer", "name role");
     if (!student) {
       return res.status(404).json({ message: "Student profile not found" });
@@ -153,7 +157,7 @@ exports.getStudentProfile = async (req, res) => {
 exports.updateStudent = async (req, res) => {
   try {
     const { id } = req.params; // Student ID (from Student collection)
-    const { name, rollNum, gender, guardianName, email, phone, classId, category, address, achievements, bloodGroup, profileImage, remark } = req.body;
+    const { name, rollNum, gender, guardianName, email, phone, classId, category, address, achievements, bloodGroup, profileImage, remark, transportMode, bus } = req.body;
 
     const student = await Student.findById(id);
     if (!student) {
@@ -178,6 +182,12 @@ exports.updateStudent = async (req, res) => {
     if (bloodGroup) student.bloodGroup = bloodGroup;
     if (profileImage) student.profileImage = profileImage;
     if (remark !== undefined) student.remark = remark;
+    if (transportMode) student.transportMode = transportMode;
+    if (transportMode === "Bus") {
+        if (bus) student.bus = bus;
+    } else if (transportMode) {
+        student.bus = null;
+    }
     
     await student.save();
 

@@ -10,6 +10,11 @@ const sportsRecordSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  sportsType: {
+    type: String,
+    enum: ["Indoor", "Outdoor", "Other"],
+    default: "Outdoor",
+  },
   role: {
     type: String, // e.g., Captain, Player
   },

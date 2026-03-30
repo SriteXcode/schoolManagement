@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import api from '../../api/axios';
-import { FaChalkboardTeacher, FaBook, FaStar, FaRegStar, FaQuoteLeft, FaBullhorn, FaTimes } from 'react-icons/fa';
-import { AlertTriangle } from 'lucide-react';
+import { FaChalkboardTeacher, FaBook, FaStar, FaRegStar, FaQuoteLeft, FaBullhorn, FaTimes, FaCalendarCheck, FaPencilRuler, FaCalendarAlt } from 'react-icons/fa';
+import { AlertTriangle, Trophy } from 'lucide-react';
 
 const StudentHome = () => {
   const { student } = useOutletContext();
@@ -10,23 +10,41 @@ const StudentHome = () => {
   const [classDetails, setClassDetails] = useState(null);
   const [syllabusList, setSyllabusList] = useState([]);
   const [feeRecord, setFeeRecord] = useState(null);
-  const [loadingClass, setLoadingClass] = useState(true);
-  const [loadingSyllabus, setLoadingSyllabus] = useState(true);
   const [selectedNotice, setSelectedNotice] = useState(null);
   const [selectedReview, setSelectedReview] = useState(null);
-  const [selectedSyllabus, setSelectedSyllabus] = useState(null);
+
+  // New Data Feeds
+  const [upcomingExams, setUpcomingExams] = useState([]);
+  const [pendingHomework, setPendingHomework] = useState([]);
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    const fetchNotices = async () => {
+    const fetchData = async () => {
       try {
-        const res = await api.get('/notice/getall');
-        setNotices(res.data);
-      } catch (err) {
-        console.error(err);
-      }
+        const noticeRes = await api.get('/notice/getall');
+        setNotices(noticeRes.data);
+        
+        const eventRes = await api.get('/events/getall');
+        setEvents(eventRes.data.filter(e => new Date(e.date) >= new Date()).slice(0, 5));
+      } catch (err) {}
     };
-    fetchNotices();
+    fetchData();
   }, []);
+
+  useEffect(() => {
+    const fetchAcademicFeeds = async () => {
+        if (!student?.sClass?._id) return;
+        try {
+            const [examRes, homeworkRes] = await Promise.all([
+                api.get(`/exam/${student.sClass._id}`),
+                api.get(`/homework/${student.sClass._id}`)
+            ]);
+            setUpcomingExams(examRes.data.filter(e => new Date(e.date) >= new Date()).slice(0, 5));
+            setPendingHomework(homeworkRes.data.slice(0, 5));
+        } catch (err) {}
+    };
+    fetchAcademicFeeds();
+  }, [student]);
 
   useEffect(() => {
     const fetchFeeRecord = async () => {
@@ -193,10 +211,91 @@ const StudentHome = () => {
             </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 text-left">
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-12">
                 
+                {/* Upcoming Assessments */}
+                <div className="bg-white rounded-[2.5rem] shadow-soft p-10">
+                    <div className="flex items-center justify-between mb-10">
+                        <h2 className="text-fluid-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                            <div className="bg-red-50 p-2 rounded-xl text-red-600">
+                                <FaCalendarCheck />
+                            </div>
+                            Upcoming Assessments
+                        </h2>
+                        <div className="text-fluid-xs font-black uppercase text-slate-400 tracking-widest">Next 7 Days</div>
+                    </div>
+                    
+                    <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4">
+                        {upcomingExams.length > 0 ? upcomingExams.map((exam, idx) => (
+                            <div key={idx} className="min-w-[280px] max-w-[320px] flex-shrink-0 p-6 rounded-3xl bg-red-50/50 hover:bg-white hover:shadow-lg transition-all group snap-start border border-red-100/50">
+                                <div className="flex justify-between items-start mb-6">
+                                    <div className="text-left">
+                                        <h4 className="font-black text-slate-900 leading-tight text-fluid-base">{exam.subject}</h4>
+                                        <p className="text-fluid-xs text-red-600 uppercase font-black tracking-widest mt-1.5">{exam.name}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Max</div>
+                                        <div className="text-lg font-black text-slate-900">{exam.maxMarks}</div>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                                        <Calendar size={14} className="text-red-400" />
+                                        {new Date(exam.date).toLocaleDateString()}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                                        <Clock size={14} className="text-red-400" />
+                                        {exam.time} ({exam.shift})
+                                    </div>
+                                </div>
+                            </div>
+                        )) : (
+                            <div className="w-full text-center py-12 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100">
+                                <p className="text-slate-400 font-bold">No exams scheduled currently.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Home Learning (Homework) */}
+                <div className="bg-white rounded-[2.5rem] shadow-soft p-10">
+                    <div className="flex items-center justify-between mb-10">
+                        <h2 className="text-fluid-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                            <div className="bg-amber-50 p-2 rounded-xl text-amber-600">
+                                <FaPencilRuler />
+                            </div>
+                            Home Learning
+                        </h2>
+                        <div className="text-fluid-xs font-black uppercase text-slate-400 tracking-widest">Pending Tasks</div>
+                    </div>
+                    
+                    <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4">
+                        {pendingHomework.length > 0 ? pendingHomework.map((hw, idx) => (
+                            <div key={idx} className="min-w-[280px] max-w-[320px] flex-shrink-0 p-6 rounded-3xl bg-amber-50/50 hover:bg-white hover:shadow-lg transition-all group snap-start border border-amber-100/50">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="text-left">
+                                        <h4 className="font-black text-slate-900 leading-tight text-fluid-base">{hw.subject}</h4>
+                                        <p className="text-[10px] text-amber-600 uppercase font-black tracking-widest mt-1">Due: {new Date(hw.dueDate).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                                <p className="text-xs font-bold text-slate-600 line-clamp-3 mb-4 italic">"{hw.description}"</p>
+                                <div className="flex items-center gap-2 pt-4 border-t border-amber-100/50">
+                                    <div className="w-6 h-6 rounded-lg bg-white flex items-center justify-center text-[10px] font-black text-amber-600 shadow-sm">
+                                        {hw.teacher?.name?.charAt(0) || 'T'}
+                                    </div>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{hw.teacher?.name}</span>
+                                </div>
+                            </div>
+                        )) : (
+                            <div className="w-full text-center py-12 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-100">
+                                <p className="text-slate-400 font-bold">Excellent! No pending assignments.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 {/* Syllabus Tracking Section */}
                 <div className="bg-white rounded-[2.5rem] shadow-soft p-10">
                     <div className="flex items-center justify-between mb-10">
@@ -353,7 +452,37 @@ const StudentHome = () => {
                     </div>
                 </div>
 
-                {/* Bulletins Section - Horizontal Row */}
+                {/* Events & Activities Section */}
+                <div className="bg-white rounded-[2.5rem] shadow-soft p-10 overflow-hidden">
+                    <h2 className="text-fluid-2xl font-black text-slate-900 mb-8 flex items-center gap-3 tracking-tight">
+                        <div className="bg-blue-50 p-2 rounded-xl text-blue-500">
+                            <FaCalendarAlt />
+                        </div>
+                        Events & Activities
+                    </h2>
+                    
+                    <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4">
+                        {events.length > 0 ? events.map((event, idx) => (
+                            <div 
+                                key={idx} 
+                                className="min-w-[260px] flex-shrink-0 snap-start p-6 bg-blue-50/50 rounded-3xl border border-blue-100/50"
+                            >
+                                <div className="flex justify-between items-center mb-4">
+                                    <span className="text-fluid-xs font-black text-blue-600 uppercase tracking-widest">{new Date(event.date).toLocaleDateString()}</span>
+                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[8px] font-black uppercase">{event.type}</span>
+                                </div>
+                                <h4 className="font-black text-slate-800 text-fluid-base leading-tight mb-2">{event.title}</h4>
+                                <p className="text-xs font-bold text-gray-500 line-clamp-2 italic">"{event.description}"</p>
+                            </div>
+                        )) : (
+                            <div className="w-full text-center py-10 bg-slate-50 rounded-3xl">
+                                <p className="text-slate-400 font-bold italic">No events on the horizon.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Bulletins Section */}
                 <div className="bg-white rounded-[2.5rem] shadow-soft p-10 overflow-hidden">
                     <h2 className="text-fluid-2xl font-black text-slate-900 mb-8 flex items-center gap-3 tracking-tight">
                         <div className="bg-orange-50 p-2 rounded-xl text-orange-500">

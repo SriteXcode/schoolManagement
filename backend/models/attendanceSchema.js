@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
 
 const attendanceSchema = new mongoose.Schema({
-  student: {
+  staff: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Student",
     required: true,
+    refPath: "staffModel",
   },
-  sClass: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Class",
+  staffModel: {
+    type: String,
     required: true,
+    enum: ["Teacher", "Staff"],
   },
   date: {
     type: Date,
@@ -17,8 +17,11 @@ const attendanceSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Present", "Absent"],
+    enum: ["Present", "Absent", "Late", "Half Day"],
     required: true,
+  },
+  remark: {
+    type: String,
   },
 }, { timestamps: true });
 

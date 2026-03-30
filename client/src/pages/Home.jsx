@@ -1,12 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { FaUserGraduate, FaChalkboardTeacher, FaSchool, FaPaperPlane } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaUserGraduate, FaChalkboardTeacher, FaSchool, FaPaperPlane, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 
 const Home = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [carouselItems, setCarouselItems] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+      const fetchCarousel = async () => {
+          try {
+              const res = await api.get('/management/carousel/all');
+              setCarouselItems(res.data);
+          } catch (e) {}
+      };
+      fetchCarousel();
+  }, []);
+
+  useEffect(() => {
+      if (carouselItems.length > 0) {
+          const timer = setInterval(() => {
+              setCurrentIndex(prev => (prev + 1) % carouselItems.length);
+          }, 5000);
+          return () => clearInterval(timer);
+      }
+  }, [carouselItems]);
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -49,6 +70,68 @@ const Home = () => {
         >
           A seamless, borderless platform for Students, Teachers, and Admin to achieve academic excellence.
         </motion.p>
+
+        {/* Carousel Section */}
+        {carouselItems.length > 0 && (
+            <div className="w-full max-w-6xl h-[300px] md:h-[500px] relative rounded-[3rem] overflow-hidden shadow-2xl mb-20 group">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={currentIndex}
+                        initial={{ opacity: 0, x: 100 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -100 }}
+                        transition={{ duration: 0.5 }}
+                        className="absolute inset-0"
+                    >
+                        <img 
+                            src={carouselItems[currentIndex].image} 
+                            alt={carouselItems[currentIndex].title}
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 md:p-16 text-left">
+                            <motion.h2 
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                className="text-white text-3xl md:text-5xl font-black mb-2"
+                            >
+                                {carouselItems[currentIndex].title}
+                            </motion.h2>
+                            <motion.p 
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.1 }}
+                                className="text-white/80 text-lg md:text-xl font-bold"
+                            >
+                                {carouselItems[currentIndex].subtitle}
+                            </motion.p>
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
+                
+                <button 
+                    onClick={() => setCurrentIndex(prev => (prev - 1 + carouselItems.length) % carouselItems.length)}
+                    className="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all opacity-0 group-hover:opacity-100"
+                >
+                    <FaChevronLeft />
+                </button>
+                <button 
+                    onClick={() => setCurrentIndex(prev => (prev + 1) % carouselItems.length)}
+                    className="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all opacity-0 group-hover:opacity-100"
+                >
+                    <FaChevronRight />
+                </button>
+
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3">
+                    {carouselItems.map((_, i) => (
+                        <button 
+                            key={i} 
+                            onClick={() => setCurrentIndex(i)}
+                            className={`w-3 h-3 rounded-full transition-all ${currentIndex === i ? 'bg-indigo-500 w-8' : 'bg-white/30 hover:bg-white/50'}`}
+                        />
+                    ))}
+                </div>
+            </div>
+        )}
 
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

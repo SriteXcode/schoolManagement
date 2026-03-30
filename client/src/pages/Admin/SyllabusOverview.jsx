@@ -112,43 +112,45 @@ const SyllabusOverview = () => {
   if (loading) return <div className="p-20 text-center font-black text-gray-300 animate-pulse">ORCHESTRATING ACADEMIC DATA...</div>;
 
   return (
-    <div className="space-y-8 p-6">
+    <div className="space-y-6 md:space-y-8 p-4 md:p-6">
       {/* Header & Stats Dashboard */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-        <div>
-          <div className="flex items-center gap-4 mb-2">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 md:gap-6">
+        <div className="w-full">
+          <div className="flex items-center gap-3 md:gap-4 mb-2">
             {view !== 'classes' && (
                 <button 
                     onClick={() => setView(view === 'details' ? 'subjects' : 'classes')}
-                    className="p-3 hover:bg-white rounded-2xl shadow-sm transition text-indigo-600"
+                    className="p-2 md:p-3 hover:bg-white rounded-xl md:rounded-2xl shadow-sm transition text-indigo-600 border border-gray-100 bg-white"
                 >
-                    <FaArrowLeft />
+                    <FaArrowLeft size={14} />
                 </button>
             )}
-            <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+            <h1 className="text-2xl md:text-4xl font-black text-gray-900 tracking-tight">
                 {view === 'classes' && "Academic Mastery"}
                 {view === 'subjects' && `Class ${selectedClass?.grade}-${selectedClass?.section}`}
                 {view === 'details' && selectedSyllabus?.subject}
             </h1>
           </div>
-          <p className="text-gray-500 font-bold ml-1">{view === 'classes' ? "Global curriculum tracking and progress analytics." : `Faculty: ${selectedSyllabus?.teacher?.name || 'Unassigned'}`}</p>
+          <p className="text-gray-500 font-bold ml-1 text-xs md:text-sm">
+            {view === 'classes' ? "Global curriculum tracking and progress analytics." : `Faculty: ${selectedSyllabus?.teacher?.name || 'Unassigned'}`}
+          </p>
         </div>
 
         {view === 'classes' && (
-            <div className="flex gap-4 w-full lg:w-auto">
+            <div className="flex gap-3 w-full lg:w-auto">
                 <div className="relative flex-1 lg:w-80">
                     <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input 
                         type="text" 
                         placeholder="Search class..." 
-                        className="pl-12 pr-6 py-4 w-full rounded-2xl border-none bg-white shadow-sm focus:ring-4 focus:ring-indigo-50 font-bold text-gray-700"
+                        className="pl-11 pr-4 py-3 md:py-4 w-full rounded-xl md:rounded-2xl border-none bg-white shadow-sm focus:ring-4 focus:ring-indigo-50 font-bold text-gray-700 text-sm md:text-base"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
                 <button 
                     onClick={() => setIsModalOpen(true)}
-                    className="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-100 hover:scale-105 transition"
+                    className="p-3 md:p-4 bg-indigo-600 text-white rounded-xl md:rounded-2xl shadow-lg shadow-indigo-100 hover:scale-105 transition flex items-center justify-center"
                 >
                     <FaPlus />
                 </button>
@@ -158,7 +160,7 @@ const SyllabusOverview = () => {
 
       {/* View 1: Class Command Grid */}
       {view === 'classes' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
               {trackedClasses
                 .filter(c => `${c.grade}-${c.section}`.toLowerCase().includes(searchTerm.toLowerCase()))
                 .map(c => {
@@ -171,22 +173,22 @@ const SyllabusOverview = () => {
                     <div 
                         key={c._id} 
                         onClick={() => { setSelectedClass(c); setView('subjects'); }}
-                        className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-transparent hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-50/50 transition-all cursor-pointer group relative overflow-hidden"
+                        className="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] shadow-sm border border-transparent hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-50/50 transition-all cursor-pointer group relative overflow-hidden"
                     >
-                        <div className={`absolute top-0 right-0 p-6 text-4xl opacity-5 transition-transform group-hover:scale-110 ${avgProgress > 80 ? 'text-green-600' : 'text-indigo-600'}`}>
+                        <div className={`absolute top-0 right-0 p-4 md:p-6 text-3xl md:text-4xl opacity-5 transition-transform group-hover:scale-110 ${avgProgress > 80 ? 'text-green-600' : 'text-indigo-600'}`}>
                             <FaGraduationCap />
                         </div>
-                        <div className="mb-6">
-                            <h3 className="text-3xl font-black text-gray-800">Class {c.grade}-{c.section}</h3>
-                            <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">{subs.length} Subjects Active</p>
+                        <div className="mb-4 md:mb-6">
+                            <h3 className="text-2xl md:text-3xl font-black text-gray-800">Class {c.grade}-{c.section}</h3>
+                            <p className="text-[10px] md:text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">{subs.length} Subjects Active</p>
                         </div>
                         
-                        <div className="space-y-4">
+                        <div className="space-y-3 md:space-y-4">
                             <div className="flex justify-between items-end">
                                 <span className="text-[10px] font-black text-gray-400 uppercase">Average Progress</span>
-                                <span className={`text-xl font-black ${avgProgress > 80 ? 'text-green-600' : 'text-indigo-600'}`}>{avgProgress}%</span>
+                                <span className={`text-lg md:text-xl font-black ${avgProgress > 80 ? 'text-green-600' : 'text-indigo-600'}`}>{avgProgress}%</span>
                             </div>
-                            <div className="w-full bg-gray-50 h-3 rounded-full overflow-hidden">
+                            <div className="w-full bg-gray-50 h-2 md:h-3 rounded-full overflow-hidden">
                                 <div 
                                     className={`h-full rounded-full transition-all duration-1000 ${avgProgress > 80 ? 'bg-green-500' : 'bg-indigo-500'}`}
                                     style={{ width: `${avgProgress}%` }}
@@ -194,36 +196,37 @@ const SyllabusOverview = () => {
                             </div>
                         </div>
 
-                        <div className="mt-8 flex items-center justify-between">
-                            <span className="px-4 py-2 bg-gray-50 text-gray-500 rounded-xl text-xs font-black group-hover:bg-indigo-600 group-hover:text-white transition">EXPLORE</span>
+                        <div className="mt-6 md:mt-8 flex items-center justify-between">
+                            <span className="px-3 md:px-4 py-1.5 md:py-2 bg-gray-50 text-gray-500 rounded-lg md:rounded-xl text-[10px] font-black group-hover:bg-indigo-600 group-hover:text-white transition uppercase tracking-widest">EXPLORE</span>
                             {avgProgress < 30 && <FaExclamationTriangle className="text-amber-400 animate-pulse" />}
                         </div>
                     </div>
                 )})
               }
+              {trackedClasses.length === 0 && <div className="col-span-full py-20 text-center text-gray-400 font-bold uppercase tracking-widest text-sm">No active classes tracked.</div>}
           </div>
       )}
 
       {/* View 2: Detailed Subject Matrix */}
       {view === 'subjects' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
               {getSubjectsForClass(selectedClass._id).map(s => (
                   <div 
                     key={s._id}
-                    className="bg-white rounded-[2rem] border border-gray-50 shadow-sm overflow-hidden hover:shadow-lg transition-all group"
+                    className="bg-white rounded-3xl border border-gray-50 shadow-sm overflow-hidden hover:shadow-lg transition-all group"
                   >
-                      <div className="p-8">
-                          <div className="flex justify-between items-start mb-6">
+                      <div className="p-6 md:p-8">
+                          <div className="flex justify-between items-start mb-4 md:mb-6">
                               <div>
-                                  <h3 className="text-2xl font-black text-gray-800 group-hover:text-indigo-600 transition">{s.subject}</h3>
-                                  <p className="text-xs font-bold text-gray-400 uppercase mt-1 tracking-widest">{s.teacher?.name}</p>
+                                  <h3 className="text-xl md:text-2xl font-black text-gray-800 group-hover:text-indigo-600 transition line-clamp-1">{s.subject}</h3>
+                                  <p className="text-[10px] md:text-xs font-bold text-gray-400 uppercase mt-1 tracking-widest line-clamp-1">{s.teacher?.name}</p>
                               </div>
-                              <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
-                                  <FaChartLine />
+                              <div className="p-2.5 md:p-3 bg-indigo-50 text-indigo-600 rounded-xl md:rounded-2xl">
+                                  <FaChartLine size={14} />
                               </div>
                           </div>
 
-                          <div className="mb-8">
+                          <div className="mb-6 md:mb-8">
                               <div className="flex justify-between text-[10px] font-black text-gray-400 uppercase mb-2">
                                   <span>Curriculum Status</span>
                                   <span>{s.totalProgress}%</span>
@@ -236,10 +239,10 @@ const SyllabusOverview = () => {
                               </div>
                           </div>
 
-                          <div className="flex gap-3">
+                          <div className="flex gap-2 md:gap-3">
                               <button 
                                 onClick={() => { setSelectedSyllabus(s); setView('details'); }}
-                                className="flex-1 py-3 bg-gray-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition"
+                                className="flex-1 py-3 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition"
                               >
                                 View Details
                               </button>
@@ -247,7 +250,7 @@ const SyllabusOverview = () => {
                                 onClick={() => handleDelete(s._id)}
                                 className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition"
                               >
-                                <FaTrashAlt />
+                                <FaTrashAlt size={14} />
                               </button>
                           </div>
                       </div>
@@ -258,35 +261,35 @@ const SyllabusOverview = () => {
 
       {/* View 3: Granular Chapter Timeline */}
       {view === 'details' && selectedSyllabus && (
-          <div className="max-w-4xl mx-auto bg-white rounded-[3rem] shadow-xl shadow-indigo-100/20 overflow-hidden border border-gray-100">
-              <div className="p-12 bg-gradient-to-br from-indigo-600 to-indigo-800 text-white text-center">
-                  <h2 className="text-5xl font-black mb-4">{selectedSyllabus.totalProgress}%</h2>
-                  <p className="text-indigo-100 font-bold uppercase tracking-widest text-xs mb-8">Overall Subject Mastery</p>
+          <div className="max-w-4xl mx-auto bg-white rounded-3xl md:rounded-[3rem] shadow-xl shadow-indigo-100/20 overflow-hidden border border-gray-100">
+              <div className="p-8 md:p-12 bg-gradient-to-br from-indigo-600 to-indigo-800 text-white text-center">
+                  <h2 className="text-4xl md:text-5xl font-black mb-3 md:mb-4">{selectedSyllabus.totalProgress}%</h2>
+                  <p className="text-indigo-100 font-bold uppercase tracking-widest text-[10px] md:text-xs mb-6 md:mb-8">Overall Subject Mastery</p>
                   <div className="max-w-xs mx-auto w-full bg-indigo-900/30 h-2 rounded-full overflow-hidden backdrop-blur-sm">
                       <div className="h-full bg-white rounded-full transition-all duration-1000" style={{ width: `${selectedSyllabus.totalProgress}%` }}></div>
                   </div>
               </div>
 
-              <div className="p-12">
-                  <div className="space-y-6">
+              <div className="p-6 md:p-12">
+                  <div className="space-y-4 md:space-y-6">
                       {selectedSyllabus.chapters?.sort((a,b) => a.chapterNo - b.chapterNo).map((chapter) => (
-                          <div key={chapter._id} className="flex items-center gap-8 p-6 rounded-3xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100">
-                              <div className="w-16 h-16 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 text-2xl font-black text-gray-300">
+                          <div key={chapter._id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 p-4 md:p-6 rounded-2xl md:rounded-3xl hover:bg-gray-50 transition border border-gray-50 sm:border-transparent hover:border-gray-100">
+                              <div className="w-10 h-10 sm:w-16 sm:h-16 flex items-center justify-center bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 text-lg sm:text-2xl font-black text-gray-300">
                                   {chapter.chapterNo}
                               </div>
-                              <div className="flex-1">
-                                  <h4 className="text-xl font-black text-gray-800">{chapter.title}</h4>
-                                  <div className="flex items-center gap-4 mt-1 text-xs font-bold text-gray-400">
-                                      <span className="flex items-center gap-2">
+                              <div className="flex-1 w-full">
+                                  <h4 className="text-lg md:text-xl font-black text-gray-800">{chapter.title}</h4>
+                                  <div className="flex flex-wrap items-center gap-3 md:gap-4 mt-1 text-[10px] md:text-xs font-bold text-gray-400">
+                                      <span className="flex items-center gap-1.5">
                                           {chapter.status === 'Completed' ? <FaCheckCircle className="text-green-500" /> : <div className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></div>}
                                           {chapter.status}
                                       </span>
                                       {chapter.completionDate && <span>• Done {new Date(chapter.completionDate).toLocaleDateString()}</span>}
                                   </div>
                               </div>
-                              <div className="text-right">
-                                  <div className="text-xs font-black text-gray-300 uppercase tracking-widest mb-1">{chapter.topics?.length || 0} Topics</div>
-                                  <div className="flex gap-1 justify-end">
+                              <div className="text-left sm:text-right w-full sm:w-auto border-t sm:border-none pt-3 sm:pt-0 mt-1 sm:mt-0">
+                                  <div className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1">{chapter.topics?.length || 0} Topics</div>
+                                  <div className="flex gap-1 justify-start sm:justify-end">
                                       {chapter.topics?.map((t, i) => (
                                           <div key={i} className={`w-2 h-2 rounded-full ${t.status === 'Completed' ? 'bg-green-500' : 'bg-gray-100'}`}></div>
                                       ))}
@@ -294,6 +297,7 @@ const SyllabusOverview = () => {
                               </div>
                           </div>
                       ))}
+                      {(!selectedSyllabus.chapters || selectedSyllabus.chapters.length === 0) && <div className="py-10 text-center text-gray-400 italic">No chapters defined for this curriculum.</div>}
                   </div>
               </div>
           </div>

@@ -7,6 +7,7 @@ import {
   FaCheckCircle, FaUser, FaTh, FaList, FaChalkboardTeacher, 
   FaBook, FaRegStar, FaTimes, FaPlus, FaEdit 
 } from 'react-icons/fa';
+import StudentDetailsModal from '../../components/StudentDetailsModal';
 
 const ClassDetails = () => {
   const { id } = useParams();
@@ -26,6 +27,7 @@ const ClassDetails = () => {
   // Review Modal State
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
   const [submittingReview, setSubmittingReview] = useState(false);
 
@@ -129,6 +131,11 @@ const ClassDetails = () => {
     } finally {
         setSubmittingReview(false);
     }
+  };
+
+  const handleReviewAdded = (updatedStudent) => {
+    setStudents(prev => prev.map(s => s._id === updatedStudent._id ? updatedStudent : s));
+    setSelectedStudent(updatedStudent);
   };
 
   const getCategoryColor = (cat) => {
@@ -318,8 +325,8 @@ const ClassDetails = () => {
         </h2>
         
         {viewMode === 'list' ? (
-             <div className="bg-white rounded-xl shadow-md overflow-hidden">
-             <table className="min-w-full text-left">
+             <div className="bg-white rounded-xl shadow-md overflow-x-auto">
+             <table className="min-w-full text-left whitespace-nowrap">
                <thead className="bg-gray-50 border-b">
                  <tr>
                    <th className="p-4 font-bold text-gray-600">Roll No</th>
@@ -331,15 +338,19 @@ const ClassDetails = () => {
                </thead>
                <tbody className="divide-y divide-gray-100">
                  {students.map((student) => (
-                   <tr key={student._id} className="hover:bg-gray-50 transition">
-                     <td className="p-4 font-mono text-gray-600">{student.rollNum}</td>
-                     <td className="p-4 font-bold text-gray-800">
-                        {student.name}
+                   <tr 
+                     key={student._id} 
+                     onClick={() => { setSelectedStudent(student); setShowDetailsModal(true); }}
+                     className="hover:bg-indigo-50/50 cursor-pointer transition group"
+                   >
+                     <td className="p-4 font-mono text-gray-600 group-hover:text-indigo-600 transition font-bold">{student.rollNum}</td>
+                     <td className="p-4">
+                        <div className="font-bold text-gray-800 group-hover:text-indigo-700 transition">{student.name}</div>
                         <div className="text-xs text-gray-400 font-normal">{student.user?.email}</div>
                      </td>
-                     <td className="p-4">
+                     <td className="p-4" onClick={e => e.stopPropagation()}>
                         <select 
-                             className={`px-2 py-1 rounded-full text-xs font-bold border cursor-pointer ${getCategoryColor(student.category)}`}
+                             className={`px-2 py-1 rounded-full text-xs font-bold border cursor-pointer outline-none ${getCategoryColor(student.category)}`}
                              value={student.category || 'Regular'}
                              onChange={(e) => handleCategoryChange(student._id, e.target.value)}
                         >
@@ -358,56 +369,75 @@ const ClassDetails = () => {
                      </td>
                      <td className="p-4 text-right">
                         <button 
-                            onClick={() => { setSelectedStudent(student); setShowReviewModal(true); }}
-                            className="px-4 py-2 bg-indigo-50 text-indigo-700 text-sm font-bold rounded hover:bg-indigo-100 transition"
+                            onClick={(e) => { e.stopPropagation(); setSelectedStudent(student); setShowReviewModal(true); }}
+                            className="px-4 py-2 bg-indigo-50 text-indigo-700 text-sm font-bold rounded hover:bg-indigo-100 transition shadow-sm border border-indigo-100"
                         >
-                            View Reviews
+                            Quick Review
                         </button>
                      </td>
                    </tr>
                  ))}
                </tbody>
              </table>
+             {students.length === 0 && <div className="p-10 text-center text-gray-400">No students found in this class.</div>}
            </div>
         ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {students.map(student => (
-                    <div key={student._id} className="bg-white rounded-xl shadow-md p-6 border hover:shadow-lg transition">
+                    <div 
+                        key={student._id} 
+                        onClick={() => { setSelectedStudent(student); setShowDetailsModal(true); }}
+                        className="bg-white rounded-xl shadow-md p-5 md:p-6 border hover:shadow-lg hover:border-indigo-200 cursor-pointer transition flex flex-col group"
+                    >
                         <div className="flex justify-between items-start mb-4">
-                            <div className="bg-gray-100 px-3 py-1 rounded text-xs font-mono font-bold text-gray-600">{student.rollNum}</div>
-                             <select 
-                                className={`px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer ${getCategoryColor(student.category)}`}
-                                value={student.category || 'Regular'}
-                                onChange={(e) => handleCategoryChange(student._id, e.target.value)}
-                            >
-                                <option value="Regular">Regular</option>
-                                <option value="Best">Best</option>
-                                <option value="Disciplined">Disciplined</option>
-                                <option value="Defaulter">Defaulter</option>
-                            </select>
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-800">{student.name}</h3>
-                        <p className="text-sm text-gray-500 mb-4">{student.user?.email}</p>
-                        
-                        <div className="flex items-center gap-2 mb-4 bg-yellow-50 p-2 rounded">
-                             <div className="text-2xl font-bold text-yellow-500">{student.averageRating || 0}</div>
-                             <div className="flex flex-col">
-                                {renderStars(student.averageRating || 0)}
-                                <span className="text-xs text-yellow-600 font-medium">{student.reviews?.length || 0} Reviews</span>
+                            <div className="bg-gray-100 px-3 py-1 rounded text-xs font-mono font-bold text-gray-600 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition">{student.rollNum}</div>
+                             <div onClick={e => e.stopPropagation()}>
+                                <select 
+                                    className={`px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer outline-none ${getCategoryColor(student.category)}`}
+                                    value={student.category || 'Regular'}
+                                    onChange={(e) => handleCategoryChange(student._id, e.target.value)}
+                                >
+                                    <option value="Regular">Regular</option>
+                                    <option value="Best">Best</option>
+                                    <option value="Disciplined">Disciplined</option>
+                                    <option value="Defaulter">Defaulter</option>
+                                </select>
                              </div>
                         </div>
+                        <h3 className="text-lg font-bold text-gray-800 line-clamp-1 group-hover:text-indigo-600 transition">{student.name}</h3>
+                        <p className="text-sm text-gray-500 mb-4 truncate">{student.user?.email}</p>
+                        
+                        <div className="mt-auto">
+                            <div className="flex items-center gap-2 mb-4 bg-yellow-50 p-2 rounded group-hover:bg-indigo-50 transition">
+                                <div className="text-2xl font-bold text-yellow-500 group-hover:text-indigo-600 transition">{student.averageRating || 0}</div>
+                                <div className="flex flex-col">
+                                    {renderStars(student.averageRating || 0)}
+                                    <span className="text-xs text-yellow-600 font-medium group-hover:text-indigo-400 transition">{student.reviews?.length || 0} Reviews</span>
+                                </div>
+                            </div>
 
-                        <button 
-                            onClick={() => { setSelectedStudent(student); setShowReviewModal(true); }}
-                            className="w-full py-2 bg-indigo-600 text-white rounded font-bold hover:bg-indigo-700 transition flex items-center justify-center gap-2"
-                        >
-                            <FaStar /> Reviews
-                        </button>
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); setSelectedStudent(student); setShowReviewModal(true); }}
+                                className="w-full py-2 bg-indigo-600 text-white rounded font-bold hover:bg-indigo-700 transition flex items-center justify-center gap-2 shadow-md shadow-indigo-100"
+                            >
+                                <FaStar /> Quick Review
+                            </button>
+                        </div>
                     </div>
                 ))}
+                {students.length === 0 && <div className="col-span-full p-10 text-center text-gray-400">No students found in this class.</div>}
             </div>
         )}
       </div>
+
+      {/* Student Details Modal */}
+      {showDetailsModal && selectedStudent && (
+          <StudentDetailsModal 
+            student={selectedStudent} 
+            onClose={() => setShowDetailsModal(false)} 
+            onReviewAdded={handleReviewAdded}
+          />
+      )}
 
       {/* Review Modal */}
       {showReviewModal && selectedStudent && (

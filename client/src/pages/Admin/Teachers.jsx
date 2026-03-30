@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const Teachers = () => {
   const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const navigate = useNavigate();
 
   // Assignment Modal State
@@ -69,6 +70,7 @@ const Teachers = () => {
         age: '',
         gender: 'Male',
       });
+      setShowAddModal(false);
       fetchTeachers();
     } catch (error) {
         console.log(error);
@@ -79,37 +81,94 @@ const Teachers = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800">Manage Teachers</h1>
-      
-      {/* Add Teacher Form */}
-      <div className="p-6 bg-white rounded-lg shadow-md">
-        <h2 className="mb-4 text-xl font-semibold text-gray-700">Register New Teacher</h2>
-        <form onSubmit={handleAddTeacher} className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} required className="p-2 border rounded" />
-          <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required className="p-2 border rounded" />
-          <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required className="p-2 border rounded" />
-          <input type="text" name="qualification" placeholder="Qualification" value={formData.qualification} onChange={handleChange} className="p-2 border rounded" />
-          <input type="number" name="age" placeholder="Age" value={formData.age} onChange={handleChange} className="p-2 border rounded" />
-          <select name="gender" value={formData.gender} onChange={handleChange} className="p-2 border rounded">
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
-          
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="col-span-1 md:col-span-2 px-6 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 disabled:bg-gray-400"
-          >
-            {loading ? 'Registering...' : 'Register Teacher'}
-          </button>
-        </form>
+    <div className="space-y-6 relative">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-800">Manage Teachers</h1>
+        <button 
+          onClick={() => setShowAddModal(true)}
+          className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 shadow-lg transition-transform hover:scale-110 flex items-center justify-center"
+          title="Register New Teacher"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
       </div>
+      
+      {/* Register Teacher Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6 bg-blue-600 text-white flex justify-between items-center">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                  <FaChalkboardTeacher /> Register New Teacher
+              </h2>
+              <button 
+                onClick={() => setShowAddModal(false)}
+                className="text-white hover:text-blue-200 transition"
+              >
+                <FaTimes size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleAddTeacher} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
+                  <input type="text" name="name" placeholder="John Doe" value={formData.name} onChange={handleChange} required className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
+                  <input type="email" name="email" placeholder="john@school.com" value={formData.email} onChange={handleChange} required className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Password</label>
+                  <input type="password" name="password" placeholder="••••••••" value={formData.password} onChange={handleChange} required className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Qualification</label>
+                  <input type="text" name="qualification" placeholder="M.Sc. Physics" value={formData.qualification} onChange={handleChange} className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Age</label>
+                  <input type="number" name="age" placeholder="30" value={formData.age} onChange={handleChange} className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Gender</label>
+                  <select name="gender" value={formData.gender} onChange={handleChange} className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="pt-4 flex gap-3">
+                <button 
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 font-bold transition"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="flex-1 px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-bold shadow-lg shadow-blue-200 transition"
+                >
+                  {loading ? 'Registering...' : 'Register Teacher'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Teachers List */}
-      <div className="p-6 bg-white rounded-lg shadow-md">
-        <h2 className="mb-4 text-xl font-semibold text-gray-700">Teacher List</h2>
+      <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
+        <h2 className="mb-4 text-xl font-semibold text-gray-700 flex items-center gap-2">
+          <FaChalkboardTeacher className="text-blue-600"/> Teacher List
+        </h2>
         <div className="overflow-x-auto">
             <table className="min-w-full text-left">
                 <thead>

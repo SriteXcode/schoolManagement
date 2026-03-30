@@ -18,15 +18,16 @@ const syllabusRouter = require("./routes/syllabusRouter");
 const feeRouter = require("./routes/feeRouter");
 const salaryRouter = require("./routes/salaryRouter");
 const cellRouter = require("./routes/cellRouter");
+const managementRouter = require("./routes/managementRouter");
 
 dotenv.config();
-
 const PORT = process.env.PORT || 3000;
+
 
 // Middleware
 app.use(cors({
-  origin: [ "https://schoolmanagement-o7th.onrender.com" || "http://localhost:5173" ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  origin: [ "https://schoolmanagement-o7th.onrender.com", "http://localhost:5173" ],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   credentials: true
 }));
 app.use(express.json());
@@ -51,6 +52,7 @@ app.use("/api/syllabus", syllabusRouter);
 app.use("/api/fee", feeRouter);
 app.use("/api/salary", salaryRouter);
 app.use("/api/cells", cellRouter);
+app.use("/api/management", managementRouter);
 
 app.get("/", (req, res) => {
   res.send("School Management System API is running...");

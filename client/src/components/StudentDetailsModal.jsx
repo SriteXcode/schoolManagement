@@ -105,6 +105,23 @@ const StudentDetailsModal = ({ student, onClose, onReviewAdded }) => {
                         </div>
                     </div>
 
+                    {/* Logistics & Transport */}
+                    <div className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100/50">
+                        <h4 className="text-xs font-bold text-indigo-400 uppercase mb-2">Logistics & Transport</h4>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p className="text-gray-500">Mode of Transport</p>
+                                <p className="font-black text-indigo-700">{student.transportMode || 'By Foot'}</p>
+                            </div>
+                            {student.transportMode === 'Bus' && (
+                                <div>
+                                    <p className="text-gray-500">Assigned Bus</p>
+                                    <p className="font-black text-indigo-700">{student.bus?.busNumber || 'Not Assigned'}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Attendance Stats */}
                     <div className={`p-4 rounded-xl text-white shadow-md flex justify-between items-center ${studentStats.percentage >= 75 ? 'bg-green-500' : 'bg-red-500'}`}>
                          <div>

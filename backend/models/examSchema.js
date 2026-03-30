@@ -23,8 +23,12 @@ const examSchema = new mongoose.Schema({
     required: true,
   },
   time: {
-    type: String, // e.g., "09:00 AM"
+    type: String, // e.g., "09:00 AM - 12:00 PM"
     default: "09:00 AM"
+  },
+  shift: {
+    type: String, // e.g., "Morning", "Evening", "Shift 1"
+    default: "Morning"
   },
   type: {
     type: String,

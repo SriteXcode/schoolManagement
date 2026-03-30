@@ -4,12 +4,15 @@ import api from '../api/axios';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { useNavigate } from 'react-router-dom';
+
 const Calendar = () => {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -21,15 +24,23 @@ const Calendar = () => {
 
   useEffect(() => {
     fetchEvents();
-    checkAdmin();
+    checkPermissions();
   }, []);
 
-  const checkAdmin = () => {
+  const checkPermissions = () => {
     const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : null;
-    if (user && user.role === 'Admin') {
-      setIsAdmin(true);
+    if (user && (user.role === 'Admin' || user.role === 'ManagementCell')) {
+      setIsEditable(true);
     }
+  };
+
+  const handleEventClick = (event, e) => {
+      e.stopPropagation();
+      // Navigate to gallery with event title as category hint if needed
+      // Or just navigate to gallery. The user said "move to gallery iff there is anything categories for this event"
+      // We can pass the title as a search param.
+      navigate(`/gallery?category=${event.title}`);
   };
 
   const fetchEvents = async () => {
@@ -56,7 +67,7 @@ const Calendar = () => {
     const adjustedDate = new Date(clickedDate.getTime() - (offset*60*1000));
     
     setSelectedDate(adjustedDate);
-    if (isAdmin) {
+    if (isEditable) {
       setFormData(prev => ({ ...prev, date: adjustedDate.toISOString().split('T')[0] }));
       setShowModal(true);
     }
@@ -116,17 +127,18 @@ const Calendar = () => {
             {dayEvents.map((event, idx) => (
               <div 
                 key={idx} 
-                className={`text-xs px-1 rounded truncate text-white flex justify-between items-center ${
+                onClick={(e) => handleEventClick(event, e)}
+                className={`text-xs px-1 rounded truncate text-white flex justify-between items-center transition-transform hover:scale-[1.02] ${
                   event.type === 'Holiday' ? 'bg-gray-400' :
                   'bg-blue-500'
                 }`}
                 title={event.title}
               >
                 <span>{event.title}</span>
-                {isAdmin && (
+                {isEditable && (
                   <FaTrash 
                     className="ml-1 opacity-0 group-hover:opacity-100 hover:text-red-800 cursor-pointer"
-                    onClick={(e) => handleDeleteEvent(event._id, e)}
+                    onClick={(e) => { e.stopPropagation(); handleDeleteEvent(event._id, e); }}
                   />
                 )}
               </div>
@@ -145,7 +157,7 @@ const Calendar = () => {
             <h1 className="text-4xl font-extrabold text-slate-800 flex items-center gap-4">
                 <FaCalendarAlt className="text-indigo-600" /> School Calendar
             </h1>
-            {isAdmin && <span className="bg-indigo-100 text-indigo-700 px-4 py-1 rounded-full text-sm font-semibold">Admin Mode: Click Date to Add Event</span>}
+            {isEditable && <span className="bg-indigo-100 text-indigo-700 px-4 py-1 rounded-full text-sm font-semibold">Staff Mode: Click Date to Add Event</span>}
         </div>
 
         {/* Calendar Header */}

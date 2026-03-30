@@ -119,11 +119,9 @@ const Marks = () => {
           let newSelection;
           
           if (isSelected) {
-              // Remove item and its children if provided
               const itemsToRemove = [item, ...children];
               newSelection = prev.filter(i => !itemsToRemove.includes(i));
           } else {
-              // Add item, its children, and its parent if provided
               const itemsToAdd = [item, ...children];
               if (parent && !prev.includes(parent)) {
                   itemsToAdd.push(parent);
@@ -131,23 +129,35 @@ const Marks = () => {
               newSelection = [...new Set([...prev, ...itemsToAdd])];
           }
           
-          // Re-sort selection to maintain hierarchy in the string
-          const sortedSelection = [];
+          const sortedDisplay = [];
+          const sortedInternal = [];
+          
           availableSyllabusItems.forEach(ch => {
               const chText = `Chapter ${ch.chapterNo}: ${ch.title}`;
-              if (newSelection.includes(chText)) {
-                  sortedSelection.push(chText);
-                  ch.topics?.forEach(t => {
-                      const tText = `  • ${t.title}`;
-                      if (newSelection.includes(tText)) {
-                          sortedSelection.push(tText);
+              const chTopicItems = ch.topics?.map(t => ({
+                  internal: `C${ch.chapterNo}-T: ${t.title}`,
+                  display: `  • ${t.title}`
+              })) || [];
+              
+              const isChInSelection = newSelection.includes(chText);
+              const selectedTopicInternals = chTopicItems.filter(t => newSelection.includes(t.internal));
+              
+              // A chapter is included if it's explicitly in selection OR if any of its topics are selected
+              if (isChInSelection || selectedTopicInternals.length > 0) {
+                  sortedDisplay.push(chText);
+                  sortedInternal.push(chText);
+                  
+                  chTopicItems.forEach(t => {
+                      if (newSelection.includes(t.internal)) {
+                          sortedDisplay.push(t.display);
+                          sortedInternal.push(t.internal);
                       }
                   });
               }
           });
 
-          setNewExamSyllabus(sortedSelection.join("\n"));
-          return newSelection;
+          setNewExamSyllabus(sortedDisplay.join("\n"));
+          return sortedInternal;
       });
   };
 
@@ -181,8 +191,8 @@ const Marks = () => {
       // Refresh exams list
       const res = await api.get(`/exam/${selectedClass}`);
       setExams(res.data);
-    } catch (e) {
-      toast.error("Failed to schedule class test");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to schedule class test");
     } finally {
       setCreateLoading(false);
     }
@@ -425,7 +435,7 @@ const Marks = () => {
                                   {selectedSyllabusItems.length > 0 ? (
                                       availableSyllabusItems.filter(ch => selectedSyllabusItems.includes(`Chapter ${ch.chapterNo}: ${ch.title}`)).map((chapter, idx) => {
                                           const chapterText = `Chapter ${chapter.chapterNo}: ${chapter.title}`;
-                                          const selectedTopics = chapter.topics?.filter(t => selectedSyllabusItems.includes(`  • ${t.title}`)) || [];
+                                          const selectedTopics = chapter.topics?.filter(t => selectedSyllabusItems.includes(`C${chapter.chapterNo}-T: ${t.title}`)) || [];
                                           
                                           return (
                                             <div key={idx} className="flex flex-col gap-1 w-full border-b border-slate-50 pb-2 mb-1 last:border-0 last:pb-0 last:mb-0">
@@ -464,13 +474,17 @@ const Marks = () => {
                                               <div className="space-y-8">
                                                   {availableSyllabusItems.map(chapter => {
                                                       const chapterText = `Chapter ${chapter.chapterNo}: ${chapter.title}`;
-                                                      const topicTexts = chapter.topics?.map(t => `  • ${t.title}`) || [];
-                                                      const allSelected = isItemSelected(chapterText) && topicTexts.every(t => isItemSelected(t));
+                                                      const chTopicItems = chapter.topics?.map(t => ({
+                                                          internal: `C${chapter.chapterNo}-T: ${t.title}`,
+                                                          display: `  • ${t.title}`
+                                                      })) || [];
+                                                      const topicInternals = chTopicItems.map(t => t.internal);
+                                                      const allSelected = isItemSelected(chapterText) && topicInternals.every(t => isItemSelected(t));
                                                       
                                                       return (
                                                         <div key={chapter._id} className="space-y-4">
                                                             <div 
-                                                                onClick={() => toggleSyllabusItem(chapterText, topicTexts)}
+                                                                onClick={() => toggleSyllabusItem(chapterText, topicInternals)}
                                                                 className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex justify-between items-center ${isItemSelected(chapterText) ? 'border-emerald-500 bg-emerald-50 shadow-sm' : 'border-slate-100 hover:border-emerald-200 shadow-sm shadow-slate-100'}`}
                                                             >
                                                                 <div className="flex items-center gap-4">
@@ -486,16 +500,15 @@ const Marks = () => {
                                                             </div>
                                                             
                                                             <div className="grid grid-cols-1 gap-2 pl-14 pr-2">
-                                                                {chapter.topics?.map((topic, tidx) => {
-                                                                    const itemText = `  • ${topic.title}`;
+                                                                {chTopicItems.map((topicItem, tidx) => {
                                                                     return (
                                                                         <div 
                                                                           key={tidx}
-                                                                          onClick={() => toggleSyllabusItem(itemText, [], chapterText)}
-                                                                          className={`p-3 rounded-xl border-2 text-[11px] font-bold transition-all cursor-pointer flex justify-between items-center ${isItemSelected(itemText) ? 'border-indigo-400 bg-indigo-50/50 text-indigo-700' : 'border-slate-50 text-slate-400 hover:bg-slate-50/50 hover:border-slate-100'}`}
+                                                                          onClick={() => toggleSyllabusItem(topicItem.internal, [], chapterText)}
+                                                                          className={`p-3 rounded-xl border-2 text-[11px] font-bold transition-all cursor-pointer flex justify-between items-center ${isItemSelected(topicItem.internal) ? 'border-indigo-400 bg-indigo-50/50 text-indigo-700' : 'border-slate-50 text-slate-400 hover:bg-slate-50/50 hover:border-slate-100'}`}
                                                                         >
-                                                                            {topic.title}
-                                                                            {isItemSelected(itemText) ? <FaCheckCircle size={12} className="text-indigo-600"/> : <div className="w-3.5 h-3.5 rounded-full border border-slate-200"></div>}
+                                                                            {topicItem.display.replace('  • ', '')}
+                                                                            {isItemSelected(topicItem.internal) ? <FaCheckCircle size={12} className="text-indigo-600"/> : <div className="w-3.5 h-3.5 rounded-full border border-slate-200"></div>}
                                                                         </div>
                                                                     )
                                                                 })}

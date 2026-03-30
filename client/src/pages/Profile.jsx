@@ -22,9 +22,12 @@ const Profile = () => {
     qualification: '',
     age: '',
     remark: '',
+    transportMode: 'By Foot',
+    bus: '',
     isDefaulter: false,
     password: ''
   });
+  const [buses, setBuses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showIDCard, setShowIDCard] = useState(false);
 
@@ -58,8 +61,17 @@ const Profile = () => {
                       qualification: res.data.qualification || '',
                       age: res.data.age || '',
                       remark: res.data.remark || '',
+                      transportMode: res.data.transportMode || 'By Foot',
+                      bus: res.data.bus?._id || res.data.bus || '',
                       isDefaulter: feeStatus
                   }));
+
+                  if (isStudent) {
+                      try {
+                          const busesRes = await api.get('/management/bus/all');
+                          setBuses(busesRes.data);
+                      } catch (e) { console.error("Bus fetch failed"); }
+                  }
               }
           } catch (err) {
               console.error("Failed to fetch profile", err);
@@ -85,7 +97,9 @@ const Profile = () => {
               bloodGroup: formData.bloodGroup,
               address: formData.address,
               profileImage: formData.profileImage,
-              remark: formData.remark
+              remark: formData.remark,
+              transportMode: formData.transportMode,
+              bus: formData.bus
           });
       } else if (isTeacher && profileData) {
           await api.put(`/teacher/update/${profileData._id}`, {
@@ -252,8 +266,38 @@ const Profile = () => {
 
               <div className="space-y-2 text-left">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Remark / Biography</label>
-                <textarea value={formData.remark} onChange={(e) => setFormData({...formData, remark: e.target.value})} placeholder="Public description." className={`w-full px-6 py-4 rounded-2xl outline-none transition-all font-medium text-slate-600 ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 focus:ring-2 focus:ring-indigo-500'}`} readOnly={!isEditing} rows="3" />
+                <textarea value={formData.remark} onChange={(e) => setFormData({...formData, remark: e.target.value})} placeholder="Public description." className={`w-full px-6 py-4 rounded-2xl outline-none transition-all font-medium text-slate-600 ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 focus:ring-2 focus:ring-indigo-50'}`} readOnly={!isEditing} rows="3" />
               </div>
+
+              {isStudent && (
+                  <div className="pt-10 border-t border-slate-50 mt-10">
+                      <h4 className="text-xl font-black text-slate-900 mb-6 tracking-tight flex items-center gap-2">
+                          <div className="bg-indigo-50 p-2 rounded-xl text-indigo-500"><FaMapMarkerAlt size={16}/></div> Logistics & Transport
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                          <div className="space-y-2 text-left">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Transport Mode</label>
+                              <select value={formData.transportMode} onChange={(e) => setFormData({...formData, transportMode: e.target.value})} className={`w-full px-6 py-4 rounded-2xl outline-none transition-all font-black text-slate-800 ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 focus:ring-2 focus:ring-indigo-50'}`} disabled={!isEditing}>
+                                  <option value="Hostel">Hostel</option>
+                                  <option value="Bicycle">Bicycle</option>
+                                  <option value="Bike">Bike</option>
+                                  <option value="Bus">Bus</option>
+                                  <option value="By Foot">By Foot</option>
+                              </select>
+                          </div>
+                          {formData.transportMode === 'Bus' && (
+                              <div className="space-y-2 text-left">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Bus</label>
+                                  <select value={formData.bus} onChange={(e) => setFormData({...formData, bus: e.target.value})} className={`w-full px-6 py-4 rounded-2xl outline-none transition-all font-black text-slate-800 ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 focus:ring-2 focus:ring-indigo-50'}`} disabled={!isEditing}>
+                                      <option value="">Select Bus</option>
+                                      {buses.map(b => <option key={b._id} value={b._id}>{b.busNumber} - {b.route}</option>)}
+                                  </select>
+                              </div>
+                          )}
+                      </div>
+                  </div>
+              )}
+
 
               <AnimatePresence>
                 {isEditing && (

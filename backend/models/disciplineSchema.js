@@ -29,6 +29,14 @@ const disciplineSchema = new mongoose.Schema({
     type: String,
     default: "Under Review",
   },
+  teacherComment: {
+    type: String,
+    default: "",
+  },
+  lastUpdatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
   status: {
     type: String,
     enum: ["Open", "Resolved", "Dismissed"],

@@ -60,6 +60,15 @@ const studentSchema = new mongoose.Schema({
     enum: ['Regular', 'Defaulter', 'Disciplined', 'Best'],
     default: 'Regular'
   },
+  transportMode: {
+    type: String,
+    enum: ["Hostel", "Bicycle", "Bike", "Bus", "By Foot"],
+    default: "By Foot"
+  },
+  bus: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Bus"
+  },
   reviews: [{
     reviewer: {
       type: mongoose.Schema.Types.ObjectId,

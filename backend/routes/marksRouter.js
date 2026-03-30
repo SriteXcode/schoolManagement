@@ -3,9 +3,11 @@ const router = express.Router();
 const { addMarks, getMarks, getMarksByExam, getStudentAllMarks } = require("../controllers/marksController");
 const { auth, authorizeRole } = require("../middleware/authMiddleware");
 
-router.post("/add", auth, authorizeRole("Teacher", "Admin", "ExamCell"), addMarks);
+const teacherRoles = ["Teacher", "Admin", "ExamCell", "AdmissionCell", "DisciplineCell", "SportsCell", "ManagementCell"];
+
+router.post("/add", auth, authorizeRole(...teacherRoles), addMarks);
 router.get("/student/:studentId", auth, getStudentAllMarks);
+router.get("/exam/:examId", auth, authorizeRole(...teacherRoles), getMarksByExam);
 router.get("/:examId/:studentId", auth, getMarks);
-router.get("/exam/:examId", auth, authorizeRole("Teacher", "Admin", "ExamCell"), getMarksByExam);
 
 module.exports = router;
