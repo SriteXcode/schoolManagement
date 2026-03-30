@@ -11,7 +11,10 @@ A comprehensive, user-friendly School Management System designed to streamline a
 
 ## Structure
 - `/frontend`: React application (Vite)
-- `/backend`: Node.js API server
+- `/client`: Node.js API server
+
+## Visit
+  - https://schoolmanagement-o7th.onrender.com
 
 ## Roadmap
 - [x] Phase 1: Project Setup
