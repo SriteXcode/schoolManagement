@@ -11,8 +11,12 @@ exports.assignTeacherToCell = async (req, res) => {
     const teacher = await Teacher.findById(teacherId);
     if (!teacher) return res.status(404).json({ message: "Teacher not found" });
 
+    // Update Teacher Profile
     teacher.schoolCell = cell;
     await teacher.save();
+
+    // Update Linked User Account for Authorization
+    await User.findByIdAndUpdate(teacher.user, { schoolCell: cell });
 
     res.status(200).json({ message: `Teacher assigned to ${cell} successfully`, teacher });
   } catch (error) {

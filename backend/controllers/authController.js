@@ -87,6 +87,7 @@ exports.login = async (req, res) => {
         phone: user.phone,
         role: user.role,
         profileImage: user.profileImage,
+        schoolCell: user.schoolCell
       },
     });
   } catch (error) {
@@ -136,6 +137,7 @@ exports.updateProfile = async (req, res) => {
       phone: updatedUser.phone,
       role: updatedUser.role,
       profileImage: updatedUser.profileImage,
+      schoolCell: updatedUser.schoolCell
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -55,13 +55,11 @@ exports.sendMessage = async (req, res) => {
 
 exports.getAllMessages = async (req, res) => {
   try {
-    // Admin sees ALL messages (where recipient is null or Admin's User ID)
-    const messages = await Communication.find({ 
-        $or: [
-            { recipient: null },
-            { recipient: req.user._id }
-        ]
-    }).populate("user", "name email").sort({ createdAt: -1 });
+    // Admin sees ALL messages regardless of recipient
+    const messages = await Communication.find()
+        .populate("user", "name email role")
+        .populate("recipient", "name email role")
+        .sort({ createdAt: -1 });
     res.status(200).json(messages);
   } catch (error) {
     res.status(500).json({ message: error.message });

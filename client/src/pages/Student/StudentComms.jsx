@@ -61,8 +61,23 @@ const StudentComms = () => {
                     >
                         <option value="Problem">Report a Problem</option>
                         <option value="Feedback">Give Feedback</option>
+                        <option value="BusRequest">Request Bus Service</option>
                     </select>
                 </div>
+
+                {formData.type === 'BusRequest' && (
+                    <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 mb-4 animate-in fade-in slide-in-from-top-2">
+                        <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                            <FaExclamationCircle /> Format Requirement
+                        </p>
+                        <p className="text-xs font-bold text-amber-800 italic">
+                            Please mention your requested bus and stop in this format:<br/>
+                            <span className="bg-white px-2 py-0.5 rounded border border-amber-200 mt-1 inline-block not-italic">
+                                Bus: [Number] | Stop: [Stop Name]
+                            </span>
+                        </p>
+                    </div>
+                )}
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Recipient</label>

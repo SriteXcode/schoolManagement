@@ -48,6 +48,10 @@ const feeSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  dueTillCurrentMonth: {
+    type: Number,
+    default: 0
+  },
   isDefaulter: {
     type: Boolean,
     default: false
@@ -106,6 +110,23 @@ feeSchema.pre("save", async function() {
     this.totalAmount = totalAmount;
     this.totalPaid = totalPaidInLedger;
     this.totalDue = totalAmount - totalPaidInLedger;
+
+    // 3. Calculate Due Till Current Month (Academic Year starts in April)
+    const monthsOrder = ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"];
+    const currentMonthIndex_Real = new Date().getMonth(); // 0-11 (Jan-Dec)
+    // Map real month index to academic month index (April is 0)
+    // April (3) -> 0, May (4) -> 1, ..., Dec (11) -> 8, Jan (0) -> 9, Feb (1) -> 10, March (2) -> 11
+    const academicMonthIndex = (currentMonthIndex_Real - 3 + 12) % 12;
+
+    let amountDueTillNow = 0;
+    for (let i = 0; i <= academicMonthIndex; i++) {
+        const m = this.monthlyFees.find(mf => mf.month === monthsOrder[i]);
+        if (m) {
+            amountDueTillNow += m.charges.reduce((acc, c) => acc + c.amount, 0);
+        }
+    }
+    
+    this.dueTillCurrentMonth = Math.max(0, amountDueTillNow - totalPaidInLedger);
 });
 
 module.exports = mongoose.model("Fee", feeSchema);

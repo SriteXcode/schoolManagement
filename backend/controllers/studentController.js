@@ -5,7 +5,9 @@ const Fee = require("../models/feeSchema");
 
 exports.registerStudent = async (req, res) => {
   try {
-    const { name, classId, gender, guardianName, phone, transportMode, bus } = req.body;
+    const { name, classId, gender, guardianName, phone, transportMode, bus, busStop, isNewStopRequest, 
+            bikeNumber, drivingLicense, roomNumber, hostelName } = req.body;
+    const ContactMessage = require("../models/contactMessageSchema");
 
     if (!classId || !name || !phone) {
         return res.status(400).json({ message: "Name, Class, and Phone are required." });
@@ -16,21 +18,20 @@ exports.registerStudent = async (req, res) => {
       return res.status(404).json({ message: "Class not found" });
     }
 
-    // 1. Auto-generate Roll Number
+    // 1. Auto-generate Roll Number (Safe Generation)
     // Format: [Grade][Section][00X] (e.g., 10A005)
-    const studentCount = await Student.countDocuments({ sClass: classId });
-    const rollNum = `${sClass.grade}${sClass.section}${String(studentCount + 1).padStart(3, '0')}`;
+    let nextNum = await Student.countDocuments({ sClass: classId }) + 1;
+    let rollNum, email, userExists;
 
-    // 2. Auto-generate Email (Username)
-    const email = `${rollNum}@school.com`.toLowerCase();
+    do {
+      rollNum = `${sClass.grade}${sClass.section}${String(nextNum).padStart(3, '0')}`;
+      email = `${rollNum}@school.com`.toLowerCase();
+      userExists = await User.findOne({ email });
+      if (userExists) nextNum++;
+    } while (userExists);
 
     // 3. Password is Phone Number
     const password = phone;
-
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: "Student ID already generated. Please try again." });
-    }
 
     // Create User
     const user = await User.create({
@@ -51,8 +52,23 @@ exports.registerStudent = async (req, res) => {
       gender,
       guardianName,
       transportMode: transportMode || "By Foot",
-      bus: transportMode === "Bus" ? bus : null
+      bus: transportMode === "Bus" ? bus : null,
+      busStop: transportMode === "Bus" ? busStop : "",
+      bikeNumber: transportMode === "Bike" ? bikeNumber : "",
+      drivingLicense: transportMode === "Bike" ? drivingLicense : "",
+      roomNumber: transportMode === "Hostel" ? roomNumber : "",
+      hostelName: transportMode === "Hostel" ? hostelName : ""
     });
+
+    // If a new stop is requested, create a request for management
+    if (transportMode === "Bus" && isNewStopRequest) {
+        await ContactMessage.create({
+            name: "SYSTEM ADMISSION",
+            email: "noreply@school.com",
+            subject: "NEW BUS STOP REQUEST",
+            message: `Student ${name} (${rollNum}) has requested a new bus stop: "${busStop}" on their route. Please approve and update the Fleet Manager.`
+        });
+    }
 
     // Initial Fee Record
     await Fee.create({
@@ -61,7 +77,7 @@ exports.registerStudent = async (req, res) => {
     });
 
     res.status(201).json({ 
-        message: "Student registered successfully", 
+        message: isNewStopRequest ? "Student registered. Bus stop request sent to Management." : "Student registered successfully", 
         student,
         credentials: { username: email, password: password } 
     });
@@ -201,6 +217,53 @@ exports.updateStudent = async (req, res) => {
     }
 
     res.status(200).json({ message: "Student updated successfully", student });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.transferClass = async (req, res) => {
+  try {
+    const { sourceClassId, targetClassId } = req.body;
+    
+    if (!sourceClassId || !targetClassId) {
+      return res.status(400).json({ message: "Source and Target class IDs are required." });
+    }
+
+    const targetClass = await Class.findById(targetClassId);
+    if (!targetClass) return res.status(404).json({ message: "Target class not found" });
+
+    const result = await Student.updateMany(
+      { sClass: sourceClassId },
+      { sClass: targetClassId }
+    );
+
+    res.status(200).json({ 
+      message: `Successfully transferred ${result.modifiedCount} students to Class ${targetClass.grade}-${targetClass.section}`,
+      count: result.modifiedCount 
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.unassignClass = async (req, res) => {
+  try {
+    const { classId } = req.body;
+    
+    if (!classId) {
+      return res.status(400).json({ message: "Class ID is required." });
+    }
+
+    const result = await Student.updateMany(
+      { sClass: classId },
+      { sClass: null }
+    );
+
+    res.status(200).json({ 
+      message: `Successfully unassigned ${result.modifiedCount} students from the class.`,
+      count: result.modifiedCount 
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

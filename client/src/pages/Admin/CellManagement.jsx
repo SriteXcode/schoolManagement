@@ -55,7 +55,7 @@ const CellManagement = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
               <h1 className="text-4xl font-black text-gray-900 tracking-tight">Cell Management</h1>
-              <p className="text-gray-500 font-bold ml-1 uppercase text-[10px] tracking-widest mt-2">Manage specialized administrative units and personnel</p>
+              <p className="text-gray-500 font-bold ml-1 uppercase text-[10px] tracking-widest mt-2">Manage specialized administrative units and personal</p>
           </div>
           <div className="relative w-full md:w-72">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import api from '../../api/axios';
-import { FaChalkboardTeacher, FaBook, FaStar, FaRegStar, FaQuoteLeft, FaBullhorn, FaTimes, FaCalendarCheck, FaPencilRuler, FaCalendarAlt } from 'react-icons/fa';
-import { AlertTriangle, Trophy } from 'lucide-react';
+import { FaChalkboardTeacher, FaBook, FaStar, FaRegStar, FaQuoteLeft, FaBullhorn, FaTimes, FaCalendarCheck, FaPencilRuler, FaCalendarAlt, FaBus, FaMapMarkerAlt, FaUserTie } from 'react-icons/fa';
+import { AlertTriangle, Trophy, Calendar, Clock, Edit2, Save } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 const StudentHome = () => {
   const { student } = useOutletContext();
@@ -12,11 +13,29 @@ const StudentHome = () => {
   const [feeRecord, setFeeRecord] = useState(null);
   const [selectedNotice, setSelectedNotice] = useState(null);
   const [selectedReview, setSelectedReview] = useState(null);
+  const [loadingSyllabus, setLoadingSyllabus] = useState(true);
+  const [loadingClass, setLoadingClass] = useState(true);
 
   // New Data Feeds
   const [upcomingExams, setUpcomingExams] = useState([]);
   const [pendingHomework, setPendingHomework] = useState([]);
   const [events, setEvents] = useState([]);
+  const [busNickname, setBusNickname] = useState('');
+  const [isEditingNickname, setIsEditingNickname] = useState(false);
+
+  useEffect(() => {
+    if (student?.busNickname) setBusNickname(student.busNickname);
+  }, [student]);
+
+  const handleUpdateNickname = async () => {
+    try {
+        await api.put('/management/bus/nickname', { studentId: student._id, nickname: busNickname });
+        toast.success("Bus nickname updated!");
+        setIsEditingNickname(false);
+    } catch (err) {
+        toast.error("Failed to update nickname");
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -337,7 +356,7 @@ const StudentHome = () => {
                                             <div className="text-fluid-xs font-black uppercase text-slate-400 tracking-widest shrink-0">Recent</div>
                                             {lastCompleted ? (
                                                 <span className="text-xs text-slate-600 font-bold truncate">
-                                                    Ch {lastCompleted.chapterNo}: {lastCompleted.chapterName}
+                                                    Ch {lastCompleted.chapterNo}: {lastCompleted.title}
                                                 </span>
                                             ) : (
                                                 <span className="text-xs text-slate-400 italic">No updates</span>
@@ -353,6 +372,87 @@ const StudentHome = () => {
                         </div>
                     )}
                 </div>
+
+                {/* Bus Details Section */}
+                {student.bus && (
+                    <div className="bg-white rounded-[2.5rem] shadow-soft p-10 overflow-hidden relative group">
+                        <div className="absolute -right-10 -bottom-10 text-amber-50 group-hover:text-amber-100 transition-colors pointer-events-none">
+                            <FaBus size={200} />
+                        </div>
+                        
+                        <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-10">
+                                <h2 className="text-fluid-2xl font-black text-slate-900 tracking-tight flex items-center gap-3 text-left">
+                                    <div className="bg-amber-50 p-2 rounded-xl text-amber-600">
+                                        <FaBus />
+                                    </div>
+                                    Transport Details
+                                </h2>
+                                <div className="flex items-center gap-2">
+                                    {isEditingNickname ? (
+                                        <div className="flex items-center gap-2 animate-in slide-in-from-right-4 duration-300">
+                                            <input 
+                                                type="text" 
+                                                value={busNickname}
+                                                onChange={(e) => setBusNickname(e.target.value)}
+                                                className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black focus:outline-none focus:ring-2 focus:ring-amber-500 w-40"
+                                                placeholder="Enter nickname..."
+                                            />
+                                            <button onClick={handleUpdateNickname} className="p-2 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition shadow-lg shadow-amber-100"><Save size={16} /></button>
+                                            <button onClick={() => setIsEditingNickname(false)} className="p-2 bg-slate-100 text-slate-400 rounded-xl hover:bg-slate-200 transition"><FaTimes size={16} /></button>
+                                        </div>
+                                    ) : (
+                                        <button 
+                                            onClick={() => setIsEditingNickname(true)}
+                                            className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-100 transition"
+                                        >
+                                            <Edit2 size={12} /> {busNickname || "Set Nickname"}
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-5 p-6 bg-slate-50 rounded-3xl border border-transparent hover:border-amber-100 hover:bg-white transition-all">
+                                        <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-amber-600 shadow-sm text-xl font-black">
+                                            #{student.bus.busNumber}
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-1">Vehicle ID</span>
+                                            <h4 className="font-black text-slate-900 text-fluid-lg">{busNickname || student.bus.busNumber}</h4>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-5 p-6 bg-slate-50 rounded-3xl border border-transparent hover:border-amber-100 hover:bg-white transition-all">
+                                        <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-amber-600 shadow-sm text-xl font-black">
+                                            <FaMapMarkerAlt />
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-1">Assigned Route</span>
+                                            <h4 className="font-black text-slate-900 text-fluid-lg uppercase">{student.bus.route}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-5 p-6 bg-slate-50 rounded-3xl border border-transparent hover:border-amber-100 hover:bg-white transition-all h-full">
+                                        <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-amber-600 shadow-sm text-xl font-black">
+                                            <FaUserTie />
+                                        </div>
+                                        <div className="flex-1">
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-1">Route Operator</span>
+                                            <h4 className="font-black text-slate-900 text-fluid-lg">{student.bus.driver?.name || "Assigning Operator..."}</h4>
+                                            {student.bus.driver?.phone && (
+                                                <p className="text-[10px] font-bold text-slate-400 mt-1">EMERGENCY: {student.bus.driver.phone}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* My Faculty */}
                 <div className="bg-white rounded-[2.5rem] shadow-soft p-10">

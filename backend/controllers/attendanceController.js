@@ -3,10 +3,18 @@ const Attendance = require("../models/attendanceSchema");
 const Student = require("../models/studentSchema");
 const Class = require("../models/classSchema");
 const Teacher = require("../models/teacherSchema");
+const { validateSessionDate } = require("../middleware/sessionMiddleware");
 
 exports.markAttendance = async (req, res) => {
   try {
     const { date, attendanceData, sClass } = req.body; 
+    
+    // Academic Session Validation
+    try {
+        await validateSessionDate(date);
+    } catch (sessionError) {
+        return res.status(400).json({ message: sessionError.message });
+    }
     
     // Validate Class Teacher Permission
     // We assume the middleware adds 'req.user'

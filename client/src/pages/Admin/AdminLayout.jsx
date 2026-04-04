@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom';
-import { FaChalkboardTeacher, FaUserGraduate, FaSchool, FaSignOutAlt, FaBullhorn, FaIdCard, FaTachometerAlt, FaEnvelope, FaClipboardCheck, FaMoneyBillWave, FaShieldAlt, FaBook, FaBars, FaTimes } from 'react-icons/fa';
+import { FaChalkboardTeacher, FaUserGraduate, FaSchool, FaSignOutAlt, FaBullhorn, FaIdCard, FaTachometerAlt, FaEnvelope, FaClipboardCheck, FaMoneyBillWave, FaShieldAlt, FaBook, FaBars, FaTimes, FaBus, FaImage, FaCogs, FaUsers } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminLayout = () => {
@@ -25,10 +25,8 @@ const AdminLayout = () => {
     { to: "/admin/attendance", icon: <FaClipboardCheck />, label: "Attendance" },
     { to: "/admin/syllabus-overview", icon: <FaBook />, label: "Academic Progress" },
     { to: "/admin/notices", icon: <FaBullhorn />, label: "Notices" },
-    { to: "/admin/salaries", icon: <FaMoneyBillWave />, label: "Salaries" },
     { to: "/admin/cells", icon: <FaShieldAlt />, label: "Cell Management" },
-    { to: "/admin/inbox", icon: <FaEnvelope />, label: "Inbox" },
-    // { to: "/admin/profile", icon: <FaIdCard />, label: "Profile" },
+    { to: "/admin/inbox", icon: <FaEnvelope />, label: "Reports & Feedback" },
   ];
 
   const renderProfileImage = (size = "w-16 h-16") => {
@@ -64,21 +62,58 @@ const AdminLayout = () => {
 
         {/* Navigation Links */}
         <div className="flex-1 px-6 py-4 space-y-1 overflow-y-auto custom-scrollbar">
-          {navLinks.map((link) => (
-            <Link 
-              key={link.to}
-              to={link.to} 
-              onClick={() => setIsSidebarOpen(false)}
-              className={`flex items-center space-x-3 p-4 rounded-2xl transition-all font-bold text-fluid-sm ${
-                location.pathname === link.to 
-                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'
-              }`}
-            >
-              <span className="text-xl">{link.icon}</span>
-              <span>{link.label}</span>
-            </Link>
-          ))}
+          {navLinks.map((link, index) => {
+            if (link.isHeader) {
+              const hasActiveSub = link.subLinks?.some(sub => location.pathname + location.search === sub.to);
+              return (
+                <div key={`header-${index}`} className="space-y-1">
+                  <div className="pt-6 pb-2 px-4 flex items-center gap-2">
+                    {link.icon && <span className="text-slate-400 text-xs">{link.icon}</span>}
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{link.label}</p>
+                  </div>
+                  {/* {link.subLinks && (
+                    <div className="ml-4 space-y-1">
+                      {link.subLinks.map((sub, subIdx) => {
+                        const isSubActive = location.pathname + location.search === sub.to;
+                        return (
+                          <Link
+                            key={subIdx}
+                            to={sub.to}
+                            onClick={() => setIsSidebarOpen(false)}
+                            className={`flex items-center space-x-3 p-4 rounded-2xl transition-all font-bold text-fluid-sm ${
+                              isSubActive 
+                              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                              : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'
+                            }`}
+                          >
+                            <span className="text-sm font-black uppercase tracking-widest">{sub.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )} */}
+                </div>
+              );
+            }
+
+            const isActive = location.pathname + location.search === link.to;
+
+            return (
+              <Link 
+                key={link.to}
+                to={link.to} 
+                onClick={() => setIsSidebarOpen(false)}
+                className={`flex items-center space-x-3 p-4 rounded-2xl transition-all font-bold text-fluid-sm ${
+                  isActive 
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'
+                }`}
+              >
+                <span className="text-xl">{link.icon}</span>
+                <span>{link.label}</span>
+              </Link>
+            );
+          })}
         </div>
 
         {/* Logout Section */}

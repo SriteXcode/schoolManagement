@@ -70,7 +70,10 @@ const PrivateRoute = ({ children, role }) => {
   
   if (role) {
     const roles = Array.isArray(role) ? role : [role];
-    if (!roles.includes(user.role)) return <Navigate to="/login" />;
+    // Check if user role matches OR user is assigned to a matching schoolCell
+    const isAuthorized = roles.includes(user.role) || (user.schoolCell && roles.includes(user.schoolCell));
+    
+    if (!isAuthorized) return <Navigate to="/login" />;
   }
   
   return children;

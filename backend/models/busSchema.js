@@ -17,6 +17,12 @@ const busSchema = new mongoose.Schema({
   capacity: {
     type: Number,
   },
+  stops: [
+    {
+      stopName: { type: String, required: true },
+      fee: { type: Number, required: true },
+    }
+  ],
   status: {
     type: String,
     enum: ["Active", "Maintenance", "Inactive"],

@@ -3,7 +3,7 @@ const User = require("../models/userSchema");
 
 const auth = async (req, res, next) => {
   try {
-    const token = req.header("Authorization").replace("Bearer ", "");
+    const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) {
       throw new Error();
     }
@@ -24,8 +24,11 @@ const auth = async (req, res, next) => {
 
 const authorizeRole = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ error: "Access denied." });
+    // Access if user role is allowed OR user is assigned to an allowed cell
+    const isAuthorized = roles.includes(req.user.role) || (req.user.schoolCell && roles.includes(req.user.schoolCell));
+    
+    if (!isAuthorized) {
+      return res.status(403).json({ error: "Access denied. Required roles: " + roles.join(", ") });
     }
     next();
   };

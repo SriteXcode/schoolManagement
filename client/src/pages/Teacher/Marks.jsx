@@ -340,7 +340,7 @@ const Marks = () => {
             onClick={() => { setActiveTab('main'); setSelectedExam(''); setStudents([]); }}
             className={`px-6 py-2 rounded-lg font-bold transition flex items-center gap-2 ${activeTab === 'main' ? 'bg-white text-indigo-700 shadow-md' : 'text-gray-600 hover:text-indigo-600'}`}
           >
-              <FaCalendarAlt /> Admission Cell Schedule
+              <FaCalendarAlt /> Exam Cell Schedule
           </button>
           <button 
             onClick={() => { setActiveTab('classTest'); setSelectedExam(''); setStudents([]); }}

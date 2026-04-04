@@ -13,7 +13,7 @@ const {
 } = require("../controllers/cellController");
 const { auth, authorizeRole } = require("../middleware/authMiddleware");
 
-const staffRoles = ["Teacher", "Admin", "ExamCell", "AdmissionCell", "DisciplineCell", "SportsCell", "ManagementCell"];
+const staffRoles = ["Admin", "ExamCell", "AdmissionCell", "DisciplineCell", "SportsCell", "ManagementCell"];
 
 // Admin Only
 router.post("/assign", auth, authorizeRole("Admin"), assignTeacherToCell);
