@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaStar, FaRegStar, FaTimes, FaQuoteLeft, FaPlus, FaAward, FaInfoCircle } from 'react-icons/fa';
+import { FaStar, FaRegStar, FaTimes, FaQuoteLeft, FaPlus, FaAward, FaInfoCircle, FaExchangeAlt } from 'react-icons/fa';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 
@@ -9,6 +9,14 @@ const StudentDetailsModal = ({ student, onClose, onReviewAdded }) => {
     const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
     const [submittingReview, setSubmittingReview] = useState(false);
     const [loading, setLoading] = useState(true);
+    
+    // Admin Migration State
+    const [allClasses, setAllClasses] = useState([]);
+    const [selectedClass, setSelectedClass] = useState('');
+    const [transferring, setTransferring] = useState(false);
+
+    const user = JSON.parse(localStorage.getItem('user')) || {};
+    const isAdmin = user.role === 'Admin';
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -25,6 +33,12 @@ const StudentDetailsModal = ({ student, onClose, onReviewAdded }) => {
                 // Fetch Marks
                 const marksRes = await api.get(`/marks/student/${student._id}`);
                 setStudentMarks(marksRes.data);
+
+                // Fetch Classes for migration
+                if (isAdmin) {
+                    const classesRes = await api.get('/class/getall');
+                    setAllClasses(classesRes.data);
+                }
             } catch (error) {
                 console.error("Failed to fetch student details", error);
             } finally {
@@ -32,7 +46,25 @@ const StudentDetailsModal = ({ student, onClose, onReviewAdded }) => {
             }
         };
         fetchDetails();
-    }, [student]);
+    }, [student, isAdmin]);
+
+    const handleMoveClass = async () => {
+        if (!selectedClass) return toast.error("Please select a target class");
+        setTransferring(true);
+        try {
+            const res = await api.post('/class/reassign', { 
+                studentId: student._id, 
+                classId: selectedClass 
+            });
+            toast.success(`Student moved successfully!`);
+            onClose(); 
+            window.location.reload(); 
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Transfer failed");
+        } finally {
+            setTransferring(false);
+        }
+    };
 
     const handleAddReview = async (e) => {
         e.preventDefault();
@@ -121,6 +153,37 @@ const StudentDetailsModal = ({ student, onClose, onReviewAdded }) => {
                             )}
                         </div>
                     </div>
+
+                    {/* Admin Migration Section */}
+                    {isAdmin && (
+                        <div className="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100/50">
+                            <h4 className="text-xs font-bold text-emerald-600 uppercase mb-3 flex items-center gap-2">
+                                <FaExchangeAlt /> Class Migration Hub
+                            </h4>
+                            <div className="flex gap-2">
+                                <select 
+                                    className="flex-1 p-3 bg-white border border-emerald-100 rounded-xl text-xs font-black outline-none focus:ring-2 focus:ring-emerald-500"
+                                    value={selectedClass}
+                                    onChange={(e) => setSelectedClass(e.target.value)}
+                                >
+                                    <option value="">Select Target Class</option>
+                                    {allClasses.map(cls => (
+                                        <option key={cls._id} value={cls._id}>
+                                            Class {cls.grade}-{cls.section} {cls._id === student.sClass?._id ? '(Current)' : ''}
+                                        </option>
+                                    ))}
+                                </select>
+                                <button 
+                                    onClick={handleMoveClass}
+                                    disabled={transferring || !selectedClass || selectedClass === student.sClass?._id}
+                                    className="px-4 py-3 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase hover:bg-emerald-700 disabled:bg-emerald-200 transition shadow-lg shadow-emerald-100 whitespace-nowrap"
+                                >
+                                    {transferring ? 'Moving...' : 'Transfer Student'}
+                                </button>
+                            </div>
+                            <p className="text-[9px] font-bold text-emerald-600/60 mt-2 italic">* This will auto-update Roll No and School Email ID</p>
+                        </div>
+                    )}
 
                     {/* Attendance Stats */}
                     <div className={`p-4 rounded-xl text-white shadow-md flex justify-between items-center ${studentStats.percentage >= 75 ? 'bg-green-500' : 'bg-red-500'}`}>

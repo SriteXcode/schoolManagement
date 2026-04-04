@@ -65,9 +65,28 @@ const studentSchema = new mongoose.Schema({
     enum: ["Hostel", "Bicycle", "Bike", "Bus", "By Foot"],
     default: "By Foot"
   },
+  // Transport details
+  bikeNumber: { type: String, default: "" },
+  drivingLicense: { type: String, default: "" },
+  // Hostel details
+  roomNumber: { type: String, default: "" },
+  hostelName: { type: String, default: "" },
+  
   bus: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Bus"
+  },
+  busStop: {
+    type: String,
+    default: ""
+  },
+  busNickname: {
+    type: String,
+    default: ""
+  },
+  busJoiningDate: {
+    type: Date,
+    default: Date.now
   },
   reviews: [{
     reviewer: {

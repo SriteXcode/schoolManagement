@@ -19,6 +19,10 @@ const eventSchema = new mongoose.Schema({
   },
   instructions: {
     type: String, // Special instructions for celebrations etc.
+  },
+  time: {
+    type: String,
+    default: 'Full Day'
   }
 }, { timestamps: true });
 

@@ -1,16 +1,26 @@
 const Event = require("../models/eventSchema");
+const { validateSessionDate } = require("../middleware/sessionMiddleware");
 
 exports.createEvent = async (req, res) => {
   try {
-    const { date, title, description, type, instructions } = req.body;
+    const { date, title, description, type, instructions, time } = req.body;
+
+    // Academic Session Validation
+    try {
+        await validateSessionDate(date);
+    } catch (sessionError) {
+        return res.status(400).json({ message: sessionError.message });
+    }
+
     const event = await Event.create({
       date,
       title,
       description,
       type,
-      instructions
+      instructions,
+      time
     });
-    res.status(201).json({ message: "Event created successfully", event });
+    res.status(201).json(event);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -32,4 +42,24 @@ exports.deleteEvent = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+exports.updateEvent = async (req, res) => {
+    try {
+        const { date, title, description, type, instructions, time } = req.body;
+
+        // Academic Session Validation
+        try {
+            await validateSessionDate(date);
+        } catch (sessionError) {
+            return res.status(400).json({ message: sessionError.message });
+        }
+
+        const updatedEvent = await Event.findByIdAndUpdate(req.params.id, {
+            date, title, description, type, instructions, time
+        }, { new: true });
+        res.status(200).json({ message: "Event updated successfully", event: updatedEvent });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };

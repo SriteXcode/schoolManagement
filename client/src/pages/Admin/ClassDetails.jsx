@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { 
   FaArrowLeft, FaUserGraduate, FaStar, FaExclamationCircle, 
   FaCheckCircle, FaUser, FaTh, FaList, FaChalkboardTeacher, 
-  FaBook, FaRegStar, FaTimes, FaPlus, FaEdit 
+  FaBook, FaRegStar, FaTimes, FaPlus, FaEdit, FaExchangeAlt, FaUserPlus 
 } from 'react-icons/fa';
 import StudentDetailsModal from '../../components/StudentDetailsModal';
 
@@ -24,6 +24,11 @@ const ClassDetails = () => {
   const [editingSubjects, setEditingSubjects] = useState([]);
   const [updatingSubjects, setUpdatingSubjects] = useState(false);
 
+  // Reassign Modal State
+  const [showReassignModal, setShowReassignModal] = useState(false);
+  const [unassignedStudents, setUnassignedStudents] = useState([]);
+  const [reassigning, setReassigning] = useState(false);
+
   // Review Modal State
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -37,16 +42,18 @@ const ClassDetails = () => {
 
   const fetchData = async () => {
     try {
-      const [studentRes, classRes, teacherRes, allClassesRes] = await Promise.all([
+      const [studentRes, classRes, teacherRes, allClassesRes, unassignedRes] = await Promise.all([
           api.get(`/student/class/${id}`),
           api.get(`/class/details/${id}`),
           api.get('/teacher/getall'),
-          api.get('/class/getall')
+          api.get('/class/getall'),
+          api.get('/class/unassigned')
       ]);
       setStudents(studentRes.data);
       setClassDetails(classRes.data);
       setTeachers(teacherRes.data);
       setAllClasses(allClassesRes.data);
+      setUnassignedStudents(unassignedRes.data);
       setEditingSubjects(classRes.data.subjects.map(s => ({ 
           subName: s.subName, 
           teacher: s.teacher?._id || '' 
@@ -56,6 +63,19 @@ const ClassDetails = () => {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReassign = async (studentId) => {
+    setReassigning(true);
+    try {
+        await api.post('/class/reassign', { studentId, classId: id });
+        toast.success("Student assigned successfully!");
+        fetchData(); // Refresh all lists
+    } catch (error) {
+        toast.error(error.response?.data?.message || "Reassignment failed");
+    } finally {
+        setReassigning(false);
     }
   };
 
@@ -320,9 +340,19 @@ const ClassDetails = () => {
 
       {/* Students Section */}
       <div>
-        <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <FaUserGraduate /> Students ({students.length})
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <FaUserGraduate /> Students ({students.length})
+            </h2>
+            {isAdmin && (
+                <button 
+                    onClick={() => setShowReassignModal(true)}
+                    className="px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg hover:bg-emerald-700 transition flex items-center gap-2"
+                >
+                    <FaUserPlus /> Manage Students
+                </button>
+            )}
+        </div>
         
         {viewMode === 'list' ? (
              <div className="bg-white rounded-xl shadow-md overflow-x-auto">
@@ -524,6 +554,77 @@ const ClassDetails = () => {
                             <p className="text-center text-gray-500 py-4">No reviews yet.</p>
                         )}
                     </div>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {/* Reassign Students Modal */}
+      {showReassignModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowReassignModal(false)}>
+            <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-8 duration-300" onClick={e => e.stopPropagation()}>
+                <div className="p-6 border-b flex justify-between items-center bg-emerald-600 rounded-t-2xl text-white">
+                    <div>
+                        <h3 className="text-xl font-bold">Manage Student Enrollment</h3>
+                        <p className="text-emerald-100 text-xs font-medium mt-1">Enroll unassigned students or transfer from other classes</p>
+                    </div>
+                    <button onClick={() => setShowReassignModal(false)} className="text-white/80 hover:text-white"><FaTimes size={24} /></button>
+                </div>
+                
+                <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
+                    {/* Unassigned Pool */}
+                    <div className="w-full md:w-1/2 p-6 border-r flex flex-col bg-gray-50/50">
+                        <h4 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
+                            <FaUserPlus className="text-blue-500" /> New Enrollment Pool
+                        </h4>
+                        <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+                            {unassignedStudents.map(student => (
+                                <div key={student._id} className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:border-blue-200 transition-all group">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-sm">
+                                            {student.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-black text-gray-800">{student.name}</div>
+                                            <div className="text-[10px] font-bold text-gray-400 uppercase">{student.gender} • {student.phone}</div>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        disabled={reassigning}
+                                        onClick={() => handleReassign(student._id)}
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase hover:bg-blue-700 disabled:bg-blue-300 transition shadow-lg shadow-blue-100"
+                                    >Enroll</button>
+                                </div>
+                            ))}
+                            {unassignedStudents.length === 0 && (
+                                <div className="text-center py-20 text-gray-300 italic font-bold">No unassigned students available</div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Class to Class Transfer (Future implementation or use Student List) */}
+                    <div className="w-full md:w-1/2 p-6 flex flex-col">
+                        <h4 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
+                            <FaExchangeAlt className="text-amber-500" /> Existing Class Transfer
+                        </h4>
+                        <p className="text-xs text-gray-500 mb-6 bg-amber-50 p-4 rounded-xl border border-amber-100 font-medium">
+                            To transfer a student from another class to this class, search for the student in the main Students directory and use the "Move to Class" feature.
+                        </p>
+                        <div className="flex-1 flex flex-col items-center justify-center text-center p-10 opacity-40">
+                             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 mb-4">
+                                <FaExchangeAlt size={32} />
+                             </div>
+                             <h5 className="font-black text-gray-400 uppercase text-xs tracking-widest">Cross-Class Pipeline</h5>
+                             <p className="text-[10px] font-bold text-gray-300 mt-2">Manage specific transfers via the global student registry</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-6 bg-gray-50 border-t rounded-b-2xl flex justify-end">
+                    <button 
+                        onClick={() => setShowReassignModal(false)}
+                        className="px-8 py-3 bg-white border border-gray-200 text-gray-500 font-black uppercase text-[10px] tracking-widest rounded-xl hover:bg-gray-100 transition"
+                    >Done</button>
                 </div>
             </div>
         </div>

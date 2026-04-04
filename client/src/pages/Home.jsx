@@ -1,24 +1,96 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaUserGraduate, FaChalkboardTeacher, FaSchool, FaPaperPlane, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaUserGraduate, FaChalkboardTeacher, FaSchool, FaPaperPlane, FaChevronLeft, FaChevronRight, FaClock, FaBook, FaBullhorn, FaCalendarAlt, FaExternalLinkAlt, FaInfoCircle, FaTimes } from 'react-icons/fa';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 
 const Home = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [carouselItems, setCarouselItems] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [upcomingItems, setUpcomingItems] = useState([]);
+  const [loadingUpcoming, setLoadingUpcoming] = useState(false);
+  const [upcomingFilter, setUpcomingFilter] = useState('month'); // 'week' or 'month'
+  const [selectedItem, setSelectedItem] = useState(null);
+  
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-      const fetchCarousel = async () => {
-          try {
-              const res = await api.get('/management/carousel/all');
-              setCarouselItems(res.data);
-          } catch (e) {}
-      };
-      fetchCarousel();
+    const userString = localStorage.getItem('user');
+    if (userString) {
+        setUser(JSON.parse(userString));
+    }
+
+    const fetchInitialData = async () => {
+        try {
+            const carouselRes = await api.get('/management/carousel/all');
+            setCarouselItems(carouselRes.data);
+        } catch (e) {}
+    };
+    fetchInitialData();
   }, []);
+
+  useEffect(() => {
+      if (user) {
+          fetchUpcoming();
+      }
+  }, [user, upcomingFilter]);
+
+  const fetchUpcoming = async () => {
+      setLoadingUpcoming(true);
+      try {
+          const eventsRes = await api.get('/events/getall');
+          let examsRes = { data: [] };
+          
+          if (user.role === 'Student') {
+              let classId = user.sClass?._id || user.sClass || localStorage.getItem('classId');
+              
+              if (!classId) {
+                  try {
+                    const profile = await api.get('/student/profile');
+                    if (profile.data?.sClass?._id) {
+                        classId = profile.data.sClass._id;
+                        localStorage.setItem('classId', classId);
+                        localStorage.setItem('studentId', profile.data._id);
+                    }
+                  } catch (e) {
+                      console.error("Profile fetch failed", e);
+                  }
+              }
+              
+              if (classId) {
+                  examsRes = await api.get(`/exam/${classId}`);
+              }
+          } else {
+              examsRes = await api.get('/exam/all');
+          }
+
+          // In this turn, Admin can edit calendar, so I assume they should see events too.
+          const allEvents = (eventsRes.data || []).map(e => ({ ...e, itemType: 'Event' }));
+          const allExams = (examsRes.data || []).map(e => ({ ...e, itemType: 'Exam' }));
+          
+          const today = new Date();
+          today.setHours(0,0,0,0);
+          const filterDate = new Date();
+          if (upcomingFilter === 'week') filterDate.setDate(today.getDate() + 7);
+          else filterDate.setMonth(today.getMonth() + 1);
+
+          const combined = [...allEvents, ...allExams]
+            .filter(item => {
+                const d = new Date(item.date);
+                return d >= today && d <= filterDate;
+            })
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+          setUpcomingItems(combined); 
+      } catch (err) {
+          console.error("Failed to fetch upcoming items", err);
+      } finally {
+          setLoadingUpcoming(false);
+      }
+  };
 
   useEffect(() => {
       if (carouselItems.length > 0) {
@@ -37,6 +109,22 @@ const Home = () => {
       setFormData({ name: '', email: '', message: '' });
     } catch (e) {
       toast.error('Failed to send message');
+    }
+  };
+
+  const handleMoreDetail = (item) => {
+    if (item.itemType === 'Exam') {
+        if (user?.role === 'Student') {
+            const studentClassId = user.sClass?._id || user.sClass || localStorage.getItem('classId');
+            const examClassId = item.sClass?._id || item.sClass;
+            if (studentClassId && examClassId && studentClassId !== examClassId) {
+                toast.error("This exam does not belong to your class.");
+                return;
+            }
+        }
+        navigate('/student/exams');
+    } else {
+        setSelectedItem(item);
     }
   };
 
@@ -133,28 +221,100 @@ const Home = () => {
             </div>
         )}
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full mb-20 px-4"
-        >
-          <FeatureCard 
-            icon={<FaSchool className="text-4xl text-indigo-600" />}
-            title="Admin Control"
-            desc="Manage classes, users, and notices effortlessly."
-          />
-          <FeatureCard 
-            icon={<FaChalkboardTeacher className="text-4xl text-indigo-600" />}
-            title="Teacher Portal"
-            desc="Mark attendance, assign homework, and grade exams."
-          />
-          <FeatureCard 
-            icon={<FaUserGraduate className="text-4xl text-indigo-600" />}
-            title="Student Success"
-            desc="Track progress, view results, and stay updated."
-          />
-        </motion.div>
+        {/* Upcoming Section (Horizontal Scroll) */}
+        {user && (
+            <div className="w-full max-w-7xl mb-24 px-4 text-left">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12 max-w-6xl mx-auto">
+                    <div>
+                        <h2 className="text-3xl font-black text-slate-900 tracking-tight">Your Upcoming Schedule</h2>
+                        <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-1">Don't miss out on important dates</p>
+                    </div>
+                    
+                    <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-100">
+                        <button 
+                            onClick={() => setUpcomingFilter('week')}
+                            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${upcomingFilter === 'week' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
+                            Next 7 Days
+                        </button>
+                        <button 
+                            onClick={() => setUpcomingFilter('month')}
+                            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${upcomingFilter === 'month' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
+                            This Month
+                        </button>
+                    </div>
+                </div>
+
+                {loadingUpcoming ? (
+                    <div className="py-20 text-center text-slate-300 font-black animate-pulse uppercase tracking-[0.2em]">Syncing Calendar...</div>
+                ) : (
+                    <div className="flex gap-8 overflow-x-auto pb-12 pt-4 px-4 snap-x snap-mandatory scrollbar-hide custom-scrollbar">
+                        {upcomingItems.length > 0 ? upcomingItems.map((item, idx) => (
+                            <motion.div 
+                                key={`${item.itemType}-${item._id}`}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.1 }}
+                                className={`min-w-[320px] md:min-w-[380px] group p-8 rounded-[2.5rem] border transition-all cursor-pointer hover:shadow-2xl hover:bg-white snap-center ${
+                                    item.itemType === 'Exam' ? 'bg-rose-50/30 border-rose-100' : 'bg-indigo-50/30 border-indigo-100'
+                                }`}
+                                onClick={() => navigate('/calendar')}
+                            >
+                                <div className="flex justify-between items-start mb-8">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${
+                                            item.itemType === 'Exam' ? 'bg-white text-rose-600' : 'bg-white text-indigo-600'
+                                        }`}>
+                                            {item.itemType === 'Exam' ? <FaBook size={20} /> : <FaBullhorn size={20} />}
+                                        </div>
+                                        <div>
+                                            <span className={`text-[9px] font-black uppercase tracking-widest ${item.itemType === 'Exam' ? 'text-rose-500' : 'text-indigo-500'}`}>{item.itemType}</span>
+                                            <h4 className="font-black text-slate-800 text-xl truncate max-w-[180px] mt-0.5">{item.title || item.subject}</h4>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-2xl font-black text-slate-900 leading-none">{new Date(item.date).getDate()}</div>
+                                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{new Date(item.date).toLocaleString('default', { month: 'short' })}</div>
+                                    </div>
+                                </div>
+                                
+                                <p className="text-sm font-bold text-slate-500 line-clamp-2 mb-8 leading-relaxed">
+                                    {item.description || item.name || 'Important assessment scheduled.'}
+                                </p>
+
+                                <div className="flex items-center justify-between pt-6 border-t border-slate-200/50">
+                                    <div className="flex items-center gap-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        <FaClock className={item.itemType === 'Exam' ? 'text-rose-400' : 'text-indigo-400'} size={12} />
+                                        {item.time || 'Full Day'}
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <Link 
+                                            to={`/gallery?category=${item.title || item.subject}`} 
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center hover:bg-teal-50 hover:text-teal-600 transition-all shadow-sm"
+                                        >
+                                            <FaExternalLinkAlt size={12} />
+                                        </Link>
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); handleMoreDetail(item); }}
+                                            className="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center hover:bg-indigo-50 hover:text-indigo-600 transition-all shadow-sm"
+                                        >
+                                            <FaInfoCircle size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )) : (
+                            <div className="w-full py-24 bg-white rounded-[3rem] border border-slate-100 border-dashed text-center">
+                                <FaCalendarAlt size={48} className="text-slate-100 mx-auto mb-6" />
+                                <p className="text-slate-400 font-bold italic text-lg">Your schedule is clear for this period.</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        )}
 
         {/* Explore Section */}
         <div className="w-full max-w-6xl mb-20 px-4">
@@ -224,6 +384,70 @@ const Home = () => {
         </div>
 
       </div>
+
+      {/* Event Details Modal */}
+      <AnimatePresence>
+          {selectedItem && (
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-6"
+                onClick={() => setSelectedItem(null)}
+              >
+                  <motion.div 
+                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                    className="bg-white w-full max-w-xl rounded-[3rem] shadow-2xl overflow-hidden relative border border-white/20"
+                    onClick={e => e.stopPropagation()}
+                  >
+                      <button 
+                        onClick={() => setSelectedItem(null)}
+                        className="absolute top-8 right-8 p-3 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors z-20"
+                      >
+                          <FaTimes />
+                      </button>
+
+                      <div className="p-12 md:p-16 text-left">
+                          <div className="flex items-center gap-4 mb-8">
+                              <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${selectedItem.itemType === 'Exam' ? 'bg-rose-50 text-rose-600' : 'bg-indigo-50 text-indigo-600'}`}>
+                                  {selectedItem.itemType} Log
+                              </div>
+                              <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest">{new Date(selectedItem.date).toLocaleDateString()}</div>
+                          </div>
+                          
+                          <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-8 leading-tight tracking-tight">{selectedItem.title || selectedItem.subject}</h2>
+                          
+                          <div className="prose prose-slate max-w-none mb-10">
+                              <p className="text-slate-600 text-lg leading-relaxed">{selectedItem.description || selectedItem.name}</p>
+                              {selectedItem.instructions && (
+                                  <div className="mt-6 p-6 bg-slate-50 rounded-3xl border border-slate-100 italic text-slate-500">
+                                      " {selectedItem.instructions} "
+                                  </div>
+                              )}
+                          </div>
+
+                          <div className="flex items-center justify-between pt-8 border-t border-slate-100">
+                               <div className="flex items-center gap-3">
+                                   <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center">
+                                       <FaClock size={14} />
+                                   </div>
+                                   <div>
+                                       <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Time Slot</div>
+                                       <div className="text-slate-900 font-black">{selectedItem.time || 'Full Day Access'}</div>
+                                   </div>
+                               </div>
+                               <button 
+                                onClick={() => navigate('/calendar')}
+                                className="px-8 py-3 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition shadow-lg shadow-indigo-100 text-xs uppercase tracking-widest"
+                               >
+                                   Open Calendar
+                               </button>
+                          </div>
+                      </div>
+                  </motion.div>
+              </motion.div>
+          )}
+      </AnimatePresence>
       
       <footer className="p-10 text-center text-slate-400 text-sm border-t border-slate-100 bg-white mt-20">
         © 2026 EduManage System. All rights reserved.

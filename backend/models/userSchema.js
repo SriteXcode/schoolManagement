@@ -29,6 +29,11 @@ const userSchema = new mongoose.Schema({
     enum: ["Admin", "Teacher", "Student", "AdmissionCell", "ExamCell", "DisciplineCell", "SportsCell", "ManagementCell", "BusDriver", "LabAssistant", "CleaningStaff"],
     default: "Student",
   },
+  schoolCell: {
+    type: String,
+    enum: ["None", "AdmissionCell", "ExamCell", "DisciplineCell", "SportsCell", "ManagementCell"],
+    default: "None"
+  },
   profileImage: {
     type: String,
     default: "https://cdn-icons-png.flaticon.com/512/149/149071.png", // Default avatar

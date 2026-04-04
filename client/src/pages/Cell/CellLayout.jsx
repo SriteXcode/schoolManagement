@@ -12,7 +12,13 @@ import {
   ArrowLeft,
   Menu,
   X,
-  School
+  School,
+  DollarSign,
+  Bus,
+  Settings,
+  Image,
+  Mail,
+  Clock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -24,11 +30,16 @@ const CellLayout = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user?.role === 'Admin') return; // Admins don't have teacher/staff profiles
+
       try {
-        const res = await api.get('/teacher/profile');
+        const res = await api.get('teacher/profile');
         setProfile(res.data);
       } catch (err) {
-        console.error("Cell Sidebar: Error fetching profile");
+        if (err.response?.status !== 404) {
+            console.error("Cell Sidebar: Error fetching profile", err);
+        }
       }
     };
     fetchProfile();
@@ -44,9 +55,20 @@ const CellLayout = () => {
 
   const getCellConfig = () => {
     const user = JSON.parse(localStorage.getItem('user'));
-    const cell = profile?.schoolCell || user?.role;
+    
+    // Determine which cell we are in based on URL or user profile
+    let cell = profile?.schoolCell || user?.role;
 
-    if (!cell || cell === "Teacher" || cell === "None") return { title: "Cell Management", menu: [] };
+    // If Admin, prioritize URL context
+    if (user?.role === 'Admin') {
+        if (location.pathname.includes('/cell/management')) cell = 'ManagementCell';
+        else if (location.pathname.includes('/cell/exam')) cell = 'ExamCell';
+        else if (location.pathname.includes('/cell/discipline')) cell = 'DisciplineCell';
+        else if (location.pathname.includes('/cell/sports')) cell = 'SportsCell';
+        else if (location.pathname.includes('/admission')) cell = 'AdmissionCell';
+    }
+
+    if (!cell || cell === "Teacher" || cell === "None") return { title: "Portal", menu: [] };
 
     switch(cell) {
       case 'ExamCell':
@@ -81,12 +103,24 @@ const CellLayout = () => {
           title: "Management Cell",
           menu: [
             { path: '/cell/management/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-            { path: '/admin/salaries', icon: FileText, label: 'Salaries' },
-            { path: '/admin/notices', icon: FileText, label: 'School Notices' },
+            { label: "Academics", icon: Clock, isHeader: true, subLinks: [
+              { path: '/cell/management/dashboard?tab=phases', label: 'Schedule Phases' },
+              { path: '/cell/management/dashboard?tab=timetable', label: 'Timetable Editor' },
+            ]},
+            { label: "Staff Hub", icon: Users, isHeader: true, subLinks: [
+              { path: '/cell/management/dashboard?tab=staff', label: 'Personal' },
+              { path: '/cell/management/dashboard?tab=salary', label: 'Payroll & HR' },
+              { path: '/cell/management/dashboard?tab=transport', label: 'Fleet Manager' },
+              { path: '/cell/management/dashboard?tab=media', label: 'CMS & Media' },
+              { path: '/cell/management/dashboard?tab=config', label: 'Configurations' },
+            ]},
+            { label: "Reports & Feedback", icon: Mail, isHeader: true, subLinks: [
+                { path: '/cell/management/dashboard?tab=inbox', label: 'Inbox' },
+            ]},
           ]
         };
       default:
-        return { title: "Cell Management", menu: [] };
+        return { title: "Portal", menu: [] };
     }
   };
 
@@ -106,7 +140,7 @@ const CellLayout = () => {
             </div>
         </div>
 
-        <nav className="flex-1 px-8 py-4 space-y-2 text-left">
+        <nav className="flex-1 px-8 py-4 space-y-2 text-left overflow-y-auto custom-scrollbar">
           {isAdmin ? (
             <Link 
               to="/admin/cells" 
@@ -127,9 +161,41 @@ const CellLayout = () => {
             </Link>
           )}
 
-          {config.menu.map((item) => {
+          {config.menu.map((item, index) => {
+            if (item.isHeader) {
+              return (
+                <div key={`header-${index}`} className="space-y-1">
+                  <div className="pt-6 pb-2 px-4 flex items-center gap-2">
+                    {item.icon && <item.icon size={14} className="text-slate-400" />}
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{item.label}</p>
+                  </div>
+                  {item.subLinks && (
+                    <div className="ml-4 space-y-1">
+                      {item.subLinks.map((sub, subIdx) => {
+                        const isSubActive = location.pathname + location.search === sub.path;
+                        return (
+                          <Link
+                            key={subIdx}
+                            to={sub.path}
+                            onClick={() => setIsSidebarOpen(false)}
+                            className={`flex items-center space-x-3 p-4 rounded-2xl transition-all font-bold ${
+                              isSubActive 
+                              ? 'bg-slate-900 text-white shadow-lg shadow-slate-100' 
+                              : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                            }`}
+                          >
+                            <span className="text-[11px] font-black uppercase tracking-widest">{sub.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname + location.search === item.path;
             return (
               <Link
                 key={item.path}

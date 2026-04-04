@@ -353,6 +353,7 @@ const ManageFees = () => {
                             <th className="py-4 md:py-6 px-4 md:px-8">Student Detail</th>
                             <th className="py-4 md:py-6 px-4 md:px-8 text-center">Class</th>
                             <th className="py-4 md:py-6 px-4 md:px-8 text-right">Total Paid</th>
+                            <th className="py-4 md:py-6 px-4 md:px-8 text-right">Due (Till Now)</th>
                             <th className="py-4 md:py-6 px-4 md:px-8 text-right">Total Due</th>
                             <th className="py-4 md:py-6 px-4 md:px-8 text-center">Status</th>
                             <th className="py-4 md:py-6 px-4 md:px-8 text-right">Action</th>
@@ -395,6 +396,9 @@ const ManageFees = () => {
                                     </span>
                                 </td>
                                 <td className="py-4 md:py-6 px-4 md:px-8 text-right font-black text-green-600 text-xs md:text-sm">₹{fee.totalPaid}</td>
+                                <td className={`py-4 md:py-6 px-4 md:px-8 text-right font-black text-xs md:text-sm ${fee.dueTillCurrentMonth <= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    ₹{fee.dueTillCurrentMonth}
+                                </td>
                                 <td className={`py-4 md:py-6 px-4 md:px-8 text-right font-black text-xs md:text-sm ${fee.totalDue <= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                     {fee.totalDue < 0 ? `₹${Math.abs(fee.totalDue)} (Credit)` : `₹${fee.totalDue}`}
                                 </td>

@@ -1,11 +1,19 @@
 const Homework = require("../models/homeworkSchema");
 const HomeworkStatus = require("../models/homeworkStatusSchema");
 const Student = require("../models/studentSchema");
+const { validateSessionDate } = require("../middleware/sessionMiddleware");
 
 exports.createHomework = async (req, res) => {
   try {
     const { sClass, subject, title, description, dueDate } = req.body;
     
+    // Academic Session Validation
+    try {
+        await validateSessionDate(dueDate);
+    } catch (sessionError) {
+        return res.status(400).json({ message: sessionError.message });
+    }
+
     // Default dueDate: Next day if not provided
     const defaultDueDate = new Date();
     defaultDueDate.setDate(defaultDueDate.getDate() + 1);
@@ -78,6 +86,13 @@ exports.updateHomework = async (req, res) => {
         const { id } = req.params;
         const { subject, title, description, dueDate } = req.body;
         
+        // Academic Session Validation
+        try {
+            await validateSessionDate(dueDate);
+        } catch (sessionError) {
+            return res.status(400).json({ message: sessionError.message });
+        }
+
         const updatedHomework = await Homework.findByIdAndUpdate(
             id,
             { subject, title, description, dueDate },

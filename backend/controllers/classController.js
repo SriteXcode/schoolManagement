@@ -1,5 +1,55 @@
 const Class = require("../models/classSchema");
 const Teacher = require("../models/teacherSchema");
+const Student = require("../models/studentSchema");
+const User = require("../models/userSchema");
+
+exports.getUnassignedStudents = async (req, res) => {
+  try {
+    const students = await Student.find({ sClass: null }).populate("user", "-password");
+    res.status(200).json(students);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.reassignStudentToClass = async (req, res) => {
+  try {
+    const { studentId, classId } = req.body;
+    
+    const sClass = await Class.findById(classId);
+    if (!sClass) return res.status(404).json({ message: "Target class not found" });
+
+    const student = await Student.findById(studentId);
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    // Generate New Roll Number based on target class (Safe Generation)
+    let nextNum = await Student.countDocuments({ sClass: classId }) + 1;
+    let newRollNum, newEmail, userExists;
+
+    do {
+        newRollNum = `${sClass.grade}${sClass.section}${String(nextNum).padStart(3, '0')}`;
+        newEmail = `${newRollNum}@school.com`.toLowerCase();
+        userExists = await User.findOne({ email: newEmail });
+        if (userExists) nextNum++;
+    } while (userExists);
+
+    // Update Student Profile
+    student.sClass = classId;
+    student.rollNum = newRollNum;
+    await student.save();
+
+    // Update Linked User Email
+    await User.findByIdAndUpdate(student.user, { email: newEmail });
+
+    res.status(200).json({ 
+        message: "Student reassigned successfully", 
+        student,
+        newCredentials: { username: newEmail }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 exports.createClass = async (req, res) => {
   try {
