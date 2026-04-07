@@ -207,9 +207,9 @@ const Profile = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-2 text-left">
         <div>
             <h1 className="text-5xl font-black text-slate-900 tracking-tighter">Account Hub</h1>
-            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.4em] mt-2 ml-1 flex items-center gap-2">
+            <div className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.4em] mt-2 ml-1 flex items-center gap-2">
                 <div className="w-10 h-px bg-indigo-500" /> SECURE IDENTITY PREFERENCES
-            </p>
+            </div>
         </div>
         {!isEditing ? (
             <div className="flex gap-4">
