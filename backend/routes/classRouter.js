@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const { 
     createClass, getClasses, assignTeacher, getClassDetails, 
-    updateSubjects, getUnassignedStudents, reassignStudentToClass 
+    updateSubjects, getUnassignedStudents, reassignStudentToClass,
+    deleteClass
 } = require("../controllers/classController");
 const { auth, authorizeRole } = require("../middleware/authMiddleware");
 
@@ -13,5 +14,6 @@ router.get("/unassigned", auth, authorizeRole("Admin"), getUnassignedStudents);
 router.post("/reassign", auth, authorizeRole("Admin"), reassignStudentToClass);
 router.get("/getall", auth, getClasses); 
 router.get("/details/:id", auth, getClassDetails);
+router.delete("/:id", auth, authorizeRole("Admin"), deleteClass);
 
 module.exports = router;

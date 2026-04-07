@@ -57,11 +57,15 @@ const TeacherLayout = () => {
   const navLinks = [
     { to: "/teacher/dashboard", icon: <FaHome />, label: "Dashboard" },
     ...(cellLink ? [{ to: cellLink, icon: <FaShieldAlt />, label: cellLabel }] : []),
-    { to: "/teacher/attendance", icon: <FaClipboardCheck />, label: "Attendance" },
+    { to: "/teacher/schedule", icon: <FaCalendarAlt />, label: "Schedule" },
+    { to: "/teacher/attendance", icon: <FaClipboardCheck />, label: "Mark Attendance" },
+    { to: "/teacher/leave", icon: <FaPaperPlane />, label: "Leave Requests" },
     { to: "/teacher/homework", icon: <FaBook />, label: "Homework" },
     { to: "/teacher/syllabus", icon: <FaListAlt />, label: "Syllabus" },
     { to: "/teacher/marks", icon: <FaMarker />, label: "Enter Marks" },
+    { to: "/teacher/exams", icon: <FaClipboardList />, label: "Exams" },
     { to: "/teacher/students", icon: <FaUserGraduate />, label: "My Students" },
+    { to: "/teacher/salary", icon: <FaMoneyBillWave />, label: "Payroll" },
     { to: "/teacher/inbox", icon: <FaCommentDots />, label: "Inbox" },
     // { to: "/teacher/profile", icon: <FaIdCard />, label: "Profile" },
   ];

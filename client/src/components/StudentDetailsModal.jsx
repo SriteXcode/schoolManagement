@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FaStar, FaRegStar, FaTimes, FaQuoteLeft, FaPlus, FaAward, FaInfoCircle, FaExchangeAlt } from 'react-icons/fa';
+import { FaStar, FaRegStar, FaTimes, FaQuoteLeft, FaPlus, FaAward, FaInfoCircle, FaExchangeAlt, FaCamera } from 'react-icons/fa';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
+import Loader from './Loader';
+import ImageUpload from './ImageUpload';
 
 const StudentDetailsModal = ({ student, onClose, onReviewAdded }) => {
     const [studentStats, setStudentStats] = useState({ percentage: 0, present: 0, total: 0 });
@@ -9,6 +11,7 @@ const StudentDetailsModal = ({ student, onClose, onReviewAdded }) => {
     const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
     const [submittingReview, setSubmittingReview] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [uploading, setUploading] = useState(false);
     
     // Admin Migration State
     const [allClasses, setAllClasses] = useState([]);
@@ -47,6 +50,29 @@ const StudentDetailsModal = ({ student, onClose, onReviewAdded }) => {
         };
         fetchDetails();
     }, [student, isAdmin]);
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const uploadData = new FormData();
+        uploadData.append('image', file);
+
+        setUploading(true);
+        try {
+            const res = await api.post('/auth/upload', uploadData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            await api.put(`/student/update/${student._id}`, { profileImage: res.data.url });
+            toast.success("Profile photo updated & optimized!");
+            // Refresh logic could be here, but for simplicity:
+            window.location.reload();
+        } catch (error) {
+            toast.error("Upload failed");
+        } finally {
+            setUploading(false);
+        }
+    };
 
     const handleMoveClass = async () => {
         if (!selectedClass) return toast.error("Please select a target class");
@@ -99,15 +125,34 @@ const StudentDetailsModal = ({ student, onClose, onReviewAdded }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={onClose}>
             <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
-                    <div>
-                        <h3 className="text-xl font-bold text-gray-800">{student.name}</h3>
-                        <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                            <span className="font-bold text-indigo-600">{student.averageRating || 0}</span>
-                            {renderStars(student.averageRating || 0)}
+                    <div className="flex items-center gap-4">
+                        <div className="relative group">
+                            <ImageUpload 
+                                label="Photo"
+                                preview={student.profileImage}
+                                onUploadSuccess={async (url) => {
+                                    try {
+                                        await api.put(`/student/update/${student._id}`, { profileImage: url });
+                                        toast.success("Profile photo updated!");
+                                        window.location.reload();
+                                    } catch (e) {
+                                        toast.error("Failed to update profile");
+                                    }
+                                }}
+                            />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-gray-800">{student.name}</h3>
+                            <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                                <span className="font-bold text-indigo-600">{student.averageRating || 0}</span>
+                                {renderStars(student.averageRating || 0)}
+                            </div>
                         </div>
                     </div>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><FaTimes size={24} /></button>
                 </div>
+                
+                {uploading && <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-[60] flex items-center justify-center rounded-2xl"><Loader text="Optimizing Photo..." /></div>}
                 
                 <div className="p-6 overflow-y-auto space-y-4 custom-scrollbar">
                     {/* Basic Info & Address */}

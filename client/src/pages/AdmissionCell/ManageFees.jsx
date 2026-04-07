@@ -25,6 +25,7 @@ const ManageFees = () => {
   const [activeModal, setActiveModal] = useState(null); // 'payment', 'charge', 'bulk', 'confirm-bulk'
   const [bulkAction, setBulkAction] = useState(null); // 'mark-defaulter', 'mark-regular'
   const [targetMonth, setTargetMonth] = useState('');
+  const [selectedCharges, setSelectedCharges] = useState([]); // Array of charge IDs
   const [formData, setFormData] = useState({
       amount: '',
       paymentMethod: 'Cash',
@@ -115,6 +116,19 @@ const ManageFees = () => {
       }
   };
 
+  const toggleCharge = (charge) => {
+      const isSelected = selectedCharges.includes(charge._id);
+      let newSelected;
+      if (isSelected) {
+          newSelected = selectedCharges.filter(id => id !== charge._id);
+          setFormData(prev => ({ ...prev, amount: Number(prev.amount) - charge.amount }));
+      } else {
+          newSelected = [...selectedCharges, charge._id];
+          setFormData(prev => ({ ...prev, amount: Number(prev.amount) + charge.amount }));
+      }
+      setSelectedCharges(newSelected);
+  };
+
   const handlePayment = async (e) => {
     e.preventDefault();
     try {
@@ -122,7 +136,8 @@ const ManageFees = () => {
           month: targetMonth,
           amount: formData.amount,
           paymentMethod: formData.paymentMethod,
-          remarks: formData.remarks
+          remarks: formData.remarks,
+          selectedCharges: selectedCharges
       });
       toast.success(`Payment recorded for ${targetMonth}`);
       closeModal();
@@ -175,13 +190,14 @@ const ManageFees = () => {
   };
 
   const downloadCSV = () => {
-    const headers = ["Student Name", "Roll Number", "Class", "Total Paid", "Total Due", "Status", "Is Defaulter"];
+    const headers = ["Student Name", "Roll Number", "Class", "Total Paid", "Total Due (Now)", "Yearly Remaining", "Status", "Is Defaulter"];
     const rows = filteredFees.map(f => [
         f.student?.name,
         f.student?.rollNum,
         `${f.student?.sClass?.grade}-${f.student?.sClass?.section}`,
         f.totalPaid,
         f.totalDue,
+        f.totalYearlyDue,
         f.totalDue <= 0 ? "Cleared" : "Pending",
         f.isDefaulter ? "YES" : "NO"
     ]);
@@ -201,6 +217,7 @@ const ManageFees = () => {
 
   const closeModal = () => {
       setActiveModal(null);
+      setSelectedCharges([]);
       setFormData({ amount: '', paymentMethod: 'Cash', remarks: '', chargeName: '', chargeDescription: '' });
       setBulkData({ type: 'all', targetIds: [], month: 'April', name: '', amount: '', description: '' });
   };
@@ -234,6 +251,16 @@ const ManageFees = () => {
 
         {view === 'list' && (
             <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                <div className="flex gap-3 mr-4">
+                    <div className="bg-green-50 px-4 py-2 rounded-xl border border-green-100 flex flex-col justify-center">
+                        <span className="text-[8px] font-black text-green-600 uppercase tracking-widest">Total Collected</span>
+                        <span className="text-sm font-black text-green-700">₹{fees.reduce((acc, f) => acc + (Number(f.totalPaid) || 0), 0)}</span>
+                    </div>
+                    <div className="bg-red-50 px-4 py-2 rounded-xl border border-red-100 flex flex-col justify-center">
+                        <span className="text-[8px] font-black text-red-600 uppercase tracking-widest">Current Due</span>
+                        <span className="text-sm font-black text-red-700">₹{fees.reduce((acc, f) => acc + (Number(f.totalDue) || 0), 0)}</span>
+                    </div>
+                </div>
                 <button 
                     onClick={downloadCSV}
                     className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 md:py-4 bg-green-600 text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest hover:bg-green-700 transition shadow-lg shadow-green-100 text-[10px] md:text-xs"
@@ -353,8 +380,8 @@ const ManageFees = () => {
                             <th className="py-4 md:py-6 px-4 md:px-8">Student Detail</th>
                             <th className="py-4 md:py-6 px-4 md:px-8 text-center">Class</th>
                             <th className="py-4 md:py-6 px-4 md:px-8 text-right">Total Paid</th>
-                            <th className="py-4 md:py-6 px-4 md:px-8 text-right">Due (Till Now)</th>
                             <th className="py-4 md:py-6 px-4 md:px-8 text-right">Total Due</th>
+                            <th className="py-4 md:py-6 px-4 md:px-8 text-right">Yearly Remaining</th>
                             <th className="py-4 md:py-6 px-4 md:px-8 text-center">Status</th>
                             <th className="py-4 md:py-6 px-4 md:px-8 text-right">Action</th>
                         </tr>
@@ -396,11 +423,11 @@ const ManageFees = () => {
                                     </span>
                                 </td>
                                 <td className="py-4 md:py-6 px-4 md:px-8 text-right font-black text-green-600 text-xs md:text-sm">₹{fee.totalPaid}</td>
-                                <td className={`py-4 md:py-6 px-4 md:px-8 text-right font-black text-xs md:text-sm ${fee.dueTillCurrentMonth <= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                    ₹{fee.dueTillCurrentMonth}
-                                </td>
                                 <td className={`py-4 md:py-6 px-4 md:px-8 text-right font-black text-xs md:text-sm ${fee.totalDue <= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                    {fee.totalDue < 0 ? `₹${Math.abs(fee.totalDue)} (Credit)` : `₹${fee.totalDue}`}
+                                    ₹{fee.totalDue}
+                                </td>
+                                <td className={`py-4 md:py-6 px-4 md:px-8 text-right font-black text-xs md:text-sm ${fee.totalYearlyDue <= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {fee.totalYearlyDue < 0 ? `₹${Math.abs(fee.totalYearlyDue)} (Credit)` : `₹${fee.totalYearlyDue}`}
                                 </td>
                                 <td className="py-4 md:py-6 px-4 md:px-8 text-center">
                                     <span className={`px-2 md:px-3 py-1 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-widest border ${
@@ -460,8 +487,11 @@ const ManageFees = () => {
 
                             <div className="space-y-2 mb-4 md:mb-6">
                                 {m.charges.map((c, ci) => (
-                                    <div key={ci} className="flex justify-between text-[10px] md:text-[11px] font-bold text-gray-500">
-                                        <span className="line-clamp-1 flex-1">{c.name}</span>
+                                    <div key={ci} className="flex justify-between items-center text-[10px] md:text-[11px] font-bold text-gray-500">
+                                        <div className="flex items-center gap-1.5 flex-1">
+                                            {c.status === 'Paid' && <div className="text-green-600"><CheckSquare size={12}/></div>}
+                                            <span className="line-clamp-1">{c.name}</span>
+                                        </div>
                                         <span className="ml-2">₹{c.amount}</span>
                                     </div>
                                 ))}
@@ -546,9 +576,39 @@ const ManageFees = () => {
                     <p className="text-green-100 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Collecting for {targetMonth}</p>
                 </div>
                 <form onSubmit={handlePayment} className="p-6 md:p-8 space-y-4 md:space-y-5 overflow-y-auto custom-scrollbar">
+                    {/* Charges Selection */}
+                    <div className="space-y-3">
+                        <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Clear Specific Charges</label>
+                        <div className="grid grid-cols-1 gap-2">
+                            {selectedFee.monthlyFees.find(mf => mf.month === targetMonth)?.charges.map((charge) => (
+                                <button
+                                    key={charge._id}
+                                    type="button"
+                                    onClick={() => toggleCharge(charge)}
+                                    disabled={charge.status === 'Paid'}
+                                    className={`flex items-center justify-between p-3 rounded-xl border-2 transition-all ${
+                                        charge.status === 'Paid' ? 'bg-green-50 border-green-200 text-green-700 cursor-not-allowed' :
+                                        selectedCharges.includes(charge._id) ? 'bg-indigo-50 border-indigo-600 text-indigo-700' : 
+                                        'bg-gray-50 border-transparent text-gray-600 hover:border-gray-200'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center ${
+                                            charge.status === 'Paid' || selectedCharges.includes(charge._id) ? 'bg-current border-current' : 'bg-white border-gray-300'
+                                        }`}>
+                                            {(charge.status === 'Paid' || selectedCharges.includes(charge._id)) && <CheckSquare className="text-white" size={14} />}
+                                        </div>
+                                        <span className="text-xs font-black uppercase tracking-tight">{charge.name}</span>
+                                    </div>
+                                    <span className="text-xs font-black">₹{charge.amount}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     <div>
                         <div className="flex justify-between items-end mb-2 px-1">
-                            <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment Amount (₹)</label>
+                            <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Payment Amount (₹)</label>
                             {(() => {
                                 const m = selectedFee.monthlyFees.find(mf => mf.month === targetMonth);
                                 const currentDue = m.charges.reduce((acc, c) => acc + c.amount, 0) - m.paidAmount;

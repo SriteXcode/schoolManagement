@@ -68,12 +68,13 @@ exports.updateTeacher = async (req, res) => {
     
     await teacher.save();
 
-    // Update Linked User Fields (Email/Phone/Name)
+    // Update Linked User Fields (Email/Phone/Name/ProfileImage)
     const user = await User.findById(teacher.user);
     if (user) {
         if (email) user.email = email;
         if (name) user.name = name; // Sync name
         if (phone) user.phone = phone;
+        if (profileImage) user.profileImage = profileImage; // Sync profile image
         await user.save();
     }
 
@@ -141,6 +142,41 @@ exports.getTeacherProfile = async (req, res) => {
       return res.status(404).json({ message: "Profile not found" });
     }
     res.status(200).json(profile);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.deleteTeacher = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const teacher = await Teacher.findById(id);
+    if (!teacher) return res.status(404).json({ message: "Teacher not found" });
+
+    const Class = require("../models/classSchema");
+    const Timetable = require("../models/timetableSchema");
+
+    // 1. Unassign from Classes (as class teacher)
+    await Class.updateMany({ classTeacher: id }, { classTeacher: null });
+
+    // 2. Remove from Subject Assignments & Timetables
+    await Class.updateMany(
+        { "subjects.teacher": id },
+        { $set: { "subjects.$.teacher": null } }
+    );
+    
+    // 3. Clear from all Timetable slots
+    await Timetable.updateMany(
+        { "slots.teacher": id },
+        { $set: { "slots.$[elem].teacher": null } },
+        { arrayFilters: [{ "elem.teacher": id }] }
+    );
+
+    // 4. Delete linked User and Teacher Profile
+    await User.findByIdAndDelete(teacher.user);
+    await Teacher.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Teacher and linked user deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

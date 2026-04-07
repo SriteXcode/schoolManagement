@@ -25,7 +25,13 @@ const feeSchema = new mongoose.Schema({
         name: { type: String, required: true },
         amount: { type: Number, required: true },
         description: String,
-        isAdmissionFee: { type: Boolean, default: false }
+        isAdmissionFee: { type: Boolean, default: false },
+        status: {
+            type: String,
+            enum: ["Paid", "Pending"],
+            default: "Pending"
+        },
+        isManuallyPaid: { type: Boolean, default: false }
     }],
     paidAmount: { type: Number, default: 0 },
     status: {
@@ -36,6 +42,10 @@ const feeSchema = new mongoose.Schema({
     dueDate: { type: Date },
     lastPaymentDate: { type: Date }
   }],
+  allPaymentsTotal: {
+    type: Number,
+    default: 0
+  },
   totalAmount: {
     type: Number,
     default: 0
@@ -45,6 +55,10 @@ const feeSchema = new mongoose.Schema({
     default: 0
   },
   totalDue: {
+    type: Number,
+    default: 0
+  },
+  totalYearlyDue: {
     type: Number,
     default: 0
   },
@@ -71,45 +85,75 @@ const feeSchema = new mongoose.Schema({
 
 // Pre-save middleware to calculate totals and adjust overpayments
 feeSchema.pre("save", async function() {
-    // 1. Calculate the total money actually paid across the entire year
-    let totalPaidInLedger = this.monthlyFees.reduce((acc, m) => acc + (Number(m.paidAmount) || 0), 0);
-    let pool = totalPaidInLedger;
+    // 1. Calculate the total money actually paid across the entire year from allTransactionsTotal
+    // if allPaymentsTotal is 0 but totalPaid is > 0 (migration case), sync them
+    if (this.allPaymentsTotal === 0 && this.totalPaid > 0) {
+        this.allPaymentsTotal = this.totalPaid;
+    }
+
+    let pool = this.allPaymentsTotal;
     let totalAmount = 0;
 
-    // 2. Redistribute pool across months in order
+    // 2. Identify and lock manually paid charges
+    let manuallyPaidTotal = 0;
+    this.monthlyFees.forEach(m => {
+        m.charges.forEach(c => {
+            if (c.isManuallyPaid) {
+                c.status = "Paid";
+                manuallyPaidTotal += c.amount;
+            }
+        });
+    });
+
+    // The remaining pool is for automatic distribution (chronological)
+    let distributionPool = Math.max(0, pool - manuallyPaidTotal);
+
+    // 3. Redistribute distributionPool across months in order, skipping already paid charges
     for (let i = 0; i < this.monthlyFees.length; i++) {
         const m = this.monthlyFees[i];
-        const monthTotal = m.charges.reduce((acc, c) => acc + c.amount, 0);
+        
+        // Sum of manually paid charges in this month
+        const manualInMonth = m.charges.filter(c => c.isManuallyPaid).reduce((acc, c) => acc + c.amount, 0);
+        
+        // Charges that need automatic payment
+        const pendingChargesInMonth = m.charges.filter(c => !c.isManuallyPaid);
+        const pendingTotalInMonth = pendingChargesInMonth.reduce((acc, c) => acc + c.amount, 0);
+        
+        const monthTotal = manualInMonth + pendingTotalInMonth;
         totalAmount += monthTotal;
 
-        if (pool >= monthTotal) {
-            // If it's NOT the last month, we only take what's needed for this month
-            // If it IS the last month, we take the entire remaining pool (allows negative due/extra credit)
-            if (i < this.monthlyFees.length - 1) {
-                m.paidAmount = monthTotal;
-                m.status = "Paid";
-                pool -= monthTotal;
-            } else {
-                m.paidAmount = pool;
-                m.status = "Paid";
-                pool = 0;
-            }
-        } else if (pool > 0) {
-            // Partial payment for this month
-            m.paidAmount = pool;
+        if (distributionPool >= pendingTotalInMonth) {
+            // Can pay all pending charges in this month
+            pendingChargesInMonth.forEach(c => c.status = "Paid");
+            m.paidAmount = monthTotal;
+            m.status = "Paid";
+            distributionPool -= pendingTotalInMonth;
+        } else if (distributionPool > 0) {
+            // Partial payment for pending charges in this month
+            let chargePool = distributionPool;
+            pendingChargesInMonth.forEach(c => {
+                if (chargePool >= c.amount) {
+                    c.status = "Paid";
+                    chargePool -= c.amount;
+                } else {
+                    c.status = "Pending";
+                }
+            });
+            m.paidAmount = manualInMonth + distributionPool;
             m.status = "Partial";
-            pool = 0;
+            distributionPool = 0;
         } else {
-            // No money left for this month
-            m.paidAmount = 0;
-            m.status = "Pending";
-            pool = 0;
+            // No distribution pool left for this month
+            pendingChargesInMonth.forEach(c => c.status = "Pending");
+            m.paidAmount = manualInMonth;
+            m.status = m.paidAmount >= monthTotal ? "Paid" : (m.paidAmount > 0 ? "Partial" : "Pending");
+            distributionPool = 0;
         }
     }
 
     this.totalAmount = totalAmount;
-    this.totalPaid = totalPaidInLedger;
-    this.totalDue = totalAmount - totalPaidInLedger;
+    this.totalPaid = pool; // Use the absolute total paid
+    this.totalYearlyDue = Math.max(0, totalAmount - pool);
 
     // 3. Calculate Due Till Current Month (Academic Year starts in April)
     const monthsOrder = ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"];
@@ -126,7 +170,8 @@ feeSchema.pre("save", async function() {
         }
     }
     
-    this.dueTillCurrentMonth = Math.max(0, amountDueTillNow - totalPaidInLedger);
+    this.dueTillCurrentMonth = Math.max(0, amountDueTillNow - pool);
+    this.totalDue = this.dueTillCurrentMonth;
 });
 
 module.exports = mongoose.model("Fee", feeSchema);

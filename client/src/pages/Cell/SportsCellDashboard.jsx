@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../api/axios';
 import { toast } from 'react-hot-toast';
+import { useLocation } from 'react-router-dom';
 import { 
     Trophy, Users, PlusCircle, Search, Filter, 
     Trash2, Edit3, User, Calendar, Award, 
@@ -8,6 +9,11 @@ import {
 } from 'lucide-react';
 
 const SportsCellDashboard = () => {
+  const location = useLocation();
+  // Ensure we get the correct tab even if there are trailing slashes or nested paths
+  const pathParts = location.pathname.split('/').filter(Boolean);
+  const activeTab = pathParts[pathParts.length - 1]; // 'dashboard', 'records', 'events'
+
   const [records, setRecords] = useState([]);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -168,135 +174,149 @@ const SportsCellDashboard = () => {
           </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden group">
-          <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Total Athletes</div>
-          <div className="text-4xl font-black text-emerald-600">{stats.totalAthletes}</div>
-          <Users className="absolute -right-4 -bottom-4 text-emerald-50 group-hover:text-emerald-100 transition-colors" size={100} />
-        </div>
-        <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden group">
-          <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Active Teams</div>
-          <div className="text-4xl font-black text-blue-600">{stats.activeTeams}</div>
-          <Flag className="absolute -right-4 -bottom-4 text-blue-50 group-hover:text-blue-100 transition-colors" size={100} />
-        </div>
-        <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden group">
-          <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Total Awards</div>
-          <div className="text-4xl font-black text-amber-500">{stats.totalAchievements}</div>
-          <Medal className="absolute -right-4 -bottom-4 text-amber-50 group-hover:text-amber-100 transition-colors" size={100} />
-        </div>
-        <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden group">
-          <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Outdoor Records</div>
-          <div className="text-4xl font-black text-purple-600">{stats.outdoor}</div>
-          <Trophy className="absolute -right-4 -bottom-4 text-purple-50 group-hover:text-purple-100 transition-colors" size={100} />
-        </div>
-      </div>
-
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-center gap-6">
-          <h2 className="text-xl font-black text-gray-800">Athlete Registry</h2>
-          <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
-              <div className="relative flex-1 md:w-64">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input 
-                    type="text" placeholder="Search athletes or sports..." 
-                    className="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-2xl border-none focus:ring-4 focus:ring-emerald-50 font-bold text-sm"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-              </div>
-              <select 
-                className="p-3 bg-gray-50 border-none rounded-xl font-bold text-xs text-gray-600 focus:ring-4 focus:ring-emerald-50"
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-              >
-                  <option value="All">All Types</option>
-                  <option value="Indoor">Indoor</option>
-                  <option value="Outdoor">Outdoor</option>
-                  <option value="Other">Other</option>
-              </select>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-            <table className="w-full text-left">
-                <thead className="bg-gray-50/50">
-                    <tr className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                        <th className="py-6 px-8">Student Athlete</th>
-                        <th className="py-6 px-8">Sport & Type</th>
-                        <th className="py-6 px-8">Team / Role</th>
-                        <th className="py-6 px-8">Achievements</th>
-                        <th className="py-6 px-8 text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                    {filteredRecords.map(rec => (
-                        <tr key={rec._id} className="hover:bg-gray-50/50 transition-colors group">
-                            <td className="py-6 px-8">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400">
-                                        <User size={20} />
-                                    </div>
-                                    <div>
-                                        <div className="font-black text-gray-800">{rec.student?.name}</div>
-                                        <div className="text-[10px] font-bold text-gray-400 uppercase">{rec.student?.rollNum}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td className="py-6 px-8">
-                                <div className="font-black text-gray-700">{rec.sport}</div>
-                                <span className={`text-[9px] font-black uppercase tracking-tighter px-2 py-0.5 rounded ${
-                                    rec.sportsType === 'Outdoor' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'
-                                }`}>
-                                    {rec.sportsType}
-                                </span>
-                            </td>
-                            <td className="py-6 px-8">
-                                <div className="text-xs font-bold text-gray-600">{rec.team || 'No Team'}</div>
-                                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{rec.role}</div>
-                            </td>
-                            <td className="py-6 px-8">
-                                <div className="flex flex-wrap gap-1.5">
-                                    {(rec.achievements || []).map((ach, idx) => (
-                                        <div key={idx} className="flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 rounded-lg border border-amber-100">
-                                            <Award size={10} />
-                                            <span className="text-[9px] font-black">{ach.title}</span>
-                                        </div>
-                                    ))}
-                                    {(!rec.achievements || rec.achievements.length === 0) && (
-                                        <span className="text-[10px] text-gray-400 italic">No achievements recorded</span>
-                                    )}
-                                </div>
-                            </td>
-                            <td className="py-6 px-8 text-right">
-                                <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button 
-                                        onClick={() => openModal('edit', rec)}
-                                        className="p-2 hover:bg-emerald-50 text-emerald-600 rounded-lg transition"
-                                    >
-                                        <Edit3 size={18} />
-                                    </button>
-                                    <button 
-                                        onClick={() => handleDelete(rec._id)}
-                                        className="p-2 hover:bg-red-50 text-red-600 rounded-lg transition"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-        {filteredRecords.length === 0 && (
-            <div className="py-20 text-center space-y-4">
-                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto text-gray-300">
-                    <Trophy size={32} />
-                </div>
-                <p className="text-gray-400 font-bold italic">No sports records found...</p>
+      {activeTab === 'dashboard' && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden group">
+            <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Total Athletes</div>
+            <div className="text-4xl font-black text-emerald-600">{stats.totalAthletes}</div>
+            <Users className="absolute -right-4 -bottom-4 text-emerald-50 group-hover:text-emerald-100 transition-colors" size={100} />
             </div>
-        )}
-      </div>
+            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden group">
+            <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Active Teams</div>
+            <div className="text-4xl font-black text-blue-600">{stats.activeTeams}</div>
+            <Flag className="absolute -right-4 -bottom-4 text-blue-50 group-hover:text-blue-100 transition-colors" size={100} />
+            </div>
+            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden group">
+            <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Total Awards</div>
+            <div className="text-4xl font-black text-amber-500">{stats.totalAchievements}</div>
+            <Medal className="absolute -right-4 -bottom-4 text-amber-50 group-hover:text-amber-100 transition-colors" size={100} />
+            </div>
+            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden group">
+            <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Outdoor Records</div>
+            <div className="text-4xl font-black text-purple-600">{stats.outdoor}</div>
+            <Trophy className="absolute -right-4 -bottom-4 text-purple-50 group-hover:text-purple-100 transition-colors" size={100} />
+            </div>
+        </div>
+      )}
+
+      {(activeTab === 'dashboard' || activeTab === 'records') && (
+        <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-center gap-6">
+            <h2 className="text-xl font-black text-gray-800">Athlete Registry</h2>
+            <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+                <div className="relative flex-1 md:w-64">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <input 
+                        type="text" placeholder="Search athletes or sports..." 
+                        className="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-2xl border-none focus:ring-4 focus:ring-emerald-50 font-bold text-sm"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <select 
+                    className="p-3 bg-gray-50 border-none rounded-xl font-bold text-xs text-gray-600 focus:ring-4 focus:ring-emerald-50"
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value)}
+                >
+                    <option value="All">All Types</option>
+                    <option value="Indoor">Indoor</option>
+                    <option value="Outdoor">Outdoor</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            </div>
+
+            <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="bg-gray-50/50">
+                        <tr className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                            <th className="py-6 px-8">Student Athlete</th>
+                            <th className="py-6 px-8">Sport & Type</th>
+                            <th className="py-6 px-8">Team / Role</th>
+                            <th className="py-6 px-8">Achievements</th>
+                            <th className="py-6 px-8 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                        {(activeTab === 'dashboard' ? filteredRecords.slice(0, 5) : filteredRecords).map(rec => (
+                            <tr key={rec._id} className="hover:bg-gray-50/50 transition-colors group">
+                                <td className="py-6 px-8">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400">
+                                            <User size={20} />
+                                        </div>
+                                        <div>
+                                            <div className="font-black text-gray-800">{rec.student?.name}</div>
+                                            <div className="text-[10px] font-bold text-gray-400 uppercase">{rec.student?.rollNum}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="py-6 px-8">
+                                    <div className="font-black text-gray-700">{rec.sport}</div>
+                                    <span className={`text-[9px] font-black uppercase tracking-tighter px-2 py-0.5 rounded ${
+                                        rec.sportsType === 'Outdoor' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'
+                                    }`}>
+                                        {rec.sportsType}
+                                    </span>
+                                </td>
+                                <td className="py-6 px-8">
+                                    <div className="text-xs font-bold text-gray-600">{rec.team || 'No Team'}</div>
+                                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{rec.role}</div>
+                                </td>
+                                <td className="py-6 px-8">
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {(rec.achievements || []).map((ach, idx) => (
+                                            <div key={idx} className="flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 rounded-lg border border-amber-100">
+                                                <Award size={10} />
+                                                <span className="text-[9px] font-black">{ach.title}</span>
+                                            </div>
+                                        ))}
+                                        {(!rec.achievements || rec.achievements.length === 0) && (
+                                            <span className="text-[10px] text-gray-400 italic">No achievements recorded</span>
+                                        )}
+                                    </div>
+                                </td>
+                                <td className="py-6 px-8 text-right">
+                                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button 
+                                            onClick={() => openModal('edit', rec)}
+                                            className="p-2 hover:bg-emerald-50 text-emerald-600 rounded-lg transition"
+                                        >
+                                            <Edit3 size={18} />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDelete(rec._id)}
+                                            className="p-2 hover:bg-red-50 text-red-600 rounded-lg transition"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            {filteredRecords.length === 0 && (
+                <div className="py-20 text-center space-y-4">
+                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto text-gray-300">
+                        <Trophy size={32} />
+                    </div>
+                    <p className="text-gray-400 font-bold italic">No sports records found...</p>
+                </div>
+            )}
+        </div>
+      )}
+
+      {activeTab === 'events' && (
+          <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-20 text-center space-y-4">
+              <div className="w-20 h-20 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto">
+                  <Flag size={40} />
+              </div>
+              <h2 className="text-2xl font-black text-gray-800 uppercase tracking-tighter">Sports Events Calendar</h2>
+              <p className="text-gray-400 font-bold max-w-md mx-auto italic">This module is currently being optimized for the upcoming season. Check back soon for the tournament schedule!</p>
+          </div>
+      )}
 
       {/* Add/Edit Modal */}
       {showModal && (

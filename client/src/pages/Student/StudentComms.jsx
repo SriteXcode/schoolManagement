@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import { FaPaperPlane, FaUserSecret, FaChalkboardTeacher, FaExclamationCircle } from 'react-icons/fa';
+import ImageUpload from '../../components/ImageUpload';
 
 const StudentComms = () => {
   const [teachers, setTeachers] = useState([]);
@@ -9,7 +10,8 @@ const StudentComms = () => {
     type: 'Problem',
     recipientId: '', // Empty = Admin
     message: '',
-    isAnonymous: false
+    isAnonymous: false,
+    attachment: ''
   });
   const [loading, setLoading] = useState(false);
   const userString = localStorage.getItem('user');
@@ -35,7 +37,7 @@ const StudentComms = () => {
         email: user.email
       });
       toast.success('Message sent successfully!');
-      setFormData({ type: 'Problem', recipientId: '', message: '', isAnonymous: false });
+      setFormData({ type: 'Problem', recipientId: '', message: '', isAnonymous: false, attachment: '' });
     } catch (e) {
       toast.error('Failed to send message');
     } finally {
@@ -116,6 +118,15 @@ const StudentComms = () => {
                     <label htmlFor="anon" className="text-sm text-gray-700 cursor-pointer flex items-center gap-2">
                         <FaUserSecret /> Send Anonymously (Hide my name in dashboard)
                     </label>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Optional Visual Attachment</label>
+                    <ImageUpload 
+                        label="Attach Proof/Image"
+                        preview={formData.attachment}
+                        onUploadSuccess={(url) => setFormData(prev => ({ ...prev, attachment: url }))}
+                    />
                 </div>
 
                 <button 

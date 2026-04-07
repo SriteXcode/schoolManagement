@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import { FaBook, FaChalkboardTeacher } from 'react-icons/fa';
+import Loader from '../../components/Loader';
 
 const Homework = () => {
   const [classes, setClasses] = useState([]);
@@ -10,6 +11,8 @@ const Homework = () => {
   const [availableSubjects, setAvailableSubjects] = useState([]);
   const [recognizedSubject, setRecognizedSubject] = useState(null);
   const [editingHomework, setEditingHomework] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     subject: '',
     title: '',
@@ -26,9 +29,12 @@ const Homework = () => {
         setClasses(res.data);
       } catch (err) {
         console.error("Failed to fetch classes");
+      } finally {
+        setLoading(false);
       }
     };
     if (user.email) fetchClasses();
+    else setLoading(false);
   }, [user.email]);
 
   const fetchHomework = async (classId) => {
@@ -46,6 +52,7 @@ const Homework = () => {
     setRecognizedSubject(null);
     setEditingHomework(null);
     if (id) {
+        setSubmitting(true);
         fetchHomework(id);
         
         try {
@@ -69,6 +76,8 @@ const Homework = () => {
             }
         } catch (error) {
             console.error("Failed to fetch class details");
+        } finally {
+            setSubmitting(false);
         }
     } else {
         setAvailableSubjects([]);
@@ -89,6 +98,7 @@ const Homework = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedClass) return toast.error("Select a class");
+    setSubmitting(true);
     try {
       if (editingHomework) {
           await api.put(`/homework/${editingHomework._id}`, formData);
@@ -102,6 +112,8 @@ const Homework = () => {
       fetchHomework(selectedClass);
     } catch (err) {
       toast.error(editingHomework ? "Failed to update homework" : "Failed to assign homework");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -109,8 +121,11 @@ const Homework = () => {
       return cls.classTeacher?.email?.toLowerCase() === user.email?.toLowerCase();
   };
 
+  if (loading) return <Loader fullScreen text="Accessing Homework Portals..." />;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {submitting && <Loader fullScreen text="Synchronizing Academic Tasks..." />}
       <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
           <FaBook className="text-indigo-600"/> Homework Management
       </h1>
