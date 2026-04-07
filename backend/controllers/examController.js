@@ -4,7 +4,7 @@ const { validateSessionDate } = require("../middleware/sessionMiddleware");
 
 exports.createExam = async (req, res) => {
   try {
-    const { name, sClass, date, time, shift, subject, maxMarks, syllabus, type } = req.body;
+    const { name, examCode, sClass, date, time, shift, subject, maxMarks, syllabus, type } = req.body;
     
     // Academic Session Validation
     try {
@@ -48,6 +48,7 @@ exports.createExam = async (req, res) => {
 
     const exam = await Exam.create({
       name,
+      examCode,
       sClass,
       date,
       time,
@@ -166,7 +167,7 @@ exports.deleteExam = async (req, res) => {
 
 exports.updateExam = async (req, res) => {
     try {
-        const { name, sClass, date, time, shift, subject, maxMarks, syllabus, type } = req.body;
+        const { name, examCode, sClass, date, time, shift, subject, maxMarks, syllabus, type } = req.body;
 
         // Academic Session Validation
         try {
@@ -176,7 +177,7 @@ exports.updateExam = async (req, res) => {
         }
 
         const updatedExam = await Exam.findByIdAndUpdate(req.params.id, {
-            name, sClass, date, time, shift, subject, maxMarks, syllabus, type
+            name, examCode, sClass, date, time, shift, subject, maxMarks, syllabus, type
         }, { new: true });
         res.status(200).json({ message: "Exam updated successfully", exam: updatedExam });
     } catch (error) {

@@ -24,19 +24,10 @@ exports.updateUserStatus = async (req, res) => {
 // --- Communication Logic ---
 exports.sendMessage = async (req, res) => {
   try {
-    let { name, email, message, type, recipientId, isAnonymous } = req.body;
+    const { name, email, message, type, recipientId, isAnonymous } = req.body;
     
-    // If authenticated, we can attach user ID (ONLY if NOT anonymous)
-    let userId = null;
-    if (req.user && !isAnonymous) {
-        userId = req.user._id;
-    }
-
-    // Mask for UI if anonymous
-    if (isAnonymous) {
-        name = "Anonymous Student";
-        email = "anonymous@school.com";
-    }
+    // Always store the user ID if authenticated, so admins can track if needed in DB
+    const userId = req.user ? req.user._id : null;
 
     await Communication.create({
       name,
@@ -60,7 +51,19 @@ exports.getAllMessages = async (req, res) => {
         .populate("user", "name email role")
         .populate("recipient", "name email role")
         .sort({ createdAt: -1 });
-    res.status(200).json(messages);
+
+    // Mark for Admin UI that it's anonymous to others, but admin sees real name
+    const processed = messages.map(msg => {
+        const m = msg.toObject();
+        if (m.isAnonymous) {
+            m.displayName = `${m.name} (Anonymous Mode)`;
+        } else {
+            m.displayName = m.name;
+        }
+        return m;
+    });
+
+    res.status(200).json(processed);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -69,8 +72,21 @@ exports.getAllMessages = async (req, res) => {
 exports.getMessagesForUser = async (req, res) => {
   try {
     // For Teachers to see feedback sent to them
-    const messages = await Communication.find({ recipient: req.user._id }).sort({ createdAt: -1 });
-    res.status(200).json(messages);
+    const messages = await Communication.find({ recipient: req.user._id })
+        .populate("user", "name email role")
+        .sort({ createdAt: -1 });
+
+    const processed = messages.map(msg => {
+        const m = msg.toObject();
+        if (m.isAnonymous) {
+            m.name = "Anonymous Student";
+            m.email = "hidden@school.com";
+            m.user = null; // Hide user profile object
+        }
+        return m;
+    });
+
+    res.status(200).json(processed);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

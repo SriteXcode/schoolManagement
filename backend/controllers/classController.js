@@ -2,6 +2,7 @@ const Class = require("../models/classSchema");
 const Teacher = require("../models/teacherSchema");
 const Student = require("../models/studentSchema");
 const User = require("../models/userSchema");
+const Timetable = require("../models/timetableSchema");
 
 exports.getUnassignedStudents = async (req, res) => {
   try {
@@ -192,6 +193,32 @@ exports.updateSubjects = async (req, res) => {
     }
 
     res.status(200).json({ message: "Subjects updated successfully", subjects: sClass.subjects });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.deleteClass = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const sClass = await Class.findById(id);
+    if (!sClass) return res.status(404).json({ message: "Class not found" });
+
+    // 1. Unassign Class Teacher
+    if (sClass.classTeacher) {
+        await Teacher.findByIdAndUpdate(sClass.classTeacher, { sClass: null });
+    }
+
+    // 2. Unassign Students
+    await Student.updateMany({ sClass: id }, { sClass: null });
+
+    // 3. Delete related Timetables
+    await Timetable.deleteMany({ sClass: id });
+
+    // 4. Delete the class itself
+    await Class.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Class and related records cleaned up successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

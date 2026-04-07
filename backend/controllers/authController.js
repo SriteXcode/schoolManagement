@@ -126,7 +126,26 @@ exports.updateProfile = async (req, res) => {
         const Teacher = require("../models/teacherSchema");
         await Teacher.findOneAndUpdate(
             { user: updatedUser._id },
-            { email: updatedUser.email, name: updatedUser.name }
+            { email: updatedUser.email, name: updatedUser.name, profileImage: updatedUser.profileImage }
+        );
+    }
+    
+    // Sync to Student model if role is Student
+    if (updatedUser.role === "Student") {
+        const Student = require("../models/studentSchema");
+        await Student.findOneAndUpdate(
+            { user: updatedUser._id },
+            { name: updatedUser.name, profileImage: updatedUser.profileImage }
+        );
+    }
+    
+    // Sync to Staff model if role is a Staff role
+    const staffRoles = ["BusDriver", "LabAssistant", "CleaningStaff", "Other"];
+    if (staffRoles.includes(updatedUser.role)) {
+        const Staff = require("../models/staffSchema");
+        await Staff.findOneAndUpdate(
+            { user: updatedUser._id },
+            { name: updatedUser.name, phone: updatedUser.phone, profileImage: updatedUser.profileImage }
         );
     }
     

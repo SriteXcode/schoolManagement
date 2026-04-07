@@ -73,11 +73,19 @@ exports.getStudentFee = async (req, res) => {
         studentId = req.params.studentId;
     }
     
-    const fee = await Fee.findOne({ student: studentId }).populate('student');
+    const fee = await Fee.findOne({ student: studentId }).populate({
+        path: 'student',
+        populate: { path: 'sClass' }
+    });
+    
     if (!fee) {
       return res.status(404).json({ message: "Monthly fee records not initialized." });
     }
-    res.status(200).json(fee);
+
+    const School = require("../models/schoolSchema");
+    const schoolConfig = await School.findOne();
+
+    res.status(200).json({ fee, schoolConfig });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -87,7 +95,7 @@ exports.getStudentFee = async (req, res) => {
 exports.updateFeeStatus = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const { month, amount, paymentMethod, remarks } = req.body;
+    const { month, amount, paymentMethod, remarks, selectedCharges } = req.body; // selectedCharges is an array of charge IDs
 
     let fee = await Fee.findOne({ student: studentId });
     if (!fee) return res.status(404).json({ message: "Fee record not found" });
@@ -95,8 +103,18 @@ exports.updateFeeStatus = async (req, res) => {
     const monthRecord = fee.monthlyFees.find(m => m.month === month);
     if (!monthRecord) return res.status(404).json({ message: "Invalid month specified" });
 
-    // Update month totals
-    monthRecord.paidAmount += Number(amount);
+    // 1. Mark selected charges as manually paid
+    if (selectedCharges && Array.isArray(selectedCharges)) {
+        monthRecord.charges.forEach(charge => {
+            if (selectedCharges.includes(charge._id.toString())) {
+                charge.isManuallyPaid = true;
+                charge.status = "Paid";
+            }
+        });
+    }
+
+    // 2. Update global payment pool and last payment date
+    fee.allPaymentsTotal += Number(amount);
     monthRecord.lastPaymentDate = new Date();
 
     // Add global transaction

@@ -47,6 +47,10 @@ import Homework from './pages/Teacher/Homework';
 import Marks from './pages/Teacher/Marks';
 import SyllabusTracking from './pages/Teacher/SyllabusTracking';
 import TeacherStudents from './pages/Teacher/TeacherStudents';
+import TeacherSalary from './pages/Teacher/TeacherSalary';
+import TeacherSchedule from './pages/Teacher/TeacherSchedule';
+import TeacherLeaves from './pages/Teacher/TeacherLeaves';
+import TeacherExams from './pages/Teacher/TeacherExams';
 
 import TeacherInbox from './pages/Teacher/TeacherInbox';
 
@@ -61,6 +65,7 @@ import StudentFees from './pages/Student/StudentFees';
 
 // Components
 import Navbar from './components/Navbar';
+import SyncManager from './api/SyncManager';
 
 // Private Route
 const PrivateRoute = ({ children, role }) => {
@@ -84,6 +89,7 @@ function App() {
     <Router>
       <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
       <Navbar />
+      <SyncManager />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -133,8 +139,17 @@ function App() {
           </PrivateRoute>
         }>
             <Route path="exam/dashboard" element={<ExamCellDashboard />} />
+            <Route path="exam/exams" element={<ExamCellDashboard />} />
+            <Route path="exam/marks" element={<ExamCellDashboard />} />
+
             <Route path="discipline/dashboard" element={<DisciplineCellDashboard />} />
+            <Route path="discipline/incidents" element={<DisciplineCellDashboard />} />
+            <Route path="discipline/students" element={<DisciplineCellDashboard />} />
+
             <Route path="sports/dashboard" element={<SportsCellDashboard />} />
+            <Route path="sports/records" element={<SportsCellDashboard />} />
+            <Route path="sports/events" element={<SportsCellDashboard />} />
+
             <Route path="management/dashboard" element={<ManagementCellDashboard />} />
             <Route path="profile" element={<Profile />} />
         </Route>
@@ -148,10 +163,14 @@ function App() {
             <Route path="dashboard" element={<TeacherHome />} />
             <Route path="class/:id" element={<ClassDetails />} />
             <Route path="attendance" element={<Attendance />} />
+            <Route path="schedule" element={<TeacherSchedule />} />
+            <Route path="leave" element={<TeacherLeaves />} />
             <Route path="homework" element={<Homework />} />
             <Route path="syllabus" element={<SyllabusTracking />} />
             <Route path="marks" element={<Marks />} />
+            <Route path="exams" element={<TeacherExams />} />
             <Route path="students" element={<TeacherStudents />} />
+            <Route path="salary" element={<TeacherSalary />} />
             <Route path="inbox" element={<TeacherInbox />} />
             <Route path="profile" element={<Profile />} />
         </Route>
@@ -171,6 +190,9 @@ function App() {
             <Route path="comms" element={<StudentComms />} />
             <Route path="profile" element={<Profile />} />
         </Route>
+
+        {/* 404 Catch-all */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );

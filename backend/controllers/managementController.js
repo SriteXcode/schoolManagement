@@ -13,6 +13,7 @@ const Student = require("../models/studentSchema");
 const Fee = require("../models/feeSchema");
 const SchedulePhase = require("../models/schedulePhaseSchema");
 const Timetable = require("../models/timetableSchema");
+const Leave = require("../models/leaveSchema");
 const { validateSessionDate } = require("../middleware/sessionMiddleware");
 
 // --- Staff Management ---
@@ -75,7 +76,21 @@ exports.getSalaries = async (req, res) => {
 
 exports.getStaffSalaryHistory = async (req, res) => {
     try {
-        const { staffId } = req.params;
+        let { staffId } = req.params;
+        const user = req.user;
+
+        // If not Admin/Management and trying to see someone else's history
+        if (!mgmtRoles.includes(user.role)) {
+            let profile;
+            if (user.role === 'Teacher') {
+                profile = await Teacher.findOne({ user: user._id });
+            } else {
+                profile = await Staff.findOne({ user: user._id });
+            }
+            if (!profile) return res.status(404).json({ message: "Profile not found" });
+            staffId = profile._id;
+        }
+
         const salaries = await Salary.find({ staff: staffId }).sort("-year -month");
         res.status(200).json(salaries);
     } catch (error) {
@@ -486,12 +501,38 @@ exports.updateSchedulePhase = async (req, res) => {
     }
 };
 
+exports.deleteSchedulePhase = async (req, res) => {
+    try {
+        const { id } = req.params;
+        // 1. Delete all timetables associated with this phase
+        await Timetable.deleteMany({ phase: id });
+        // 2. Delete the phase itself
+        await SchedulePhase.findByIdAndDelete(id);
+        res.status(200).json({ message: "Schedule phase and all linked timetables deleted" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 exports.getTimetable = async (req, res) => {
     try {
         const { classId, phaseId } = req.params;
         const timetable = await Timetable.find({ sClass: classId, phase: phaseId })
             .populate("slots.teacher", "name");
         res.status(200).json(timetable);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getTeacherSchedule = async (req, res) => {
+    try {
+        const { teacherId } = req.params;
+        const schedule = await Timetable.find({
+            "slots.teacher": teacherId
+        }).populate("sClass", "grade section")
+          .populate("phase");
+        res.status(200).json(schedule);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -533,6 +574,69 @@ exports.updateTimetable = async (req, res) => {
         );
 
         res.status(200).json({ message: "Timetable updated", timetable });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.deleteTimetable = async (req, res) => {
+    try {
+        const { classId, phaseId } = req.params;
+        await Timetable.deleteMany({ sClass: classId, phase: phaseId });
+        res.status(200).json({ message: "Timetable for this class and phase has been reset" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// --- Leave Management ---
+exports.requestLeave = async (req, res) => {
+    try {
+        const teacher = await Teacher.findOne({ user: req.user._id });
+        if (!teacher) return res.status(404).json({ message: "Teacher profile not found" });
+
+        const leave = await Leave.create({
+            ...req.body,
+            teacher: teacher._id
+        });
+        res.status(201).json({ message: "Leave requested successfully", leave });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getTeacherLeaves = async (req, res) => {
+    try {
+        const teacher = await Teacher.findOne({ user: req.user._id });
+        if (!teacher) return res.status(404).json({ message: "Teacher profile not found" });
+
+        const leaves = await Leave.find({ teacher: teacher._id }).sort("-appliedDate");
+        res.status(200).json(leaves);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getAllLeaves = async (req, res) => {
+    try {
+        const leaves = await Leave.find().populate("teacher").sort("-appliedDate");
+        res.status(200).json(leaves);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.updateLeaveStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, adminComment } = req.body;
+        const leave = await Leave.findByIdAndUpdate(
+            id,
+            { status, adminComment, lastUpdatedBy: req.user._id },
+            { new: true }
+        );
+        if (!leave) return res.status(404).json({ message: "Leave record not found" });
+        res.status(200).json({ message: `Leave ${status}`, leave });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -6,13 +6,16 @@ import {
     Users, DollarSign, Bus, Settings, Image, 
     Mail, Plus, Save, Trash2, Edit, CheckCircle, 
     X, Search, Calendar, Award, Layout, ChevronRight,
-    TrendingUp, Shield, MapPin, Phone, Info, Star, FileText, Clock
+    TrendingUp, Shield, MapPin, Phone, Info, Star, FileText, Clock, RotateCcw
 } from 'lucide-react';
+import Loader from '../../components/Loader';
+import ImageUpload from '../../components/ImageUpload';
 
 const ManagementCellDashboard = () => {
   const [searchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'staff';
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   
   // Data State
   const [staffList, setStaffList] = useState({ teachers: [], otherStaff: [] });
@@ -23,6 +26,7 @@ const ManagementCellDashboard = () => {
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
   const [phases, setPhases] = useState([]);
+  const [leaves, setLeaves] = useState([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -31,7 +35,7 @@ const ManagementCellDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [staffRes, busRes, configRes, msgRes, salaryRes, studentRes, classRes, phaseRes] = await Promise.all([
+      const [staffRes, busRes, configRes, msgRes, salaryRes, studentRes, classRes, phaseRes, leaveRes] = await Promise.all([
           axios.get('/management/staff/all'),
           axios.get('/management/bus/all'),
           axios.get('/management/school/config'),
@@ -39,7 +43,8 @@ const ManagementCellDashboard = () => {
           axios.get('/management/salary/all'),
           axios.get('/student/getall'),
           axios.get('/class/getall'),
-          axios.get('/management/schedule/phase/all')
+          axios.get('/management/schedule/phase/all'),
+          axios.get('/management/leave/all')
       ]);
       setStaffList(staffRes.data);
       setBuses(busRes.data);
@@ -49,6 +54,7 @@ const ManagementCellDashboard = () => {
       setStudents(studentRes.data);
       setClasses(classRes.data);
       setPhases(phaseRes.data);
+      setLeaves(leaveRes.data);
     } catch (error) {
       toast.error("Error fetching management data");
     } finally {
@@ -59,6 +65,7 @@ const ManagementCellDashboard = () => {
   const menuItems = [
       { id: 'staff', label: 'Personal', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
       { id: 'salary', label: 'Payroll & HR', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+      { id: 'leave', label: 'Leave Requests', icon: FileText, color: 'text-rose-600', bg: 'bg-rose-50' },
       { id: 'phases', label: 'Schedule Phases', icon: Clock, color: 'text-indigo-600', bg: 'bg-indigo-50' },
       { id: 'timetable', label: 'Timetable Editor', icon: Calendar, color: 'text-indigo-600', bg: 'bg-indigo-50' },
       { id: 'transport', label: 'Fleet Manager', icon: Bus, color: 'text-amber-600', bg: 'bg-amber-50' },
@@ -67,10 +74,12 @@ const ManagementCellDashboard = () => {
       { id: 'inbox', label: 'Inbox', icon: Mail, color: 'text-rose-600', bg: 'bg-rose-50' },
   ];
 
-  if (loading) return <div className="p-20 text-center font-black text-gray-300 animate-pulse">ESTABLISHING SECURE MANAGEMENT PROTOCOLS...</div>;
+  if (loading) return <Loader fullScreen text="Establishing Secure Management Protocols..." />;
 
   return (
     <div className="max-w-7xl mx-auto space-y-10 pb-20">
+      {submitting && <Loader fullScreen text="Processing Administrative Change..." />}
+      
       <div className="bg-white p-8 md:p-12 rounded-[3rem] shadow-sm border border-gray-100 relative overflow-hidden group">
           <div className="absolute right-0 top-0 w-64 h-64 bg-indigo-50/50 rounded-full blur-3xl -mr-32 -mt-32 transition-colors group-hover:bg-indigo-100/50" />
           <div className="relative z-10">
@@ -87,7 +96,8 @@ const ManagementCellDashboard = () => {
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
           {activeTab === 'staff' && <StaffHub staffList={staffList} refresh={fetchDashboardData} />}
           {activeTab === 'salary' && <PayrollManager staffList={staffList} salaries={salaries} refresh={fetchDashboardData} />}
-          {(activeTab === 'phases' || activeTab === 'timetable') && <ScheduleManager classes={classes} phases={phases} teachers={staffList.teachers} refresh={fetchDashboardData} activeView={activeTab} />}
+          {activeTab === 'leave' && <LeaveApprover leaves={leaves} refresh={fetchDashboardData} />}
+          {(activeTab === 'phases' || activeTab === 'timetable') && <ScheduleManager classes={classes} phases={phases} teachers={staffList.teachers} refresh={fetchDashboardData} activeView={activeTab} setSubmitting={setSubmitting} />}
           {activeTab === 'transport' && <FleetManager buses={buses} otherStaff={staffList.otherStaff} students={students} refresh={fetchDashboardData} />}
           {activeTab === 'media' && <CMSMedia refresh={fetchDashboardData} />}
           {activeTab === 'config' && <ConfigPanel config={schoolConfig} refresh={fetchDashboardData} />}
@@ -95,6 +105,100 @@ const ManagementCellDashboard = () => {
       </div>
     </div>
   );
+};
+
+const LeaveApprover = ({ leaves, refresh }) => {
+    const [selectedLeave, setSelectedLeave] = useState(null);
+    const [adminComment, setAdminComment] = useState('');
+
+    const handleStatusUpdate = async (id, status) => {
+        try {
+            await axios.patch(`/management/leave/status/${id}`, { status, adminComment });
+            toast.success(`Leave request ${status}`);
+            setSelectedLeave(null);
+            setAdminComment('');
+            refresh();
+        } catch (error) {
+            toast.error("Failed to update status");
+        }
+    };
+
+    return (
+        <div className="space-y-8 animate-in fade-in duration-500">
+            <h2 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+                <FileText className="text-rose-600" size={32} /> Leave Registry
+            </h2>
+
+            <div className="grid grid-cols-1 gap-4">
+                {leaves.map(l => (
+                    <div key={l._id} className={`p-8 bg-white rounded-[2rem] border transition-all ${l.status === 'Pending' ? 'border-rose-200 shadow-lg shadow-rose-50' : 'border-gray-100 opacity-70 hover:opacity-100'}`}>
+                        <div className="flex justify-between items-start mb-6">
+                            <div className="flex items-center gap-4">
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-lg ${l.status === 'Pending' ? 'bg-rose-600 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                                    {l.teacher?.name?.charAt(0) || 'T'}
+                                </div>
+                                <div>
+                                    <div className="font-black text-lg text-gray-800">{l.teacher?.name || 'Unknown Teacher'}</div>
+                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{l.leaveType} | Applied on {new Date(l.appliedDate).toLocaleDateString()}</div>
+                                </div>
+                            </div>
+                            <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                                l.status === 'Approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                l.status === 'Rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                'bg-amber-50 text-amber-600 border-amber-100'
+                            }`}>
+                                {l.status}
+                            </div>
+                        </div>
+
+                        <div className="pl-18 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                        <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Duration</div>
+                                        <div className="text-xs font-black text-gray-700">
+                                            {new Date(l.startDate).toLocaleDateString()} - {new Date(l.endDate).toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                    <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                        <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Reason for Absence</div>
+                                        <div className="text-xs font-bold text-gray-500 italic leading-relaxed">"{l.reason}"</div>
+                                    </div>
+                                </div>
+
+                                {l.status === 'Pending' ? (
+                                    <div className="space-y-4">
+                                        <textarea 
+                                            placeholder="Add administrative comment..."
+                                            className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-xs focus:ring-4 focus:ring-indigo-50 min-h-[100px]"
+                                            value={adminComment}
+                                            onChange={(e) => setAdminComment(e.target.value)}
+                                        />
+                                        <div className="flex gap-3">
+                                            <button 
+                                                onClick={() => handleStatusUpdate(l._id, 'Approved')}
+                                                className="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-100 hover:opacity-90 transition"
+                                            >Approve Request</button>
+                                            <button 
+                                                onClick={() => handleStatusUpdate(l._id, 'Rejected')}
+                                                className="flex-1 py-3 bg-rose-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-rose-100 hover:opacity-90 transition"
+                                            >Reject Request</button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="p-4 bg-indigo-50/30 rounded-2xl border border-indigo-100">
+                                        <div className="text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-1">Admin Resolution</div>
+                                        <div className="text-xs font-bold text-indigo-700">{l.adminComment || "No comments provided."}</div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+                {leaves.length === 0 && <div className="p-20 text-center text-gray-300 font-black italic uppercase tracking-widest">No leave records found in the archive...</div>}
+            </div>
+        </div>
+    );
 };
 
 // --- Sub-Components ---
@@ -983,15 +1087,16 @@ const FleetManager = ({ buses, otherStaff, students, refresh }) => {
 
 const CMSMedia = ({ refresh }) => {
     const [activeSub, setActiveSub] = useState('gallery');
-    const [formData, setFormData] = useState({ title: '', category: 'Event', image: '', type: 'Achievement', description: '' });
+    const [formData, setFormData] = useState({ title: '', category: 'Event', image: '', type: 'Achievement', description: '', images: [] });
 
     const handleAdd = async (endpoint) => {
         try {
             await axios.post(`/management/${endpoint}/add`, formData);
-            toast.success("Content uploaded!");
+            toast.success("Content published to academic hub!");
+            setFormData({ title: '', category: 'Event', image: '', type: 'Achievement', description: '', images: [] });
             refresh();
         } catch (error) {
-            toast.error("Upload failed");
+            toast.error("Deployment failed");
         }
     };
 
@@ -1011,41 +1116,102 @@ const CMSMedia = ({ refresh }) => {
 
             <div className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-100 space-y-8">
                 {activeSub === 'gallery' && (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-2 gap-6">
-                            <input type="text" placeholder="Gallery Title" className="p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
-                            <select className="p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}>
-                                <option>Event</option>
-                                <option>Celebration</option>
-                                <option>Activity</option>
-                            </select>
+                    <div className="space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Gallery Title</label>
+                                <input type="text" placeholder="e.g. Annual Sports Day 2026" className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Classification</label>
+                                <select className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}>
+                                    <option>Event</option>
+                                    <option>Celebration</option>
+                                    <option>Activity</option>
+                                </select>
+                            </div>
                         </div>
-                        <input type="text" placeholder="Image URL (Comma separated for multiple)" className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm" onChange={(e) => setFormData({...formData, images: e.target.value.split(',')})} />
-                        <button onClick={() => handleAdd('gallery')} className="px-10 py-4 bg-purple-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-purple-100 transition hover:opacity-90">Publish to Gallery</button>
+                        
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Event Photography (Multiple Support)</label>
+                            <ImageUpload 
+                                multiple={true}
+                                label="Upload Gallery Assets"
+                                onUploadSuccess={(urls) => setFormData(prev => ({ ...prev, images: [...prev.images, ...urls] }))}
+                            />
+                            {formData.images.length > 0 && (
+                                <div className="grid grid-cols-4 md:grid-cols-6 gap-4 mt-4">
+                                    {formData.images.map((url, i) => (
+                                        <div key={i} className="relative aspect-square rounded-xl overflow-hidden group border border-slate-100 shadow-sm">
+                                            <img src={url} className="w-full h-full object-cover" />
+                                            <button 
+                                                onClick={() => setFormData(prev => ({ ...prev, images: prev.images.filter((_, idx) => idx !== i) }))}
+                                                className="absolute top-1 right-1 p-1 bg-rose-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <button onClick={() => handleAdd('gallery')} className="px-10 py-4 bg-purple-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-purple-100 transition hover:bg-purple-700">Publish to Public Gallery</button>
                     </div>
                 )}
 
                 {activeSub === 'achievement' && (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-2 gap-6">
-                            <input type="text" placeholder="Achievement Title" className="p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
-                            <select className="p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.type} onChange={(e) => setFormData({...formData, type: e.target.value})}>
-                                <option value="Achievement">General Achievement</option>
-                                <option value="WallOfFame">Wall of Fame</option>
-                            </select>
+                    <div className="space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Achievement Header</label>
+                                <input type="text" placeholder="e.g. Gold Medal in Olympiad" className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Archive Location</label>
+                                <select className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.type} onChange={(e) => setFormData({...formData, type: e.target.value})}>
+                                    <option value="Achievement">General Achievement</option>
+                                    <option value="WallOfFame">Wall of Fame</option>
+                                </select>
+                            </div>
                         </div>
-                        <textarea placeholder="Description of the accolade..." className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm min-h-[100px]" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
-                        <input type="text" placeholder="Image URL" className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.image} onChange={(e) => setFormData({...formData, image: e.target.value})} />
-                        <button onClick={() => handleAdd('achievement')} className="px-10 py-4 bg-purple-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-purple-100 transition hover:opacity-90">Record Achievement</button>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Detailed Description</label>
+                            <textarea placeholder="Summarize the achievement..." className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm min-h-[100px]" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Accolade Photo</label>
+                            <ImageUpload 
+                                preview={formData.image}
+                                label="Upload Award Media"
+                                onUploadSuccess={(url) => setFormData(prev => ({ ...prev, image: url }))}
+                            />
+                        </div>
+                        <button onClick={() => handleAdd('achievement')} className="px-10 py-4 bg-purple-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-purple-100 transition hover:bg-purple-700">Record to Institution Archive</button>
                     </div>
                 )}
 
                 {activeSub === 'carousel' && (
-                    <div className="space-y-6">
-                        <input type="text" placeholder="Slide Title" className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
-                        <input type="text" placeholder="Subtitle / Caption" className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.subtitle} onChange={(e) => setFormData({...formData, subtitle: e.target.value})} />
-                        <input type="text" placeholder="Slide Image URL" className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.image} onChange={(e) => setFormData({...formData, image: e.target.value})} />
-                        <button onClick={() => handleAdd('carousel')} className="px-10 py-4 bg-purple-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-purple-100 transition hover:opacity-90">Add Slide</button>
+                    <div className="space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Slide Title</label>
+                                <input type="text" placeholder="Featured Event Title" className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Subtitle / Context</label>
+                                <input type="text" placeholder="Short descriptive caption" className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={formData.subtitle} onChange={(e) => setFormData({...formData, subtitle: e.target.value})} />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Slide Visual (High Res Recommended)</label>
+                            <ImageUpload 
+                                preview={formData.image}
+                                label="Upload Carousel Slide"
+                                onUploadSuccess={(url) => setFormData(prev => ({ ...prev, image: url }))}
+                            />
+                        </div>
+                        <button onClick={() => handleAdd('carousel')} className="px-10 py-4 bg-purple-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-purple-100 transition hover:bg-purple-700">Deploy to Homepage</button>
                     </div>
                 )}
             </div>
@@ -1111,8 +1277,12 @@ const ConfigPanel = ({ config, refresh }) => {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Institution Logo URL</label>
-                        <input type="text" placeholder="https://example.com/logo.png" className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm border-none focus:ring-4 focus:ring-slate-100" value={formData.logo} onChange={(e) => setFormData({...formData, logo: e.target.value})} />
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Institution Logo</label>
+                        <ImageUpload 
+                            label="Upload School Branding"
+                            preview={formData.logo}
+                            onUploadSuccess={(url) => setFormData(prev => ({ ...prev, logo: url }))}
+                        />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -1284,7 +1454,7 @@ const InboxManager = ({ messages, refresh }) => {
     );
 };
 
-const ScheduleManager = ({ classes, phases, teachers, refresh, activeView }) => {
+const ScheduleManager = ({ classes, phases, teachers, refresh, activeView, setSubmitting }) => {
     const [showAddPhase, setShowAddPhase] = useState(false);
     const [editingPhaseId, setEditingPhaseId] = useState(null);
     const [selectedClass, setSelectedClass] = useState('');
@@ -1360,6 +1530,7 @@ const ScheduleManager = ({ classes, phases, teachers, refresh, activeView }) => 
         e.preventDefault();
         if (!validateSlots()) return;
 
+        setSubmitting(true);
         try {
             if (editingPhaseId) {
                 await axios.post(`/management/schedule/phase/update/${editingPhaseId}`, phaseForm);
@@ -1373,6 +1544,8 @@ const ScheduleManager = ({ classes, phases, teachers, refresh, activeView }) => 
             refresh();
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to save phase");
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -1389,6 +1562,36 @@ const ScheduleManager = ({ classes, phases, teachers, refresh, activeView }) => 
         setShowAddPhase(true);
     };
 
+    const handleDeletePhase = async (id) => {
+        if (!window.confirm("CRITICAL: Deleting a phase will PERMANENTLY remove ALL class timetables associated with it. Proceed?")) return;
+        setSubmitting(true);
+        try {
+            await axios.delete(`/management/schedule/phase/${id}`);
+            toast.success("Phase and linked schedules removed");
+            refresh();
+        } catch (error) {
+            toast.error("Cleanup failed");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleResetTimetable = async () => {
+        if (!selectedClass || !selectedPhase) return;
+        if (!window.confirm("Are you sure you want to reset the entire timetable for this class in this phase?")) return;
+        
+        setSubmitting(true);
+        try {
+            await axios.delete(`/management/schedule/timetable/${selectedClass}/${selectedPhase}`);
+            toast.success("Timetable reset successful");
+            fetchTimetable();
+        } catch (error) {
+            toast.error("Reset failed");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     const openSlotEditor = (day, slotIndex) => {
         const existing = timetableData.find(d => d.day === day)?.slots.find(s => s.slotIndex === slotIndex);
         setSlotEditForm({
@@ -1396,6 +1599,13 @@ const ScheduleManager = ({ classes, phases, teachers, refresh, activeView }) => 
             teacher: existing?.teacher?._id || existing?.teacher || ''
         });
         setEditingSlot({ day, slotIndex });
+    };
+
+    const getTeacherStats = (teacherId, day) => {
+        if (!teacherId || !day) return { total: 0, isBusy: false };
+        const daySlots = timetableData.find(d => d.day === day)?.slots || [];
+        const countInThisClass = daySlots.filter(s => (s.teacher?._id || s.teacher) === teacherId).length;
+        return { total: countInThisClass };
     };
 
     const handleSlotUpdate = async (e) => {
@@ -1411,6 +1621,7 @@ const ScheduleManager = ({ classes, phases, teachers, refresh, activeView }) => 
             newSlots.push({ slotIndex: editingSlot.slotIndex, ...slotEditForm });
         }
 
+        setSubmitting(true);
         try {
             await axios.post('/management/schedule/timetable/update', {
                 classId: selectedClass,
@@ -1423,6 +1634,8 @@ const ScheduleManager = ({ classes, phases, teachers, refresh, activeView }) => 
             fetchTimetable();
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to update slot");
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -1447,12 +1660,20 @@ const ScheduleManager = ({ classes, phases, teachers, refresh, activeView }) => 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {phases.map(phase => (
                             <div key={phase._id} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 space-y-4 relative group">
-                                <button 
-                                    onClick={() => openEditPhase(phase)}
-                                    className="absolute top-6 right-6 p-2 bg-indigo-50 text-indigo-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity hover:bg-indigo-600 hover:text-white"
-                                >
-                                    <Edit size={16} />
-                                </button>
+                                <div className="absolute top-6 right-6 flex gap-2">
+                                    <button 
+                                        onClick={() => openEditPhase(phase)}
+                                        className="p-2.5 bg-slate-50 text-slate-400 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-indigo-600 hover:text-white"
+                                    >
+                                        <Edit size={14} />
+                                    </button>
+                                    <button 
+                                        onClick={() => handleDeletePhase(phase._id)}
+                                        className="p-2.5 bg-slate-50 text-slate-400 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-600 hover:text-white"
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                </div>
                                 <div className="flex justify-between items-start">
                                     <h3 className="text-xl font-black text-gray-800 uppercase">{phase.name}</h3>
                                     <div className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-tighter">Active</div>
@@ -1487,19 +1708,132 @@ const ScheduleManager = ({ classes, phases, teachers, refresh, activeView }) => 
                 </div>
             )}
 
-            {/* Timetable Editor View remains same ... */}
+            {activeView === 'timetable' && (
+                <div className="space-y-8">
+                    <div className="flex flex-col md:flex-row gap-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+                        <div className="flex-1 space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Select Target Class</label>
+                            <select 
+                                className="w-full p-4 bg-gray-50 rounded-2xl border-none font-bold text-sm focus:ring-4 focus:ring-indigo-50 transition-all outline-none"
+                                value={selectedClass}
+                                onChange={(e) => setSelectedClass(e.target.value)}
+                            >
+                                <option value="">Choose Class...</option>
+                                {classes.map(c => <option key={c._id} value={c._id}>{c.grade}-{c.section}</option>)}
+                            </select>
+                        </div>
+                        <div className="flex-1 space-y-2 relative">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Academic Phase</label>
+                            <select 
+                                className="w-full p-4 bg-gray-50 rounded-2xl border-none font-bold text-sm focus:ring-4 focus:ring-indigo-50 transition-all outline-none"
+                                value={selectedPhase}
+                                onChange={(e) => setSelectedPhase(e.target.value)}
+                            >
+                                <option value="">Choose Phase...</option>
+                                {phases.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
+                            </select>
+                            {selectedClass && selectedPhase && (
+                                <button 
+                                    onClick={handleResetTimetable}
+                                    className="absolute -top-1 right-0 text-rose-400 hover:text-rose-600 font-black text-[8px] uppercase tracking-widest flex items-center gap-1 bg-rose-50 px-3 py-1.5 rounded-full border border-rose-100 transition-all"
+                                >
+                                    <RotateCcw size={10} /> Reset Matrix
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {selectedClass && currentPhase ? (
+                        <div className="bg-white rounded-[3rem] shadow-soft-xl border border-gray-100 overflow-hidden animate-in fade-in duration-700">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-slate-900 text-white">
+                                            <th className="py-6 px-8 text-[10px] font-black uppercase tracking-[0.2em] border-r border-white/5 sticky left-0 bg-slate-900 z-10">Time Slots</th>
+                                            {days.map(day => (
+                                                <th key={day} className="py-6 px-8 text-center border-r border-white/5 min-w-[180px]">{day}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {currentPhase.slots.map((phaseSlot, idx) => (
+                                            <tr key={idx} className="hover:bg-indigo-50/30 transition-colors group">
+                                                <td className="py-6 px-8 border-r border-gray-100 sticky left-0 bg-white group-hover:bg-indigo-50/30 z-10">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] font-black text-slate-800 uppercase tracking-tighter">{phaseSlot.label}</span>
+                                                        <span className="text-[9px] font-bold text-slate-400 flex items-center gap-1 mt-1">
+                                                            <Clock size={10} /> {phaseSlot.startTime} - {phaseSlot.endTime}
+                                                        </span>
+                                                        {phaseSlot.type === 'Lunch' && (
+                                                            <span className="mt-2 px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-[8px] font-black uppercase w-fit">Break</span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                {days.map(day => {
+                                                    const slot = timetableData.find(d => d.day === day)?.slots.find(s => s.slotIndex === idx);
+                                                    return (
+                                                        <td key={day} className="py-4 px-4 border-r border-gray-100">
+                                                            {phaseSlot.type === 'Period' ? (
+                                                                <button 
+                                                                    onClick={() => openSlotEditor(day, idx)}
+                                                                    className={`w-full p-4 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-1 min-h-[100px] ${slot ? 'bg-white border-indigo-200 shadow-sm' : 'bg-gray-50 border-gray-200 hover:border-indigo-300 hover:bg-white'}`}
+                                                                >
+                                                                    {slot ? (
+                                                                        <>
+                                                                            <div className="text-[10px] font-black text-indigo-600 uppercase tracking-tight">{slot.subject}</div>
+                                                                            <div className="text-[8px] font-bold text-gray-400 uppercase flex items-center gap-1 text-center">
+                                                                                <Users size={10} /> {slot.teacher?.name || 'Assigned'}
+                                                                            </div>
+                                                                            <div className="mt-2 p-1.5 bg-indigo-50 text-indigo-400 rounded-lg group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                                                                <Edit size={12} />
+                                                                            </div>
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <Plus size={16} className="text-gray-300" />
+                                                                            <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest">Empty Slot</span>
+                                                                        </>
+                                                                    )}
+                                                                </button>
+                                                            ) : (
+                                                                <div className="w-full h-full flex items-center justify-center opacity-20 grayscale grayscale-100 pointer-events-none">
+                                                                    <div className="text-[10px] font-black uppercase tracking-[0.3em] rotate-[-15deg]">{phaseSlot.type}</div>
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                    );
+                                                })}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="py-32 text-center bg-white rounded-[3rem] border border-dashed border-gray-200 space-y-4">
+                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto text-gray-200">
+                                <Calendar size={40} />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-gray-800 uppercase tracking-tighter">Timetable Blueprint</h3>
+                                <p className="text-gray-400 font-bold mt-2 italic">Select a class and academic phase to begin orchestration.</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Phase Creation Modal */}
             {showAddPhase && (
-                <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+                <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
+                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
                         <div className="p-8 bg-indigo-600 text-white flex justify-between items-center">
                             <h2 className="text-2xl font-black">{editingPhaseId ? 'Edit Schedule Phase' : 'Configure Schedule Phase'}</h2>
                             <button onClick={() => { setShowAddPhase(false); setEditingPhaseId(null); }} className="p-2 hover:bg-white/20 rounded-xl transition"><X size={24} /></button>
                         </div>
                         <form onSubmit={handlePhaseSubmit} className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
                             <div className="space-y-6">
-                                <input type="text" placeholder="Phase Name (e.g. Summer 2026)" required className="w-full p-5 bg-gray-50 rounded-2xl font-black text-lg border-none" value={phaseForm.name} onChange={(e) => setPhasePhaseForm({...phaseForm, name: e.target.value})} />
+                                <input type="text" placeholder="Phase Name (e.g. Summer 2026)" required className="w-full p-5 bg-gray-50 rounded-2xl font-black text-lg border-none outline-none focus:ring-4 focus:ring-indigo-50" value={phaseForm.name} onChange={(e) => setPhasePhaseForm({...phaseForm, name: e.target.value})} />
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Effective From</label>
@@ -1582,28 +1916,45 @@ const ScheduleManager = ({ classes, phases, teachers, refresh, activeView }) => 
 
             {/* Slot Editor Modal */}
             {editingSlot && (
-                <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in duration-300">
+                <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
+                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
                         <div className="p-8 bg-slate-900 text-white flex justify-between items-center">
                             <div>
-                                <h3 className="text-xl font-black">{editingSlot.day}</h3>
-                                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">{currentPhase.slots[editingSlot.slotIndex].label} ({currentPhase.slots[editingSlot.slotIndex].startTime})</p>
+                                <h3 className="text-xl font-black uppercase tracking-tighter">{editingSlot.day}</h3>
+                                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">{currentPhase.slots[editingSlot.slotIndex].label} ({currentPhase.slots[editingSlot.slotIndex].startTime})</p>
                             </div>
-                            <button onClick={() => setEditingSlot(null)} className="p-2 hover:bg-white/20 rounded-xl transition"><X size={20} /></button>
+                            <button onClick={() => setEditingSlot(null)} className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition"><X size={20} /></button>
                         </div>
-                        <form onSubmit={handleSlotUpdate} className="p-8 space-y-6">
+                        <form onSubmit={handleSlotUpdate} className="p-10 space-y-8">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Subject Name</label>
-                                <input type="text" required placeholder="Mathematics" className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={slotEditForm.subject} onChange={(e) => setSlotEditForm({...slotEditForm, subject: e.target.value})} />
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Academic Subject</label>
+                                <input type="text" required placeholder="e.g. Mathematics" className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-indigo-50 transition-all outline-none" value={slotEditForm.subject} onChange={(e) => setSlotEditForm({...slotEditForm, subject: e.target.value})} />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Assign Teacher</label>
-                                <select className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm" value={slotEditForm.teacher} onChange={(e) => setSlotEditForm({...slotEditForm, teacher: e.target.value})}>
-                                    <option value="">Select Faculty</option>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Assign Faculty</label>
+                                <select className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-indigo-50 transition-all outline-none" value={slotEditForm.teacher} onChange={(e) => setSlotEditForm({...slotEditForm, teacher: e.target.value})}>
+                                    <option value="">Select Instructor</option>
                                     {teachers.map(t => <option key={t._id} value={t._id}>{t.name}</option>)}
                                 </select>
                             </div>
-                            <button type="submit" className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-indigo-100 hover:opacity-90">Confirm Assignment</button>
+
+                            {slotEditForm.teacher && (
+                                <div className="p-6 bg-indigo-50 rounded-[1.5rem] border border-indigo-100 animate-in slide-in-from-top-4 duration-500">
+                                    <div className="flex justify-between items-center border-b border-indigo-100/50 pb-2 mb-3">
+                                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Availability Audit</span>
+                                        <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${getTeacherStats(slotEditForm.teacher, editingSlot.day).total >= 4 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                            {getTeacherStats(slotEditForm.teacher, editingSlot.day).total} Daily Periods
+                                        </span>
+                                    </div>
+                                    <p className="text-[10px] font-bold text-indigo-600/70 leading-relaxed italic">
+                                        {getTeacherStats(slotEditForm.teacher, editingSlot.day).total >= 4 
+                                            ? "⚠️ ATTENTION: Instructor has reached high-load status for this day. Evaluate break distribution."
+                                            : "✨ SYSTEM: Faculty availability confirmed for this time slot. Load is within optimal range."}
+                                    </p>
+                                </div>
+                            )}
+
+                            <button type="submit" className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95">Commit Assignment</button>
                         </form>
                     </div>
                 </div>

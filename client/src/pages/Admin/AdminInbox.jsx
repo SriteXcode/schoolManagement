@@ -193,19 +193,18 @@ const AdminInbox = () => {
                              </div>
                              
                              <h4 className="font-black text-slate-800 text-xl tracking-tight mb-2">
-                                 {msg.isAnonymous ? (
-                                     <span className="flex items-center gap-2 text-slate-400 bg-slate-100/50 px-4 py-1.5 rounded-2xl italic text-sm w-fit">
-                                         <FaUserClock size={14} /> Anonymous Identity Masked
-                                     </span>
-                                 ) : (
-                                     <div className="flex items-center gap-3">
-                                         <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center text-sm">{msg.user?.name?.charAt(0) || msg.name?.charAt(0)}</div>
-                                         <div>
-                                            <div className="text-lg">{msg.user?.name || msg.name}</div>
-                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{msg.user?.email || msg.email} • {msg.user?.role || 'External'}</div>
-                                         </div>
+                                 <div className="flex items-center gap-3">
+                                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm ${msg.isAnonymous ? 'bg-amber-600 text-white' : 'bg-slate-900 text-white'}`}>
+                                         {(msg.user?.name || msg.name)?.charAt(0)}
                                      </div>
-                                 )}
+                                     <div>
+                                        <div className="text-lg flex items-center gap-2">
+                                            {msg.displayName || msg.user?.name || msg.name}
+                                            {msg.isAnonymous && <span className="text-[8px] bg-amber-50 text-amber-600 border border-amber-100 px-2 py-0.5 rounded-full uppercase tracking-tighter">Anonymous Mode</span>}
+                                        </div>
+                                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{msg.user?.email || msg.email} • {msg.user?.role || 'External'}</div>
+                                     </div>
+                                 </div>
                              </h4>
                              <p className="text-slate-600 font-medium text-base leading-relaxed mt-4 p-6 bg-slate-50 rounded-[1.5rem] italic">"{msg.message}"</p>
                              <div className="flex items-center gap-2 mt-4 text-[10px] font-black text-slate-300 uppercase tracking-widest">

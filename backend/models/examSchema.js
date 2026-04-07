@@ -5,6 +5,10 @@ const examSchema = new mongoose.Schema({
     type: String, // e.g., "Midterm 2026"
     required: true,
   },
+  examCode: {
+    type: String, // e.g., "MID_2026"
+    required: true,
+  },
   sClass: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Class",

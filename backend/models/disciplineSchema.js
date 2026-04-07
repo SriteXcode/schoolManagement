@@ -4,7 +4,22 @@ const disciplineSchema = new mongoose.Schema({
   student: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Student",
-    required: true,
+    // Keep for backward compatibility, will store the primary/first student
+  },
+  involvedStudents: [{
+    student: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+    side: {
+      type: String,
+      enum: ["Side A", "Side B", "Neutral", "Witness"],
+      default: "Side A"
+    }
+  }],
+  hasSides: {
+    type: Boolean,
+    default: false
   },
   incidentType: {
     type: String,

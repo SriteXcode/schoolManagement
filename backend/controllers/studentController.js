@@ -6,7 +6,8 @@ const Fee = require("../models/feeSchema");
 exports.registerStudent = async (req, res) => {
   try {
     const { name, classId, gender, guardianName, phone, transportMode, bus, busStop, isNewStopRequest, 
-            bikeNumber, drivingLicense, roomNumber, hostelName } = req.body;
+            bikeNumber, drivingLicense, roomNumber, hostelName, 
+            baseMonthlyFee = 5000, admissionFee = 0 } = req.body;
     const ContactMessage = require("../models/contactMessageSchema");
 
     if (!classId || !name || !phone) {
@@ -70,10 +71,26 @@ exports.registerStudent = async (req, res) => {
         });
     }
 
-    // Initial Fee Record
+    // Initial Fee Record with full monthly breakdown (Academic Year starts in April)
+    const months = ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"];
+    const monthlyFees = months.map((m, idx) => {
+        const charges = [{ name: "Monthly Tuition Fee", amount: Number(baseMonthlyFee) }];
+        if (m === "April" && Number(admissionFee) > 0) {
+            charges.push({ name: "Admission Fee", amount: Number(admissionFee), isAdmissionFee: true });
+        }
+        return {
+            month: m,
+            charges,
+            paidAmount: 0,
+            status: "Pending",
+            dueDate: new Date(new Date().getFullYear(), (idx + 3) % 12, 10) // Approx 10th of each month
+        };
+    });
+
     await Fee.create({
         student: student._id,
-        totalAmount: 50000, 
+        allPaymentsTotal: 0,
+        monthlyFees
     });
 
     res.status(201).json({ 
@@ -207,12 +224,13 @@ exports.updateStudent = async (req, res) => {
     
     await student.save();
 
-    // Update Linked User Fields (Email/Phone/Name)
+    // Update Linked User Fields (Email/Phone/Name/ProfileImage)
     const user = await User.findById(student.user);
     if (user) {
         if (email) user.email = email;
         if (name) user.name = name; // Sync name
         if (phone) user.phone = phone;
+        if (profileImage) user.profileImage = profileImage; // Sync profile image
         await user.save();
     }
 
@@ -264,6 +282,28 @@ exports.unassignClass = async (req, res) => {
       message: `Successfully unassigned ${result.modifiedCount} students from the class.`,
       count: result.modifiedCount 
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.deleteStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const student = await Student.findById(id);
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    // 1. Delete Linked Records
+    await Fee.deleteMany({ student: id });
+    await require("../models/attendanceSchema").deleteMany({ student: id });
+    await require("../models/marksSchema").deleteMany({ student: id });
+    await require("../models/homeworkStatusSchema").deleteMany({ student: id });
+
+    // 2. Delete linked User and Student Profile
+    await User.findByIdAndDelete(student.user);
+    await Student.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Student and all academic records deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

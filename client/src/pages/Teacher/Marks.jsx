@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import { FaChalkboardTeacher, FaUserGraduate, FaBook, FaMarker, FaCalendarAlt, FaPlus, FaCheckCircle, FaExclamationCircle, FaSearch, FaChevronDown, FaChevronRight, FaEye, FaTimes, FaClipboardList } from 'react-icons/fa';
+import Loader from '../../components/Loader';
 
 const Marks = () => {
   const [classes, setClasses] = useState([]);
   const [exams, setExams] = useState([]);
   const [activeTab, setActiveTab] = useState('main'); // 'main' or 'classTest'
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   
   // Selection States
   const [selectedClass, setSelectedClass] = useState('');
@@ -42,15 +45,19 @@ const Marks = () => {
         setClasses(res.data);
       } catch (e) {
         console.error(e);
+      } finally {
+        setLoading(false);
       }
     };
     if (user.email) fetchClasses();
+    else setLoading(false);
   }, [user.email]);
 
   // Handle Class Change -> Fetch Exams & Teacher Context
   useEffect(() => {
     if (selectedClass) {
       const fetchClassData = async () => {
+        setSubmitting(true);
         try {
           // 1. Fetch Exams
           const examRes = await api.get(`/exam/${selectedClass}`);
@@ -82,6 +89,9 @@ const Marks = () => {
           }
 
         } catch (e) { console.error(e); }
+        finally {
+            setSubmitting(false);
+        }
       };
       fetchClassData();
     } else {
@@ -170,6 +180,7 @@ const Marks = () => {
     if (!newExamSubject || !newExamMaxMarks || !newExamSyllabus) return toast.error("Subject, Max Marks, and Syllabus are required");
     
     setCreateLoading(true);
+    setSubmitting(true);
     try {
       await api.post('/exam/create', {
         name: newExamName,
@@ -195,6 +206,7 @@ const Marks = () => {
       toast.error(error.response?.data?.message || "Failed to schedule class test");
     } finally {
       setCreateLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -208,6 +220,7 @@ const Marks = () => {
         return toast.error("Marks can only be entered after the examination date.");
     }
 
+    setSubmitting(true);
     try {
       // 1. Get Students for this class
       const studentRes = await api.get(`/student/class/${selectedClass}`);
@@ -228,6 +241,8 @@ const Marks = () => {
 
     } catch (e) {
       toast.error(e.response?.data?.message || "Error fetching data");
+    } finally {
+        setSubmitting(false);
     }
   };
 
@@ -242,21 +257,22 @@ const Marks = () => {
   };
 
   const handleSaveMarks = async () => {
+    // Find selected exam object to check date and maxMarks
+    const currentExam = exams.find(e => e._id === selectedExam);
+    if (!currentExam) return toast.error("Exam details not found");
+    
+    if (new Date(currentExam.date) > new Date()) {
+        return toast.error("Marks can only be entered after the examination date.");
+    }
+
+    // Final validation before sending to server
+    const invalidScores = Object.values(marksMap).some(score => parseInt(score) > currentExam.maxMarks);
+    if (invalidScores) {
+        return toast.error(`Some scores exceed the maximum marks allowed (${currentExam.maxMarks}). Please fix them before saving.`);
+    }
+
+    setSubmitting(true);
     try {
-      // Find selected exam object to check date and maxMarks
-      const currentExam = exams.find(e => e._id === selectedExam);
-      if (!currentExam) return toast.error("Exam details not found");
-      
-      if (new Date(currentExam.date) > new Date()) {
-          return toast.error("Marks can only be entered after the examination date.");
-      }
-
-      // Final validation before sending to server
-      const invalidScores = Object.values(marksMap).some(score => parseInt(score) > currentExam.maxMarks);
-      if (invalidScores) {
-          return toast.error(`Some scores exceed the maximum marks allowed (${currentExam.maxMarks}). Please fix them before saving.`);
-      }
-
       const marksData = Object.keys(marksMap).map(studentId => ({
         student: studentId,
         subject: subject,
@@ -270,6 +286,8 @@ const Marks = () => {
       toast.success("Marks Saved Successfully!");
     } catch (e) {
       toast.error(e.response?.data?.message || "Failed to save marks");
+    } finally {
+        setSubmitting(false);
     }
   };
 
@@ -295,8 +313,11 @@ const Marks = () => {
 
   const now = new Date();
 
+  if (loading) return <Loader fullScreen text="Accessing Examination Archives..." />;
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative">
+      {submitting && <Loader fullScreen text="Synchronizing Result Database..." />}
       <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
           <FaMarker className="text-indigo-600"/> Examinations & Marks
       </h1>

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
-import { FaUserTie, FaChalkboard, FaEdit, FaTimes } from 'react-icons/fa';
+import { FaUserTie, FaChalkboard, FaEdit, FaTimes, FaTrash } from 'react-icons/fa';
+import Loader from '../../components/Loader';
 
 const Classes = () => {
   const [classes, setClasses] = useState([]);
@@ -10,7 +11,8 @@ const Classes = () => {
   const [grade, setGrade] = useState('');
   const [section, setSection] = useState('');
   const [selectedTeacher, setSelectedTeacher] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   
@@ -27,6 +29,8 @@ const Classes = () => {
       setTeachers(teacherRes.data);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,7 +40,7 @@ const Classes = () => {
 
   const handleAddClass = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitting(true);
     try {
       await api.post('/class/create', { grade, section, teacherId: selectedTeacher });
       toast.success('Class created successfully!');
@@ -48,7 +52,7 @@ const Classes = () => {
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to create class');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -63,70 +67,84 @@ const Classes = () => {
     }
   };
 
+  const handleDeleteClass = async (id) => {
+      if (!window.confirm("CRITICAL: Deleting a class will unassign all its students and remove all associated timetables. This cannot be undone. Proceed?")) return;
+      
+      setSubmitting(true);
+      try {
+          await api.delete(`/class/${id}`);
+          toast.success("Class and related records cleaned up.");
+          fetchData();
+      } catch (error) {
+          toast.error("Cleanup failed.");
+      } finally {
+          setSubmitting(false);
+      }
+  };
+
+  if (loading) return <Loader fullScreen text="Accessing Class Registers..." />;
+
   return (
-    <div className="space-y-6 relative">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Manage Classes</h1>
+    <div className="space-y-6 relative pb-20">
+      {submitting && <Loader fullScreen text="Processing Registry Update..." />}
+      <div className="flex justify-between items-center px-4">
+        <div>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Academic Units</h1>
+            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-1">Institutional Class Management</p>
+        </div>
         <button 
           onClick={() => setShowModal(true)}
-          className="bg-indigo-600 text-white p-3 rounded-full hover:bg-indigo-700 shadow-lg transition-transform hover:scale-110 flex items-center justify-center"
+          className="bg-indigo-600 text-white p-4 rounded-2xl hover:bg-indigo-700 shadow-xl shadow-indigo-100 transition-all hover:scale-105 flex items-center justify-center"
           title="Add New Class"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
-          </svg>
+          <FaChalkboard size={20} />
         </button>
       </div>
       
       {/* Create Class Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-6 bg-indigo-600 text-white flex justify-between items-center">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                  <FaChalkboard /> Add New Class
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-8 bg-indigo-600 text-white flex justify-between items-center">
+              <h2 className="text-2xl font-black tracking-tight flex items-center gap-2 uppercase">
+                  New Unit
               </h2>
               <button 
                 onClick={() => setShowModal(false)}
-                className="text-white hover:text-indigo-200 transition"
+                className="text-white/60 hover:text-white transition p-2 bg-white/10 rounded-xl"
               >
-                <FaTimes size={20} />
+                <FaTimes size={18} />
               </button>
             </div>
             
-            <form onSubmit={handleAddClass} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Grade</label>
-                <input
-                  type="text"
-                  placeholder="e.g. 10"
-                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                  value={grade}
-                  onChange={(e) => setGrade(e.target.value)}
-                  required
-                />
+            <form onSubmit={handleAddClass} className="p-8 space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grade</label>
+                    <input
+                      type="text" placeholder="e.g. 10" required
+                      className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-indigo-50 outline-none transition-all"
+                      value={grade} onChange={(e) => setGrade(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Section</label>
+                    <input
+                      type="text" placeholder="e.g. A" required
+                      className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-indigo-50 outline-none transition-all"
+                      value={section} onChange={(e) => setSection(e.target.value)}
+                    />
+                  </div>
               </div>
               
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Section</label>
-                <input
-                  type="text"
-                  placeholder="e.g. A"
-                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                  value={section}
-                  onChange={(e) => setSection(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Class Teacher (Optional)</label>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Class Teacher</label>
                 <select 
-                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                  className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-indigo-50 outline-none transition-all"
                   value={selectedTeacher}
                   onChange={(e) => setSelectedTeacher(e.target.value)}
                 >
-                  <option value="">Select Class Teacher</option>
+                  <option value="">No teacher assigned yet</option>
                   {teachers.map(t => {
                       const isAssigned = classes.some(cls => cls.classTeacher?._id === t._id);
                       return (
@@ -138,65 +156,67 @@ const Classes = () => {
                 </select>
               </div>
               
-              <div className="pt-4 flex gap-3">
-                <button 
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 font-bold transition"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  disabled={loading}
-                  className="flex-1 px-6 py-3 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 font-bold shadow-lg shadow-indigo-200 transition"
-                >
-                  {loading ? 'Creating...' : 'Create Class'}
-                </button>
-              </div>
+              <button 
+                type="submit" 
+                disabled={submitting}
+                className="w-full py-5 text-white bg-indigo-600 rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95"
+              >
+                Register Unit
+              </button>
             </form>
           </div>
         </div>
       )}
 
       {/* Classes List */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 px-2">
           {classes.map((cls) => (
               <div 
                 key={cls._id} 
+                className="p-8 bg-white rounded-[2.5rem] shadow-soft hover:shadow-2xl transition-all duration-500 border border-slate-50 flex flex-col justify-between relative cursor-pointer group hover:border-indigo-100 overflow-hidden"
                 onClick={() => navigate(`/admin/class/${cls._id}`)}
-                className="p-6 bg-white rounded-xl shadow-md border border-gray-100 flex flex-col justify-between hover:shadow-lg transition relative cursor-pointer group"
               >
+                  <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                   
-                  {/* Edit Toggle Button */}
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); setEditingClassId(editingClassId === cls._id ? null : cls._id); }}
-                    className={`absolute top-4 right-4 p-2 rounded-full transition z-10 ${editingClassId === cls._id ? 'bg-red-50 text-red-500' : 'bg-gray-50 text-gray-400 hover:text-indigo-500 hover:bg-indigo-50'}`}
-                  >
-                    {editingClassId === cls._id ? <FaTimes size={14}/> : <FaEdit size={14} />}
-                  </button>
+                  {/* Actions */}
+                  <div className="absolute top-6 right-6 flex gap-2 z-10">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setEditingClassId(editingClassId === cls._id ? null : cls._id); }}
+                        className={`p-3 rounded-xl transition-all ${editingClassId === cls._id ? 'bg-indigo-600 text-white rotate-90' : 'bg-slate-50 text-slate-400 hover:text-indigo-600 hover:bg-white hover:shadow-md'}`}
+                      >
+                        {editingClassId === cls._id ? <FaTimes size={12}/> : <FaEdit size={12} />}
+                      </button>
+                      
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDeleteClass(cls._id); }}
+                        className="p-3 bg-slate-50 text-slate-400 hover:text-rose-600 hover:bg-white hover:shadow-md rounded-xl transition-all"
+                      >
+                        <FaTrash size={12} />
+                      </button>
+                  </div>
 
-                  <div>
-                    <div className="flex justify-between items-start pr-8">
-                        <h3 className="text-2xl font-black text-slate-800 group-hover:text-indigo-600 transition">Class {cls.grade}-{cls.section}</h3>
-                    </div>
+                  <div className="relative z-10">
+                    <h3 className="text-3xl font-black text-slate-800 tracking-tighter uppercase leading-none mb-2">Class {cls.grade}-{cls.section}</h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-8 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ACTIVE UNIT
+                    </p>
                     
                     <div 
-                        className={`mt-4 p-4 rounded-lg border transition ${editingClassId === cls._id ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50 border-gray-100'}`}
-                        onClick={e => e.stopPropagation()} // Prevent click from triggering nav when editing
+                        className={`p-6 rounded-[1.5rem] border transition-all duration-500 ${editingClassId === cls._id ? 'bg-indigo-50 border-indigo-200 ring-4 ring-indigo-50' : 'bg-slate-50 border-slate-100'}`}
+                        onClick={e => e.stopPropagation()}
                     >
-                        <p className={`text-xs font-bold uppercase mb-1 flex items-center gap-1 ${editingClassId === cls._id ? 'text-indigo-500' : 'text-gray-400'}`}>
-                            <FaUserTie size={10} /> Class Teacher
+                        <p className={`text-[8px] font-black uppercase mb-3 tracking-[0.2em] flex items-center gap-2 ${editingClassId === cls._id ? 'text-indigo-500' : 'text-slate-400'}`}>
+                            <FaUserTie size={10} /> Faculty Head
                         </p>
                         
                         {editingClassId === cls._id ? (
                             <select 
-                                className="w-full mt-2 p-2 text-sm border border-indigo-300 rounded bg-white outline-none focus:ring-2 focus:ring-indigo-500"
+                                className="w-full p-3 text-xs font-black bg-white border border-indigo-200 rounded-xl outline-none focus:ring-4 focus:ring-indigo-50 transition-all text-indigo-600"
                                 onChange={(e) => handleAssignTeacher(cls._id, e.target.value)}
                                 value={cls.classTeacher?._id || ''}
                             >
-                                <option value="">Select Teacher</option>
-                                <option value="None">Unassign Teacher</option>
+                                <option value="">Assign Faculty</option>
+                                <option value="None">Leave Empty</option>
                                 {teachers.map(t => {
                                     const isAssigned = classes.some(c => c.classTeacher?._id === t._id && c._id !== cls._id);
                                     return (
@@ -207,23 +227,26 @@ const Classes = () => {
                                 })}
                             </select>
                         ) : (
-                            cls.classTeacher ? (
-                                <p className="font-bold text-slate-700 text-lg">{cls.classTeacher.name}</p>
-                            ) : (
-                                <p className="text-gray-400 italic text-sm">No teacher assigned</p>
-                            )
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center font-black text-indigo-600 text-xs">
+                                    {cls.classTeacher?.name?.charAt(0) || '?'}
+                                </div>
+                                <div>
+                                    <p className="font-black text-slate-700 uppercase text-xs tracking-tight">{cls.classTeacher?.name || 'Vacant Position'}</p>
+                                    <p className="text-[9px] font-bold text-slate-400">{cls.classTeacher?.email || 'Awaiting assignment'}</p>
+                                </div>
+                            </div>
                         )}
                     </div>
                   </div>
-
-                  {editingClassId === cls._id && (
-                      <p className="mt-4 text-[10px] text-indigo-400 font-medium text-center italic">
-                          Selecting a teacher will save the change immediately.
-                      </p>
-                  )}
               </div>
           ))}
-          {classes.length === 0 && <p className="text-gray-500 col-span-3 text-center py-10">No classes found. Add your first class above!</p>}
+          {classes.length === 0 && (
+              <div className="col-span-full py-32 text-center bg-white rounded-[3rem] border border-dashed border-slate-200">
+                  <FaChalkboard size={48} className="mx-auto text-slate-100 mb-4" />
+                  <p className="text-slate-400 font-bold italic">No active units registered in the system...</p>
+              </div>
+          )}
       </div>
     </div>
   );

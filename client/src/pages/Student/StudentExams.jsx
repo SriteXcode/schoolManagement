@@ -100,103 +100,160 @@ const StudentExams = () => {
       return marksArray.reduce((acc, curr) => acc + curr.score, 0);
   };
 
-  const AdmitCardTemplate = ({ examName, subjects }) => (
-    <div className="text-slate-900 h-full flex flex-col bg-white">
-        <div className="text-center mb-10 pb-6 border-b-4 border-indigo-600">
-            <h1 className="text-4xl font-black text-indigo-600 mb-1">EXAMINATION ADMIT CARD</h1>
-            <p className="font-bold tracking-[0.2em] text-slate-400 uppercase text-sm">Academic Session 2023-2024</p>
-        </div>
+  const parseSyllabus = (syllabusStr) => {
+    if (!syllabusStr) return [];
+    // Split by semicolon or newline
+    const sections = syllabusStr.split(/[;\n]/).filter(s => s.trim());
+    
+    return sections.map(section => {
+        if (section.includes('-')) {
+            const [topic, subtopicsStr] = section.split('-');
+            const subtopics = subtopicsStr.split(/[,\~]/).filter(s => s.trim()).map(s => s.trim());
+            return { topic: topic.trim(), subtopics };
+        }
+        return { topic: section.trim(), subtopics: [] };
+    });
+  };
 
-        <div className="flex gap-10 mb-10 items-start">
-            <div className="w-40 h-48 bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0">
-                {student.profileImage ? (
-                    <img src={student.profileImage} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                    <span className="text-slate-300 font-black text-xs uppercase">Student Photo</span>
-                )}
-            </div>
-            <div className="flex-1 grid grid-cols-2 gap-y-6 gap-x-10">
-                <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Student Name</label>
-                    <p className="text-lg font-black text-slate-900 truncate">{student.name.toUpperCase()}</p>
-                </div>
-                <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Roll Number</label>
-                    <p className="text-lg font-black text-slate-900 font-mono">#{student.rollNum}</p>
-                </div>
-                <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Class & Section</label>
-                    <p className="text-lg font-black text-slate-900">{student.sClass?.grade}-{student.sClass?.section}</p>
-                </div>
-                <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Examination</label>
-                    <p className="text-lg font-black text-indigo-600">{examName.toUpperCase()}</p>
-                </div>
-            </div>
-        </div>
+  const SyllabusRenderer = ({ syllabus }) => {
+      const parsed = parseSyllabus(syllabus);
+      if (parsed.length === 0) return <p className="text-slate-400 italic">Refer to class notes and curriculum documents.</p>;
 
-        <div className="flex-1">
-            <table className="w-full border-collapse">
-                <thead>
-                    <tr className="text-left border-b-2 border-slate-900">
-                        <th className="py-4 text-xs font-black uppercase tracking-widest">Date</th>
-                        <th className="py-4 text-xs font-black uppercase tracking-widest">Subject</th>
-                        <th className="py-4 text-xs font-black uppercase tracking-widest text-center">Time</th>
-                        <th className="py-4 text-xs font-black uppercase tracking-widest text-right">Invigilator Signature</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                    {subjects.map((sub, sIdx) => (
-                        <tr key={sIdx}>
-                            <td className="py-5 font-bold text-sm">{new Date(sub.date).toLocaleDateString()}</td>
-                            <td className="py-5 font-black text-indigo-600 uppercase text-sm">{sub.subject}</td>
-                            <td className="py-5 font-bold text-slate-600 text-center text-sm">09:00 AM</td>
-                            <td className="py-5 border-b border-slate-200"></td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+      return (
+          <div className="space-y-4">
+              {parsed.map((item, idx) => (
+                  <div key={idx} className="space-y-1.5">
+                      <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>
+                          {item.topic}
+                      </h4>
+                      {item.subtopics.length > 0 && (
+                          <div className="ml-4 flex flex-wrap gap-x-4 gap-y-1">
+                              {item.subtopics.map((sub, sIdx) => (
+                                  <div key={sIdx} className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+                                      <span className="text-indigo-300">•</span>
+                                      {sub}
+                                  </div>
+                              ))}
+                          </div>
+                      )}
+                  </div>
+              ))}
+          </div>
+      );
+  };
 
-        {/* Syllabus Section on Admit Card */}
-        <div className="mt-10 pt-6 border-t border-slate-100">
-            <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Exam Syllabus Reference</h5>
-            <div className="grid grid-cols-2 gap-6">
-                {subjects.map((sub, sIdx) => (
-                    <div key={sIdx} className="bg-slate-50 p-4 rounded-xl">
-                        <p className="text-[10px] font-black text-indigo-600 uppercase mb-1">{sub.subject}</p>
-                        <p className="text-[9px] text-slate-500 font-bold leading-tight">{sub.syllabus || "Refer to class notes"}</p>
+  const AdmitCardTemplate = ({ examName, subjects, side = 'front' }) => {
+    if (side === 'front') {
+        return (
+            <div className="text-slate-900 h-full flex flex-col bg-white">
+                <div className="text-center mb-10 pb-6 border-b-4 border-indigo-600">
+                    <h1 className="text-4xl font-black text-indigo-600 mb-1 uppercase">Admit Card</h1>
+                    <p className="font-bold tracking-[0.2em] text-slate-400 uppercase text-xs">Academic Session 2023-2024</p>
+                </div>
+
+                <div className="flex gap-10 mb-10 items-start px-4">
+                    <div className="w-32 h-40 bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0">
+                        {student.profileImage ? (
+                            <img src={student.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                            <span className="text-slate-300 font-black text-[10px] uppercase text-center p-4">Student Photo</span>
+                        )}
                     </div>
-                ))}
-            </div>
-        </div>
+                    <div className="flex-1 grid grid-cols-2 gap-y-6 gap-x-10">
+                        <div>
+                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Student Name</label>
+                            <p className="text-base font-black text-slate-900 truncate">{student.name.toUpperCase()}</p>
+                        </div>
+                        <div>
+                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Roll Number</label>
+                            <p className="text-base font-black text-slate-900 font-mono">#{student.rollNum}</p>
+                        </div>
+                        <div>
+                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Class & Section</label>
+                            <p className="text-base font-black text-slate-900">{student.sClass?.grade}-{student.sClass?.section}</p>
+                        </div>
+                        <div>
+                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Examination</label>
+                            <p className="text-base font-black text-indigo-600 uppercase">{examName}</p>
+                        </div>
+                    </div>
+                </div>
 
-        <div className="mt-10 flex justify-between items-end px-10">
-            <div className="text-center">
-                <div className="w-48 border-b-2 border-slate-900 mb-2"></div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Student Signature</p>
-            </div>
-            <div className="text-center">
-                <div className="w-48 border-b-2 border-slate-900 mb-2"></div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Controller of Exams</p>
-            </div>
-        </div>
+                <div className="flex-1 px-4">
+                    <table className="w-full border-collapse">
+                        <thead>
+                            <tr className="text-left border-b-2 border-slate-900">
+                                <th className="py-4 text-[10px] font-black uppercase tracking-widest">Date</th>
+                                <th className="py-4 text-[10px] font-black uppercase tracking-widest">Subject</th>
+                                <th className="py-4 text-[10px] font-black uppercase tracking-widest text-center">Time</th>
+                                <th className="py-4 text-[10px] font-black uppercase tracking-widest text-right">Invigilator</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {subjects.map((sub, sIdx) => (
+                                <tr key={sIdx}>
+                                    <td className="py-4 font-bold text-xs">{new Date(sub.date).toLocaleDateString()}</td>
+                                    <td className="py-4 font-black text-indigo-600 uppercase text-xs">{sub.subject}</td>
+                                    <td className="py-4 font-bold text-slate-600 text-center text-xs">{sub.time || "09:00 AM"}</td>
+                                    <td className="py-4 border-b border-slate-200"></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
 
-        <div className="mt-16 p-8 bg-slate-50 rounded-3xl border border-slate-100">
-            <h5 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Important Instructions</h5>
-            <ul className="text-[10px] text-slate-500 font-bold space-y-1 list-disc pl-4 leading-relaxed">
-                <li>Reporting time is strictly 30 minutes before the examination starts.</li>
-                <li>Candidates must carry this original admit card and school ID for every session.</li>
-                <li>Electronic gadgets, smartwatches, and programmable calculators are prohibited.</li>
-                <li>Misconduct or use of unfair means will lead to immediate disqualification.</li>
-            </ul>
-        </div>
-    </div>
-  );
+                <div className="mt-10 p-6 bg-slate-50 rounded-[2rem] border border-slate-100 mx-4">
+                    <h5 className="text-[9px] font-black text-slate-900 uppercase tracking-widest mb-3">Examination Directives</h5>
+                    <ul className="text-[9px] text-slate-500 font-bold space-y-1 list-disc pl-4 leading-relaxed">
+                        <li>Report 30 minutes prior to session commencement.</li>
+                        <li>Possession of this card and Student ID is mandatory.</li>
+                        <li>Prohibited: Digital watches, calculators, and communication devices.</li>
+                        <li>Any form of academic dishonesty will result in disqualification.</li>
+                    </ul>
+                </div>
+
+                <div className="mt-auto pt-10 flex justify-between items-end px-10 pb-10">
+                    <div className="text-center">
+                        <div className="w-40 border-b border-slate-900 mb-2"></div>
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Student Signature</p>
+                    </div>
+                    <div className="text-center">
+                        <div className="w-40 border-b border-slate-900 mb-2"></div>
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Controller of Exams</p>
+                    </div>
+                </div>
+            </div>
+        );
+    } else {
+        return (
+            <div className="text-slate-900 h-full flex flex-col bg-slate-50/30">
+                <div className="text-center mb-10 pb-6 border-b-4 border-slate-200">
+                    <h1 className="text-3xl font-black text-slate-300 mb-1">EXAMINATION SYLLABUS</h1>
+                    <p className="font-bold tracking-[0.2em] text-slate-300 uppercase text-xs">{examName.toUpperCase()} - BACK SIDE REFERENCE</p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 px-10">
+                    {subjects.map((sub, sIdx) => (
+                        <div key={sIdx} className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+                            <h3 className="text-lg font-black text-indigo-600 uppercase mb-4 border-b pb-2">{sub.subject}</h3>
+                            <SyllabusRenderer syllabus={sub.syllabus} />
+                        </div>
+                    ))}
+                </div>
+
+                <div className="mt-auto py-10 text-center">
+                    <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.5em]">This page is for academic reference only</p>
+                </div>
+            </div>
+        );
+    }
+  };
 
   const handleUnifiedPrint = (examData) => {
       const printWindow = window.open('', '_blank');
-      const html = document.getElementById(`printable-admit-card`).innerHTML;
+      const frontHtml = document.getElementById(`printable-admit-card-front`).innerHTML;
+      const backHtml = document.getElementById(`printable-admit-card-back`).innerHTML;
       
       printWindow.document.write(`
         <html>
@@ -205,20 +262,23 @@ const StudentExams = () => {
                 <style>
                     @page { size: A4; margin: 0; }
                     body { margin: 0; padding: 0; font-family: sans-serif; -webkit-print-color-adjust: exact; }
-                    .a4-container { width: 210mm; min-height: 297mm; padding: 20mm; box-sizing: border-box; background: white; }
+                    .page { width: 210mm; height: 297mm; padding: 20mm; box-sizing: border-box; background: white; page-break-after: always; }
                 </style>
                 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
             </head>
             <body>
-                <div class="a4-container">
-                    ${html}
+                <div class="page">
+                    ${frontHtml}
+                </div>
+                <div class="page">
+                    ${backHtml}
                 </div>
                 <script>
                     window.onload = () => {
                         setTimeout(() => {
                             window.print();
                             window.close();
-                        }, 500);
+                        }, 800);
                     }
                 </script>
             </body>

@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { FaUserCheck, FaUserTimes, FaLock, FaInfoCircle, FaStar, FaRegStar, FaTimes, FaQuoteLeft, FaPlus, FaCalendarAlt, FaAward, FaEdit, FaCheckCircle } from 'react-icons/fa';
 import AttendanceCalendar from '../../components/AttendanceCalendar';
 import StudentDetailsModal from '../../components/StudentDetailsModal';
+import Loader from '../../components/Loader';
 
 const Attendance = () => {
   const [classes, setClasses] = useState([]);
@@ -12,7 +13,8 @@ const Attendance = () => {
   const [students, setStudents] = useState([]);
   const [attendanceData, setAttendanceData] = useState({});
   const [classStats, setClassStats] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   
   // Permission & Class Info
   const [classInfo, setClassInfo] = useState(null);
@@ -109,6 +111,7 @@ const Attendance = () => {
 
   const handleSave = async () => {
     if (!canEdit || !isEditing) return;
+    setSubmitting(true);
     try {
       const formattedData = Object.keys(attendanceData).map(id => ({
         student: id,
@@ -124,6 +127,8 @@ const Attendance = () => {
       setIsEditing(false);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to save attendance");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -145,8 +150,11 @@ const Attendance = () => {
     toast.success("All students marked as Present");
   };
 
+  if (loading) return <Loader fullScreen text="Accessing Attendance Registers..." />;
+
   return (
-    <div className="space-y-6 pb-20 md:pb-6">
+    <div className="space-y-6 pb-20 md:pb-6 relative">
+      {submitting && <Loader fullScreen text="Synchronizing Attendance Data..." />}
       <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-3">
           <FaUserCheck className="text-indigo-600"/> Attendance
       </h1>

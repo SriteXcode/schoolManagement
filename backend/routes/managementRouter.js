@@ -6,7 +6,9 @@ const {
     addGalleryItem, getGalleryItems, addAchievement, addCarouselItem, getCarouselItems,
     getMessages, markMessageRead, assignStudentToBus, getStudentsByBus, updateBusNickname,
     getStaffSalaryHistory, getSalaryReceipt, updateBus,
-    addSchedulePhase, getSchedulePhases, updateSchedulePhase, getTimetable, updateTimetable
+    addSchedulePhase, getSchedulePhases, updateSchedulePhase, getTimetable, updateTimetable,
+    getTeacherSchedule, requestLeave, getTeacherLeaves, getAllLeaves, updateLeaveStatus,
+    deleteSchedulePhase, deleteTimetable
 } = require("../controllers/managementController");
 const { auth, authorizeRole } = require("../middleware/authMiddleware");
 
@@ -24,7 +26,7 @@ router.get("/salary/receipt/:id", auth, getSalaryReceipt);
 
 // Transport
 router.post("/bus/add", auth, authorizeRole(...mgmtRoles), addBus);
-router.get("/bus/all", auth, authorizeRole(...mgmtRoles), getAllBuses);
+router.get("/bus/all", auth, getAllBuses); // Accessible to all logged-in users
 router.put("/bus/:id", auth, authorizeRole(...mgmtRoles), updateBus);
 router.post("/bus/assign-student", auth, authorizeRole(...mgmtRoles), assignStudentToBus);
 router.get("/bus/:busId/students", auth, authorizeRole(...mgmtRoles), getStudentsByBus);
@@ -34,11 +36,20 @@ router.put("/bus/nickname", auth, updateBusNickname); // Students can also updat
 router.post("/schedule/phase/add", auth, authorizeRole(...mgmtRoles), addSchedulePhase);
 router.post("/schedule/phase/update/:id", auth, authorizeRole(...mgmtRoles), updateSchedulePhase);
 router.get("/schedule/phase/all", auth, authorizeRole(...mgmtRoles), getSchedulePhases);
+router.delete("/schedule/phase/:id", auth, authorizeRole("Admin"), deleteSchedulePhase);
 router.get("/schedule/timetable/:classId/:phaseId", auth, authorizeRole(...mgmtRoles), getTimetable);
 router.post("/schedule/timetable/update", auth, authorizeRole(...mgmtRoles), updateTimetable);
+router.delete("/schedule/timetable/:classId/:phaseId", auth, authorizeRole("Admin"), deleteTimetable);
+router.get("/schedule/teacher/:teacherId", auth, getTeacherSchedule);
+
+// Leave Management
+router.post("/leave/request", auth, authorizeRole("Teacher"), requestLeave);
+router.get("/leave/my-leaves", auth, authorizeRole("Teacher"), getTeacherLeaves);
+router.get("/leave/all", auth, authorizeRole(...mgmtRoles), getAllLeaves);
+router.patch("/leave/status/:id", auth, authorizeRole(...mgmtRoles), updateLeaveStatus);
 
 // School Config
-router.get("/school/config", auth, authorizeRole(...mgmtRoles), getSchoolConfig);
+router.get("/school/config", auth, getSchoolConfig); // Accessible to all logged-in users
 router.put("/school/config", auth, authorizeRole(...mgmtRoles), updateSchoolConfig);
 
 // Content
