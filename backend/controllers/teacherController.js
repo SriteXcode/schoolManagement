@@ -3,7 +3,7 @@ const Teacher = require("../models/teacherSchema");
 
 exports.registerTeacher = async (req, res) => {
   try {
-    const { email, password, name, qualification, age, gender } = req.body;
+    const { email, password, name, qualification, age, gender, phone } = req.body;
     
     // 1. Create User
     const userExists = await User.findOne({ email });
@@ -15,6 +15,7 @@ exports.registerTeacher = async (req, res) => {
       name,
       email,
       password,
+      phone: phone || "Not Provided",
       role: "Teacher",
       status: "Approved"
     });

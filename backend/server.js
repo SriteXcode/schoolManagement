@@ -21,7 +21,7 @@ const salaryRouter = require("./routes/salaryRouter");
 const cellRouter = require("./routes/cellRouter");
 const managementRouter = require("./routes/managementRouter");
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5050;
 
 
 // Middleware
@@ -58,6 +58,8 @@ app.get("/", (req, res) => {
   res.send("School Management System API is running...");
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
+  console.log("Listening address:", server.address());
 });
+

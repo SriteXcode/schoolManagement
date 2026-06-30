@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
-import { FaUserTie, FaChalkboardTeacher, FaTimes, FaBook, FaLink, FaTrash, FaUserShield } from 'react-icons/fa';
+import { FaUserTie, FaChalkboardTeacher, FaTimes, FaBook, FaLink, FaTrash, FaUserShield, FaPhoneAlt, FaEnvelope } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../../components/Loader';
 
@@ -22,6 +22,7 @@ const Teachers = () => {
     name: '',
     email: '',
     password: '',
+    phone: '',
     qualification: '',
     age: '',
     gender: 'Male',
@@ -85,6 +86,7 @@ const Teachers = () => {
         name: '',
         email: '',
         password: '',
+        phone: '',
         qualification: '',
         age: '',
         gender: 'Male',
@@ -145,6 +147,10 @@ const Teachers = () => {
                   <input type="email" name="email" placeholder="john@school.com" value={formData.email} onChange={handleChange} required className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-blue-50 transition-all outline-none" />
                 </div>
                 <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
+                  <input type="tel" name="phone" placeholder="+1 234 567 890" value={formData.phone} onChange={handleChange} required className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-blue-50 transition-all outline-none" />
+                </div>
+                <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Initial Password</label>
                   <input type="password" name="password" placeholder="••••••••" value={formData.password} onChange={handleChange} required className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-blue-50 transition-all outline-none" />
                 </div>
@@ -188,62 +194,83 @@ const Teachers = () => {
                 {teachers.length} Active Records
             </div>
         </div>
-        <div className="overflow-x-auto">
-            <table className="min-w-full text-left border-collapse">
-                <thead>
-                    <tr className="bg-slate-50/50">
-                        <th className="py-6 px-10 text-[10px] font-black text-slate-400 uppercase tracking-widest">Personnel</th>
-                        <th className="py-6 px-10 text-[10px] font-black text-slate-400 uppercase tracking-widest">Digital ID</th>
-                        <th className="py-6 px-10 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
+        <div className="p-8 bg-slate-50/30">
+            {teachers.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {teachers.map((teacher) => (
-                        <tr key={teacher._id} className="hover:bg-slate-50/50 transition-all group">
-                            <td className="py-6 px-10">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-xl shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
+                        <div key={teacher._id} className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex flex-col justify-between group relative">
+                            {/* Card Top Section */}
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-xl shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                                         {teacher.name?.charAt(0)}
                                     </div>
-                                    <div>
-                                        <p className="font-black text-slate-800 uppercase text-sm tracking-tight">{teacher.name}</p>
-                                        <p className="text-[10px] font-bold text-slate-400 mt-0.5">{teacher.qualification || 'General Faculty'}</p>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-black text-slate-800 uppercase text-sm tracking-tight truncate">{teacher.name}</h3>
+                                        <p className="text-[10px] font-bold text-slate-400 mt-0.5 tracking-wide truncate">{teacher.qualification || 'General Faculty'}</p>
                                     </div>
                                 </div>
-                            </td>
-                            <td className="py-6 px-10">
-                                <div className="space-y-1">
-                                    <div className="text-xs font-black text-slate-600 lowercase">{teacher.user?.email}</div>
-                                    <div className="flex gap-2">
-                                        <span className="px-2 py-0.5 bg-slate-100 text-slate-400 rounded text-[8px] font-black uppercase">{teacher.gender}</span>
-                                        <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[8px] font-black uppercase tracking-tighter">Verified</span>
+
+                                <div className="space-y-2.5 pt-2 border-t border-slate-50 text-xs">
+                                    <div className="flex items-center gap-2 text-slate-500">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider w-12">Email:</span>
+                                        <span className="font-medium truncate text-slate-700">{teacher.user?.email || teacher.email}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-slate-500">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider w-12">Phone:</span>
+                                        <span className="font-bold text-slate-800">{teacher.user?.phone || 'Not Provided'}</span>
                                     </div>
                                 </div>
-                            </td>
-                            <td className="py-6 px-10">
-                                <div className="flex items-center justify-center gap-3">
+
+                                <div className="flex gap-2 pt-1">
+                                    <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[8px] font-black uppercase tracking-wider">{teacher.gender}</span>
+                                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[8px] font-black uppercase tracking-wider">Verified</span>
+                                </div>
+                            </div>
+
+                            {/* Card Bottom Actions */}
+                            <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                                {/* Quick Contact Link Buttons */}
+                                <div className="flex gap-2">
+                                    {teacher.user?.phone && teacher.user?.phone !== 'Not Provided' && (
+                                        <a 
+                                            href={`tel:${teacher.user.phone}`} 
+                                            className="px-3 py-1.5 bg-green-50 text-green-600 rounded-xl text-[9px] font-black uppercase tracking-wider hover:bg-green-600 hover:text-white transition-all flex items-center gap-1 shadow-sm"
+                                        >
+                                            <FaPhoneAlt size={8} /> Call
+                                        </a>
+                                    )}
+                                    <a 
+                                        href={`mailto:${teacher.user?.email || teacher.email}`} 
+                                        className="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-xl text-[9px] font-black uppercase tracking-wider hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-1 shadow-sm"
+                                    >
+                                        <FaEnvelope size={8} /> Mail
+                                    </a>
+                                </div>
+
+                                {/* System Actions */}
+                                <div className="flex gap-2">
                                     <button 
                                         onClick={() => fetchAssignments(teacher)}
-                                        className="p-3 bg-white text-blue-600 rounded-xl shadow-sm border border-slate-100 hover:bg-blue-600 hover:text-white transition-all"
+                                        className="p-2.5 bg-slate-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white border border-slate-100 transition-all shadow-sm"
                                         title="View Assignments"
                                     >
-                                        <FaLink size={14} />
+                                        <FaLink size={12} />
                                     </button>
                                     <button 
                                         onClick={() => handleDeleteTeacher(teacher._id)}
-                                        className="p-3 bg-white text-rose-400 rounded-xl shadow-sm border border-slate-100 hover:bg-rose-600 hover:text-white transition-all"
+                                        className="p-2.5 bg-slate-50 text-rose-500 rounded-xl hover:bg-rose-600 hover:text-white border border-slate-100 transition-all shadow-sm"
                                         title="Delete Teacher"
                                     >
-                                        <FaTrash size={14} />
+                                        <FaTrash size={12} />
                                     </button>
                                 </div>
-                            </td>
-                        </tr>
+                            </div>
+                        </div>
                     ))}
-                </tbody>
-            </table>
-            {teachers.length === 0 && (
-                <div className="py-32 text-center space-y-4">
+                </div>
+            ) : (
+                <div className="py-24 text-center space-y-4">
                     <FaChalkboardTeacher size={48} className="mx-auto text-slate-100" />
                     <p className="text-slate-400 font-bold italic uppercase text-xs tracking-widest">No faculty members found in the current directory</p>
                 </div>

@@ -28,87 +28,113 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
+    <div className="h-[calc(100vh-80px)] flex bg-slate-50 justify-around items-center overflow-hidden p-4 md:p-6">
       {/* Left Side - Illustration */}
-      <div className="hidden lg:flex w-2/5 bg-slate-900 justify-center items-center relative overflow-hidden m-6 rounded-[3rem] shadow-2xl shadow-indigo-200">
+      <div className="hidden lg:flex w-2/5 h-[85%] max-h-[720px] min-h-[450px] bg-slate-700/40 justify-center items-start relative overflow-hidden rounded-2xl shadow-2xl shadow-indigo-200">
+        {/* Background Image with Overlay */}
+        <img 
+          src="https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1000&auto=format&fit=crop" 
+          alt="Classroom Background" 
+          className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay pointer-events-none"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent"></div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/20 rounded-full -mr-48 -mt-48 blur-3xl"></div>
-        <div className="z-10 text-left p-16">
-            <div className="bg-indigo-600 w-12 h-12 rounded-2xl flex items-center justify-center text-white text-2xl mb-10 shadow-lg font-black">
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/10 rounded-full -ml-48 -mb-48 blur-3xl"></div>
+        
+        <div className="z-10 text-left p-8">
+            <div className="bg-indigo-600 w-12 h-12 rounded-lg flex items-center justify-center text-white text-2xl mb-4 shadow-lg font-black">
                 <FaSchool />
             </div>
-            <h1 className="text-6xl font-black text-white mb-8 tracking-tighter leading-tight">Start Your <br/>Journey</h1>
+            <p className="text-5xl font-black text-white mb-4 tracking-tighter leading-tight">Start Your <br/>Journey</p>
             <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-sm italic">"Join the next generation of academic excellence today."</p>
+        </div>
+
+        {/* Floating Mock UI Widget */}
+        <div className="absolute bottom-8 left-8 right-8 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-2xl transform hover:translate-y-[-4px] transition-transform duration-300 pointer-events-none">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-sm">
+              ✦
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white">Join the Community</p>
+              <p className="text-[10px] text-slate-300">Quick Approval and Fast Onboarding</p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex justify-center items-center p-6 md:p-12 overflow-y-auto">
+      <div className="flex justify-center items-center p-6 md:p-0 w-full max-w-md lg:max-w-none lg:w-2/5 h-[95%] max-h-[720px] min-h-[450px]">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md bg-white p-10 md:p-12 rounded-[2.5rem] shadow-soft-xl border border-slate-50 my-8"
+          className="w-full h-full bg-white p-10 md:p-12 rounded-2xl shadow-2xl shadow-indigo-200 border border-slate-50 relative overflow-y-auto scrollbar-hide flex flex-col justify-start"
         >
           <div className="text-center mb-10">
-            <h2 className="text-4xl font-black text-slate-900 tracking-tighter">Create Account</h2>
+            <p className="text-3xl font-bold text-slate-900 tracking-tighter">Create Account</p>
             <p className="text-slate-400 mt-2 font-bold uppercase tracking-widest text-[10px]">Academic Enrollment</p>
           </div>
 
-          <form onSubmit={handleRegister} className="space-y-6">
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-bold text-slate-800"
-                placeholder="John Doe"
-              />
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="mb-[2px]">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full text-[10px] px-3 py-2 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-bold text-slate-800"
+                  placeholder="John Doe"
+                />
+              </div>
+
+              <div className="mb-[2px]">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Phone Number</label>
+                <input
+                  type="text"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full text-[10px] px-3 py-2 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-bold text-slate-800"
+                  placeholder="1234567890"
+                />
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Phone Number</label>
-              <input
-                type="text"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-bold text-slate-800"
-                placeholder="1234567890"
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="mb-[2px]">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full text-[10px] px-3 py-2 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-bold text-slate-800"
+                  placeholder="name@school.com"
+                />
+              </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-bold text-slate-800"
-                placeholder="name@school.com"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-bold text-slate-800"
-                placeholder="••••••••"
-                minLength={6}
-              />
+              <div className="mb-[2px]">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Password</label>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full text-[10px] px-3 py-2 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-bold text-slate-800"
+                  placeholder="••••••••"
+                  minLength={6}
+                />
+              </div>
             </div>
             
-             <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Registration Role</label>
+             <div className="mb-[2px]">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Registration Role</label>
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-black text-slate-800 appearance-none cursor-pointer"
+                className="w-full text-[10px] px-3 py-2 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-bold text-slate-800 appearance-none cursor-pointer"
               >
                 <option value="Admin">Master Admin</option>
                 <option value="Teacher">Academic Teacher</option>
@@ -123,18 +149,18 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 disabled:bg-indigo-300 transform active:scale-95"
+              className="w-full mt-4 py-3 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 disabled:bg-indigo-300 transform active:scale-95"
             >
               {loading ? 'Initializing...' : 'Complete Registration'}
             </button>
           </form>
 
-          <div className="mt-10 text-center">
+          <div className="mt-6 text-center">
              <p className="text-sm text-slate-500 font-bold">
                 Already registered?{' '}
                 <Link to="/login" className="text-indigo-600 hover:text-indigo-700 underline-offset-4 hover:underline">Sign In</Link>
              </p>
-             <Link to="/" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 block pt-4 transition-colors">← Back to Main</Link>
+             <Link to="/" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 block pt-4 transition-colors md:hidden">← Back to Main</Link>
           </div>
         </motion.div>
       </div>

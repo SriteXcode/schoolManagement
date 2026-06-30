@@ -45,19 +45,28 @@ const SyncManager = () => {
 
     for (const item of queue) {
       try {
-        // Use raw axios to avoid infinite loop or use the instance but skip the interceptor logic if possible
-        // Actually, our instance is fine as long as it's online.
+        // Parse data if it is a string representation of JSON
+        let requestData = item.data;
+        if (typeof requestData === 'string') {
+          try {
+            requestData = JSON.parse(requestData);
+          } catch (_) {}
+        }
+
         await axios({
           url: item.url,
           method: item.method,
-          data: item.data
+          data: requestData
         });
         await removeFromSyncQueue(item.id);
         successCount++;
       } catch (err) {
         console.error("Failed to sync item", item, err);
-        // If it fails while online, it might be a validation error. 
-        // We might want to remove it anyway or keep it. For now, keep it to retry.
+        // If it fails with a 4xx error (permanent client validation/auth error), discard it to avoid blocking the queue
+        if (err.response && err.response.status >= 400 && err.response.status < 500) {
+          await removeFromSyncQueue(item.id);
+          toast.error(`Removed invalid action (${err.response.status}) from offline sync queue.`, { id: `sync-err-${item.id}` });
+        }
       }
     }
 

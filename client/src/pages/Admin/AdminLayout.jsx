@@ -50,9 +50,9 @@ const AdminLayout = () => {
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-white md:bg-transparent">
         {/* Profile Section */}
-        <div className="p-8 pb-4">
-            <Link to="/admin/profile" className="flex items-center space-x-4 p-4 bg-slate-50 rounded-3xl hover:bg-slate-100 transition group" onClick={() => setIsSidebarOpen(false)}>
-                {renderProfileImage("w-12 h-12")}
+        <div className="p-4 pb-2">
+            <Link to="/admin/profile" className="flex items-center space-x-3 p-3 bg-slate-50 rounded-2xl hover:bg-slate-100 transition group" onClick={() => setIsSidebarOpen(false)}>
+                {renderProfileImage("w-10 h-10")}
                 <div className="overflow-hidden">
                     <h2 className="font-black text-slate-800 truncate text-fluid-base">{user.name || 'Admin'}</h2>
                     <p className="text-fluid-xs text-indigo-600 font-bold uppercase tracking-widest">{user.role}</p>
@@ -61,37 +61,16 @@ const AdminLayout = () => {
         </div>
 
         {/* Navigation Links */}
-        <div className="flex-1 px-6 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 px-4 py-2 space-y-1 overflow-y-auto custom-scrollbar">
           {navLinks.map((link, index) => {
             if (link.isHeader) {
               const hasActiveSub = link.subLinks?.some(sub => location.pathname + location.search === sub.to);
               return (
                 <div key={`header-${index}`} className="space-y-1">
-                  <div className="pt-6 pb-2 px-4 flex items-center gap-2">
+                  <div className="pt-4 pb-1 px-3 flex items-center gap-2">
                     {link.icon && <span className="text-slate-400 text-xs">{link.icon}</span>}
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{link.label}</p>
                   </div>
-                  {/* {link.subLinks && (
-                    <div className="ml-4 space-y-1">
-                      {link.subLinks.map((sub, subIdx) => {
-                        const isSubActive = location.pathname + location.search === sub.to;
-                        return (
-                          <Link
-                            key={subIdx}
-                            to={sub.to}
-                            onClick={() => setIsSidebarOpen(false)}
-                            className={`flex items-center space-x-3 p-4 rounded-2xl transition-all font-bold text-fluid-sm ${
-                              isSubActive 
-                              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                              : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'
-                            }`}
-                          >
-                            <span className="text-sm font-black uppercase tracking-widest">{sub.label}</span>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )} */}
                 </div>
               );
             }
@@ -103,7 +82,7 @@ const AdminLayout = () => {
                 key={link.to}
                 to={link.to} 
                 onClick={() => setIsSidebarOpen(false)}
-                className={`flex items-center space-x-3 p-4 rounded-2xl transition-all font-bold text-fluid-sm ${
+                className={`flex items-center space-x-3 py-2.5 px-4 rounded-lg transition-all font-bold text-fluid-sm ${
                   isActive 
                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
                   : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'
@@ -117,11 +96,11 @@ const AdminLayout = () => {
         </div>
 
         {/* Logout Section */}
-        <div className="p-8 pt-4 space-y-3">
-          <Link to="/" className="flex items-center justify-center p-4 text-slate-400 hover:text-slate-600 font-bold text-fluid-xs transition" onClick={() => setIsSidebarOpen(false)}>
+        <div className="p-4 pt-2 space-y-2">
+          <Link to="/" className="flex items-center justify-center p-2 text-slate-400 hover:text-slate-600 font-bold text-fluid-xs transition" onClick={() => setIsSidebarOpen(false)}>
              Exit Dashboard
           </Link>
-          <button onClick={handleLogout} className="w-full flex items-center justify-center space-x-2 p-4 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition font-black shadow-sm text-fluid-sm">
+          <button onClick={handleLogout} className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-black shadow-sm text-fluid-sm">
             <FaSignOutAlt /> <span>Logout</span>
           </button>
         </div>
@@ -131,7 +110,7 @@ const AdminLayout = () => {
   return (
     <div className="flex min-h-screen bg-slate-50">
       {/* Desktop Sidebar */}
-      <div className="hidden md:block w-80 sticky top-0 h-screen">
+      <div className="hidden md:block w-64 sticky top-0 h-screen">
         <SidebarContent />
       </div>
 
@@ -151,7 +130,7 @@ const AdminLayout = () => {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-80 bg-white z-50 md:hidden shadow-2xl"
+              className="fixed inset-y-0 left-0 w-64 bg-white z-50 md:hidden shadow-2xl"
             >
               <SidebarContent />
             </motion.div>

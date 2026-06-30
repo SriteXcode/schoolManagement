@@ -78,9 +78,9 @@ const StudentLayout = () => {
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-white md:bg-transparent">
         {/* Profile Section */}
-        <div className="p-8 pb-4">
-            <Link to="/student/profile" className="flex items-center space-x-4 p-4 bg-slate-50 rounded-3xl hover:bg-slate-100 transition group" onClick={() => setIsSidebarOpen(false)}>
-                {renderProfileImage("w-12 h-12")}
+        <div className="p-4 pb-2">
+            <Link to="/student/profile" className="flex items-center space-x-3 p-3 bg-slate-50 rounded-2xl hover:bg-slate-100 transition group" onClick={() => setIsSidebarOpen(false)}>
+                {renderProfileImage("w-10 h-10")}
                 <div className="overflow-hidden text-left">
                     <h2 className="font-black text-slate-800 truncate text-fluid-base">{student ? student.name : user.name}</h2>
                     <p className="text-fluid-xs text-teal-600 font-bold uppercase tracking-widest">
@@ -91,13 +91,13 @@ const StudentLayout = () => {
         </div>
 
         {/* Navigation Links */}
-        <div className="flex-1 px-6 py-4 space-y-1 overflow-y-auto custom-scrollbar text-left">
+        <div className="flex-1 px-4 py-2 space-y-1 overflow-y-auto custom-scrollbar text-left">
           {navLinks.map((link) => (
             <Link 
               key={link.to}
               to={link.to} 
               onClick={() => setIsSidebarOpen(false)}
-              className={`flex items-center space-x-3 p-4 rounded-2xl transition-all font-bold text-fluid-sm ${
+              className={`flex items-center space-x-3 py-2.5 px-4 rounded-lg transition-all font-bold text-fluid-sm ${
                 location.pathname === link.to 
                 ? 'bg-teal-600 text-white shadow-lg shadow-teal-100' 
                 : 'text-slate-500 hover:bg-slate-50 hover:text-teal-600'
@@ -110,11 +110,11 @@ const StudentLayout = () => {
         </div>
 
         {/* Logout Section */}
-        <div className="p-8 pt-4 space-y-3">
-          <Link to="/" className="flex items-center justify-center p-4 text-slate-400 hover:text-slate-600 font-bold text-fluid-xs transition" onClick={() => setIsSidebarOpen(false)}>
+        <div className="p-4 pt-2 space-y-2">
+          <Link to="/" className="flex items-center justify-center p-2 text-slate-400 hover:text-slate-600 font-bold text-fluid-xs transition" onClick={() => setIsSidebarOpen(false)}>
              Exit Dashboard
           </Link>
-          <button onClick={handleLogout} className="w-full flex items-center justify-center space-x-2 p-4 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition font-black shadow-sm text-fluid-sm">
+          <button onClick={handleLogout} className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-black shadow-sm text-fluid-sm">
             <FaSignOutAlt /> <span>Logout</span>
           </button>
         </div>
@@ -153,7 +153,7 @@ const StudentLayout = () => {
   return (
     <div className="flex min-h-screen bg-slate-50">
       {/* Desktop Sidebar */}
-      <div className="hidden md:block w-80 sticky top-0 h-screen">
+      <div className="hidden md:block w-64 sticky top-0 h-screen">
         <SidebarContent />
       </div>
 
@@ -173,7 +173,7 @@ const StudentLayout = () => {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-80 bg-white z-50 md:hidden shadow-2xl"
+              className="fixed inset-y-0 left-0 w-64 bg-white z-50 md:hidden shadow-2xl"
             >
               <SidebarContent />
             </motion.div>
