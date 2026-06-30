@@ -500,23 +500,23 @@ const Home = () => {
 
                 {/* Upcoming Schedule */}
                 {user && (
-                    <div className="w-full max-w-7xl mb-24 px-4 text-left">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12 max-w-6xl mx-auto">
+                    <div className="w-full max-w-7xl mb-7 px-4 text-left">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-6 md:mb-2 max-w-6xl mx-auto">
                             <div>
                                 <h2 className="text-3xl font-black text-slate-900 tracking-tight">Your Upcoming Schedule</h2>
                                 <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-1">Don't miss out on important dates</p>
                             </div>
 
-                            <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-100">
+                            <div className="flex bg-white p-1.5 rounded-lg shadow-sm border border-slate-100">
                                 <button
                                     onClick={() => setUpcomingFilter('week')}
-                                    className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${upcomingFilter === 'week' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                                    className={`px-6 py-2 rounded-md text-[10px] font-bold uppercase tracking-widest transition-all duration-800 ${upcomingFilter === 'week' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
                                 >
                                     Next 7 Days
                                 </button>
                                 <button
                                     onClick={() => setUpcomingFilter('month')}
-                                    className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${upcomingFilter === 'month' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                                    className={`px-6 py-2 rounded-md text-[10px] font-bold uppercase tracking-widest transition-all duration-800 ${upcomingFilter === 'month' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
                                 >
                                     This Month
                                 </button>
@@ -526,35 +526,35 @@ const Home = () => {
                         {loadingUpcoming ? (
                             <div className="py-20 text-center text-slate-300 font-black animate-pulse uppercase tracking-[0.2em]">Syncing Calendar...</div>
                         ) : (
-                            <div className="flex gap-8 overflow-x-auto pb-12 pt-4 px-4 snap-x snap-mandatory scrollbar-hide custom-scrollbar">
+                            <div className="flex gap-6 overflow-x-auto pb-4 pt-4 px-4 snap-x snap-mandatory scrollbar-hide custom-scrollbar">
                                 {upcomingItems.length > 0 ? upcomingItems.map((item, idx) => (
                                     <motion.div
                                         key={`${item.itemType}-${item._id}`}
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: idx * 0.1 }}
-                                        className={`min-w-[320px] md:min-w-[380px] group p-8 rounded-[2.5rem] border transition-all cursor-pointer hover:shadow-2xl hover:bg-white snap-center ${item.itemType === 'Exam' ? 'bg-rose-50/30 border-rose-100' : 'bg-indigo-50/30 border-indigo-100'
+                                        className={`min-w-[320px] md:min-w-[380px] group p-4 rounded-2xl border transition-all cursor-pointer hover:shadow-2xl hover:bg-white snap-center ${item.itemType === 'Exam' ? 'bg-rose-50/30 border-rose-100' : 'bg-indigo-50/30 border-indigo-100'
                                             }`}
                                         onClick={(e) => { e.stopPropagation(); handleMoreDetail(item); }}
                                     >
-                                        <div className="flex justify-between items-start mb-8">
+                                        <div className="flex justify-between items-start mb-4">
                                             <div className="flex items-center gap-4">
-                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${item.itemType === 'Exam' ? 'bg-white text-rose-600' : 'bg-white text-indigo-600'
+                                                <div className={`w-12 h-12 rounded-lg flex items-center justify-center shadow-sm ${item.itemType === 'Exam' ? 'bg-white text-rose-600' : 'bg-white text-indigo-600'
                                                     }`}>
                                                     {item.itemType === 'Exam' ? <FaBook size={20} /> : <FaBullhorn size={20} />}
                                                 </div>
                                                 <div>
                                                     <span className={`text-[9px] font-black uppercase tracking-widest ${item.itemType === 'Exam' ? 'text-rose-500' : 'text-indigo-500'}`}>{item.itemType}</span>
-                                                    <h4 className="font-black text-slate-800 text-xl truncate max-w-[180px] mt-0.5">{item.title || item.subject}</h4>
+                                                    <h4 className="font-black text-slate-800 text-xl truncate max-w-[180px]">{item.title || item.subject}</h4>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="text-2xl font-black text-slate-900 leading-none">{new Date(item.date).getDate()}</div>
-                                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{new Date(item.date).toLocaleString('default', { month: 'short' })}</div>
+                                                <div className="text-2xl font-bold text-slate-900 leading-none">{new Date(item.date).getDate()}</div>
+                                                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1">{new Date(item.date).toLocaleString('default', { month: 'short' })}</div>
                                             </div>
                                         </div>
 
-                                        <p className="text-sm font-bold text-slate-500 line-clamp-2 mb-8 leading-relaxed">
+                                        <p className="text-sm font-semibold text-slate-500 line-clamp-2 mb-4 leading-relaxed">
                                             {item.description || item.name || 'Important assessment scheduled.'}
                                         </p>
 
@@ -567,13 +567,13 @@ const Home = () => {
                                                 <Link
                                                     to={`/gallery?category=${item.title || item.subject}`}
                                                     onClick={(e) => e.stopPropagation()}
-                                                    className="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center hover:bg-teal-50 hover:text-teal-600 transition-all shadow-sm"
+                                                    className="w-10 h-10 rounded-md bg-white text-slate-400 flex items-center justify-center hover:bg-teal-50 hover:text-teal-600 transition-all shadow-sm"
                                                 >
                                                     <FaExternalLinkAlt size={12} />
                                                 </Link>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleMoreDetail(item); }}
-                                                    className="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center hover:bg-indigo-50 hover:text-indigo-600 transition-all shadow-sm"
+                                                    className="w-10 h-10 rounded-md bg-white text-slate-400 flex items-center justify-center hover:bg-indigo-50 hover:text-indigo-600 transition-all shadow-sm"
                                                 >
                                                     <FaInfoCircle size={14} />
                                                 </button>
@@ -835,7 +835,7 @@ const Home = () => {
                             initial={{ scale: 0.9, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            className="bg-white w-full max-w-xl rounded-[3rem] shadow-2xl overflow-hidden relative border border-white/20"
+                            className="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden relative border border-white/20"
                             onClick={e => e.stopPropagation()}
                         >
                             <button
@@ -845,28 +845,28 @@ const Home = () => {
                                 <FaTimes />
                             </button>
 
-                            <div className="p-12 md:p-16 text-left">
-                                <div className="flex items-center gap-4 mb-8">
-                                    <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${selectedItem.itemType === 'Exam' ? 'bg-rose-50 text-rose-600' : 'bg-indigo-50 text-indigo-600'}`}>
+                            <div className="p-8 md:p-10 text-left">
+                                <div className="flex items-center gap-4 mb-2">
+                                    <div className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${selectedItem.itemType === 'Exam' ? 'bg-rose-50 text-rose-600' : 'bg-indigo-50 text-indigo-600'}`}>
                                         {selectedItem.itemType} Log
                                     </div>
                                     <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest">{new Date(selectedItem.date).toLocaleDateString()}</div>
                                 </div>
 
-                                <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-8 leading-tight tracking-tight">{selectedItem.title || selectedItem.subject}</h2>
+                                <p className="text-2xl md:text-2xl font-bold text-slate-900 mb-3 leading-tight tracking-tight">{selectedItem.title || selectedItem.subject}</p>
 
-                                <div className="prose prose-slate max-w-none mb-10">
-                                    <p className="text-slate-600 text-lg leading-relaxed">{selectedItem.description || selectedItem.name}</p>
+                                <div className="prose prose-slate max-h-[180px] overflow-y-auto scrollbar-hide custom-scrollbar max-w-none mb-6">
+                                    <p className="text-slate-600 text-lg overflow-hidden italic scrollbar-hide custom-scrollbar leading-relaxed md:px-4">{selectedItem.description || selectedItem.name}</p>
                                     {selectedItem.instructions && (
-                                        <div className="mt-6 p-6 bg-slate-50 rounded-3xl border border-slate-100 italic text-slate-500">
+                                        <div className="mt-4 p-6 bg-slate-50 rounded-lg border border-slate-100 italic text-slate-500">
                                             " {selectedItem.instructions} "
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="flex items-center justify-between pt-8 border-t border-slate-100">
+                                <div className="flex flex-col md:flex-row items-start gap-4 justify-between pt-4 border-t border-slate-100">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center">
+                                        <div className="w-10 h-10 rounded-md bg-slate-900 text-white flex items-center justify-center">
                                             <FaClock size={14} />
                                         </div>
                                         <div>
@@ -876,7 +876,7 @@ const Home = () => {
                                     </div>
                                     <button
                                         onClick={() => navigate('/calendar')}
-                                        className="px-8 py-3 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition shadow-lg shadow-indigo-100 text-xs uppercase tracking-widest"
+                                        className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100 text-xs uppercase tracking-widest"
                                     >
                                         Open Calendar
                                     </button>
@@ -901,7 +901,7 @@ const Home = () => {
                             initial={{ scale: 0.9, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            className="bg-white w-full max-w-xl rounded-[3rem] shadow-2xl overflow-hidden relative border border-white/20"
+                            className="bg-white w-full max-w-xl rounded-2xl max-h-[90vh] shadow-2xl overflow-hidden relative border border-white/20"
                             onClick={e => e.stopPropagation()}
                         >
                             <button
@@ -912,25 +912,27 @@ const Home = () => {
                             </button>
 
                             <div className="p-10 md:p-12 text-left">
-                                <div className="flex items-center gap-4 mb-6">
+                                <div className="flex items-center gap-4 mb-4">
                                     <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${selectedExamDetail.type === 'Class Test' ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'}`}>
                                         {selectedExamDetail.type || 'Main Exam'}
                                     </span>
                                     <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
-                                        {new Date(selectedExamDetail.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                        {new Date(selectedExamDetail.date).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
                                     </div>
                                 </div>
+<div className="flex justify-start items-center gap-4 mb-4" >
 
-                                <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-2 leading-tight tracking-tight">
+                                <p className="text-xl md:text-4xl font-bold text-slate-900 leading-tight tracking-tight">
                                     {selectedExamDetail.subject}
-                                </h2>
-                                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-8">
-                                    {selectedExamDetail.name} • Class {selectedExamDetail.classDetails}
                                 </p>
+                                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                                    {selectedExamDetail.name} • {selectedExamDetail.classDetails}
+                                </p>
+</div>
 
-                                <div className="grid grid-cols-2 gap-6 mb-8 bg-slate-50 p-6 rounded-3xl border border-slate-100/50">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4 bg-slate-50 p-6 rounded-2xl border border-slate-100/50">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-100">
+                                        <div className="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-100">
                                             <FaClock size={14} />
                                         </div>
                                         <div>
@@ -940,7 +942,7 @@ const Home = () => {
                                     </div>
 
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-100">
+                                        <div className="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-100">
                                             <FaCertificate size={14} />
                                         </div>
                                         <div>
@@ -954,7 +956,7 @@ const Home = () => {
                                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                         <FaBook className="text-indigo-600" /> Syllabus details
                                     </div>
-                                    <div className="p-6 bg-indigo-50/30 rounded-3xl border border-indigo-100/50 max-h-[180px] overflow-y-auto scrollbar-hide">
+                                    <div className="p-6 bg-indigo-50/30 rounded-xl border border-indigo-100/50 max-h-[180px] overflow-y-auto scrollbar-hide">
                                         <div className="space-y-3">
                                             {selectedExamDetail.syllabus
                                                 ? selectedExamDetail.syllabus
@@ -962,7 +964,7 @@ const Home = () => {
                                                     .map(item => item.trim())
                                                     .filter(Boolean)
                                                     .map((line, i) => (
-                                                        <div key={i} className="text-slate-700 text-sm font-semibold flex items-start gap-2 leading-relaxed">
+                                                        <div key={i} className="text-slate-700 text-xs font-semibold flex items-start gap-1 leading-relaxed">
                                                             <span className="text-indigo-600 mt-2 shrink-0 w-1.5 h-1.5 rounded-full bg-indigo-500" />
                                                             <span>{line}</span>
                                                         </div>

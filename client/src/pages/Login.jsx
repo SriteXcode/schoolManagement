@@ -32,51 +32,73 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
+    <div className="h-[calc(100vh-90px)] flex bg-slate-50 justify-around items-center overflow-hidden p-4 md:p-6">
       {/* Left Side - Illustration */}
-      <div className="hidden lg:flex w-2/5 bg-slate-900 justify-center items-center relative overflow-hidden m-6 rounded-[3rem] shadow-2xl shadow-indigo-200">
+      <div className="hidden lg:flex w-2/5 h-[85%] max-h-[720px] min-h-[450px] bg-slate-700/40 justify-center items-start relative overflow-hidden rounded-3xl shadow-2xl shadow-indigo-200">
+        {/* Background Image with Overlay */}
+        <img 
+          src="https://plus.unsplash.com/premium_photo-1680807869780-e0876a6f3cd5?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2xhc3Nyb29tfGVufDB8fDB8fHww" 
+          alt="Academy Background" 
+          className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay pointer-events-none"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent"></div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/20 rounded-full -mr-48 -mt-48 blur-3xl"></div>
-        <div className="z-10 text-left p-16">
-            <div className="bg-indigo-600 w-12 h-12 rounded-2xl flex items-center justify-center text-white text-2xl mb-10 shadow-lg">
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/10 rounded-full -ml-48 -mb-48 blur-3xl"></div>
+        
+        <div className="z-10 text-left p-8">
+            <div className="bg-indigo-600 w-12 h-12 rounded-lg flex items-center justify-center text-white text-2xl mb-4 shadow-lg font-black">
                 <FaSchool />
             </div>
-            <h1 className="text-fluid-4xl font-black text-white mb-8 tracking-tighter leading-tight">Empower Your <br/>Academy</h1>
-            <p className="text-fluid-base text-slate-400 font-medium leading-relaxed max-w-sm italic">"Simplifying the complexity of modern education management."</p>
+            <p className="text-5xl font-black text-white mb-4 tracking-tighter leading-tight">Empower Your <br/>Academy</p>
+            <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-sm italic">"Simplifying the complexity of modern education management."</p>
+        </div>
+
+        {/* Floating Mock UI Widget */}
+        <div className="absolute bottom-8 left-8 right-8 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-2xl transform hover:translate-y-[-4px] transition-transform duration-300 pointer-events-none">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-sm">
+              ★
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white">Smart Academic Portal</p>
+              <p className="text-[10px] text-slate-300">Live Status: Active & Secured</p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex justify-center items-center p-6 md:p-12">
+      <div className="flex justify-center items-center p-6 md:p-0 w-full max-w-md lg:max-w-none lg:w-2/5 h-[95%] max-h-[720px] min-h-[450px]">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md bg-white p-10 md:p-12 rounded-[2.5rem] shadow-soft-xl border border-slate-50 relative"
+          className="w-full h-full bg-white p-10 md:p-6 rounded-3xl shadow-2xl shadow-indigo-200 border border-slate-50 relative overflow-y-auto scrollbar-hide flex flex-col justify-start"
         >
-          <div className="text-center mb-12">
-            <h2 className="text-fluid-3xl font-black text-slate-900 tracking-tighter">Welcome back!</h2>
-            <p className="text-slate-400 mt-2 font-bold uppercase tracking-widest text-fluid-xs">Portal Access</p>
+          <div className="text-center mb-10">
+            <p className="text-3xl font-bold text-slate-900 tracking-tighter">Welcome back!</p>
+            <p className="text-slate-400 mt-2 font-bold uppercase tracking-widest text-[10px]">Portal Access</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-8">
-            <div className="space-y-2">
-              <label className="text-fluid-xs font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
+            <div className="mt-[-12px] space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-bold text-slate-800"
+                className="w-full text-sm px-5 py-3.5 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-semibold text-slate-800"
                 placeholder="name@school.com"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-fluid-xs font-black text-slate-500 uppercase tracking-widest ml-1">Secret Key</label>
+            <div className="mt-[-18px] space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Secret Key</label>
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-bold text-slate-800"
+                className="w-full text-sm px-5 py-3.5 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-semibold text-slate-800"
                 placeholder="••••••••"
               />
             </div>
@@ -84,22 +106,18 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 disabled:bg-indigo-300 transform active:scale-95 text-fluid-base"
+              className="w-full py-3 bg-indigo-600 text-white font-bold text-lg rounded-xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 disabled:bg-indigo-300 transform active:scale-95 text-fluid-base"
             >
-              {loading ? 'Validating...' : 'Authorize Login'}
+              {loading ? 'Validating...' : 'Login'}
             </button>
           </form>
 
-          <div className="mt-12 text-center space-y-4">
+          <div className="mt-6 text-center space-y-4">
              <p className="text-fluid-sm text-slate-500 font-bold">
                 New here?{' '}
                 <Link to="/register" className="text-indigo-600 hover:text-indigo-700 underline-offset-4 hover:underline">Create Account</Link>
              </p>
-             <Link to="/" className="text-fluid-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 block pt-4 transition-colors">← Back to Main</Link>
-          </div>
-
-          <div className="mt-8 pt-8 border-t border-slate-50 text-center text-fluid-xs text-slate-300 font-black tracking-widest uppercase">
-            <p>Master Admin: admin@school.com</p>
+             <Link to="/" className="text-fluid-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 block pt-4 transition-colors md:hidden">← Back to Main</Link>
           </div>
         </motion.div>
       </div>
