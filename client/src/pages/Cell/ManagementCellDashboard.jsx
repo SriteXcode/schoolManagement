@@ -1090,13 +1090,47 @@ const CMSMedia = ({ refresh }) => {
     const [formData, setFormData] = useState({ title: '', category: 'Event', image: '', type: 'Achievement', description: '', images: [] });
 
     const handleAdd = async (endpoint) => {
+        let dataToSend = { ...formData };
+        
+        if (endpoint === 'gallery') {
+            if (!formData.title.trim()) {
+                toast.error("Gallery title is required");
+                return;
+            }
+            const validImages = (formData.images || []).filter(Boolean);
+            if (validImages.length === 0) {
+                toast.error("Please upload at least one image");
+                return;
+            }
+            dataToSend.images = validImages;
+        } else if (endpoint === 'achievement') {
+            if (!formData.title.trim()) {
+                toast.error("Achievement header is required");
+                return;
+            }
+            if (!formData.description.trim()) {
+                toast.error("Detailed description is required");
+                return;
+            }
+            if (!formData.image) {
+                toast.error("Please upload an accolade photo");
+                return;
+            }
+        } else if (endpoint === 'carousel') {
+            if (!formData.image) {
+                toast.error("Please upload a carousel slide image");
+                return;
+            }
+        }
+
         try {
-            await axios.post(`/management/${endpoint}/add`, formData);
+            await axios.post(`/management/${endpoint}/add`, dataToSend);
             toast.success("Content published to academic hub!");
             setFormData({ title: '', category: 'Event', image: '', type: 'Achievement', description: '', images: [] });
             refresh();
         } catch (error) {
-            toast.error("Deployment failed");
+            const errorMsg = error.response?.data?.message || "Deployment failed";
+            toast.error(errorMsg);
         }
     };
 

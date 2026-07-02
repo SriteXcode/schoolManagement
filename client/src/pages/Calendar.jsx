@@ -143,7 +143,7 @@ const Calendar = () => {
   const renderCalendarDays = () => {
     const days = [];
     for (let i = 0; i < firstDayOfMonth; i++) {
-      days.push(<div key={`empty-${i}`} className="h-20 sm:h-24 md:h-32 bg-slate-50/50 border border-slate-100"></div>);
+      days.push(<div key={`empty-${i}`} className="h-20 sm:h-12 md:h-16 bg-slate-50/50 border border-slate-100"></div>);
     }
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
@@ -157,11 +157,11 @@ const Calendar = () => {
         <div 
           key={day} 
           onClick={() => handleDateClick(day)}
-          className={`h-20 sm:h-24 md:h-32 border border-slate-100 p-1 sm:p-2 relative cursor-pointer hover:bg-indigo-50/50 transition-all overflow-hidden group ${
+          className={`h-20 sm:h-12 md:h-16 border border-slate-100 p-1 sm:p-2 relative cursor-pointer hover:bg-indigo-50/50 transition-all overflow-hidden group ${
             new Date().toDateString() === dateString ? 'bg-indigo-50/50' : 'bg-white'
           }`}
         >
-          <span className={`text-xs sm:text-sm font-black ${new Date().toDateString() === dateString ? 'text-indigo-600' : 'text-slate-300'}`}>{day}</span>
+          <span className={`text-xs sm:text-sm font-bold text-slate-400 ${new Date().toDateString() === dateString ? 'text-indigo-600' : 'text-slate-300'}`}>{day}</span>
           <div className="mt-0.5 sm:mt-1 space-y-0.5">
             {allDayItems.slice(0, 3).map((item, idx) => (
               <div 
@@ -215,40 +215,41 @@ const Calendar = () => {
   const isEditable = user?.role === 'ManagementCell' || user?.role === 'Admin';
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 md:p-8 lg:p-12">
-      <div className="max-w-7xl mx-auto space-y-8 sm:space-y-12">
+    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 md:p-8 lg:pl-12 lg:pt-2">
+      <div className="max-w-7xl mx-auto md:grid grid-cols-[1.5fr_1fr] gap-12 space-y-6 sm:space-y-12">
         {/* Responsive Header */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+        <div className='flex flex-col gap-4'>
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-start gap-2">
             <div className="text-left">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight flex items-center gap-3 sm:gap-4">
-                    <div className="p-2.5 sm:p-3 bg-indigo-600 text-white rounded-2xl sm:rounded-[1.5rem] shadow-xl shadow-indigo-100">
-                        <FaCalendarAlt size={24} className="sm:w-7 sm:h-7" />
+                <p className="text-xl sm:text-xl md:text-xl font-bold text-slate-900 tracking-tight flex items-center sm:gap-4">
+                    <div className="p-1.5 sm:p-2.5 bg-indigo-700 mr-2 text-white rounded-full sm:rounded-full shadow-xl shadow-indigo-100">
+                        <FaCalendarAlt size={14} className="sm:w-4 sm:h-4" />
                     </div>
-                    Institutional Timeline
-                </h1>
-                <p className="text-slate-500 font-bold uppercase text-[10px] sm:text-xs tracking-[0.2em] mt-3 ml-1">Academic Calendar & Scheduling</p>
+                    Academic Calendar & Scheduling
+                </p>
+                {/* <p className="text-slate-500 font-bold uppercase text-[10px] sm:text-xs tracking-[0.2em] mt-2 ml-1">Academic Calendar & Scheduling</p> */}
             </div>
-            {isEditable && (
-                <div className="bg-white px-5 py-2.5 rounded-2xl border border-slate-200 text-indigo-700 text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-sm">
+            {/* {isEditable && (
+                <div className="bg-white px-5 py-2.5 rounded-lg border border-slate-200 text-indigo-700 text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-sm">
                     <div className="w-2 h-2 bg-indigo-600 rounded-full animate-ping"></div>
-                    Institutional Control Mode
+                    Edit Dates with Events and Exams
                 </div>
-            )}
+            )} */}
         </div>
 
         {/* Main Calendar View */}
-        <div className="bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-soft-xl overflow-hidden border border-slate-100">
+        <div className="mx-4 bg-white rounded-2xl sm:rounded-2xl shadow-soft-xl overflow-hidden border border-slate-100">
             {/* Calendar Controls */}
-            <div className="p-6 sm:p-8 md:p-10 flex justify-between items-center border-b border-slate-50">
-                <button onClick={handlePrevMonth} className="p-3 sm:p-4 hover:bg-slate-50 rounded-2xl text-slate-400 hover:text-indigo-600 transition-all border border-transparent hover:border-slate-100 shadow-sm"><FaChevronLeft /></button>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-800 tracking-tight">
+            <div className="p-2 md:p-2 flex justify-between items-center border-b border-slate-50">
+                <button onClick={handlePrevMonth} className="p-3 sm:p-3 hover:bg-slate-50 rounded-full text-slate-400 hover:text-indigo-600 transition-all border border-transparent hover:border-slate-100 shadow-sm"><FaChevronLeft /></button>
+                <p className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">
                     {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
-                </h2>
-                <button onClick={handleNextMonth} className="p-3 sm:p-4 hover:bg-slate-50 rounded-2xl text-slate-400 hover:text-indigo-600 transition-all border border-transparent hover:border-slate-100 shadow-sm"><FaChevronRight /></button>
+                </p>
+                <button onClick={handleNextMonth} className="p-3 sm:p-3 hover:bg-slate-50 rounded-2xl text-slate-400 hover:text-indigo-600 transition-all border border-transparent hover:border-slate-100 shadow-sm"><FaChevronRight /></button>
             </div>
 
             {/* Weekdays Labels */}
-            <div className="grid grid-cols-7 text-slate-400 font-black text-[8px] sm:text-[10px] uppercase tracking-[0.2em] text-center py-4 sm:py-6 bg-slate-50/50">
+            <div className="grid grid-cols-7 text-slate-400 font-black text-[8px] sm:text-[10px] uppercase tracking-[0.2em] text-center py-2 sm:py-3 bg-slate-50/50">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => <div key={d}>{d}</div>)}
             </div>
             
@@ -258,54 +259,69 @@ const Calendar = () => {
             </div>
         </div>
 
+
         {/* Legend for Large Screens */}
-        <div className="hidden sm:flex flex-wrap gap-8 justify-center bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+        <div className="hidden sm:flex flex-wrap gap-8 justify-center bg-white p-4 rounded-lg shadow-sm border border-slate-100">
             <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-indigo-500 rounded-lg shadow-sm"></div>
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Events & Activities</span>
+                <div className="w-2 h-2 bg-indigo-500 rounded-lg shadow-sm"></div>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Events & Activities</span>
             </div>
             <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-rose-500 rounded-lg shadow-sm"></div>
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Exams & Tests</span>
+                <div className="w-2 h-2 bg-rose-500 rounded-lg shadow-sm"></div>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Exams & Tests</span>
             </div>
             <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-slate-400 rounded-lg shadow-sm"></div>
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Holidays</span>
+                <div className="w-2 h-2 bg-slate-400 rounded-lg shadow-sm"></div>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Holidays</span>
             </div>
         </div>
 
+        </div>
+
         {/* Upcoming Section */}
-        <div className="space-y-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+        <div className="space-y-8 md:h-[85vh] overflow-y-auto scrollbar-hide custom-scrollbar">
+            <div className="flex flex-row sm:flex-row justify-between items-start sm:items-center mx-4 gap-6">
                 <div className="text-left">
-                    <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Upcoming Schedule</h2>
+                    <p className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Upcoming Schedule</p>
                     <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-1">Real-time agenda overview</p>
                 </div>
                 
-                <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-100">
+                {/* <div className="flex bg-white p-1.5 rounded-xl shadow-sm border border-slate-100">
                     <button 
                         onClick={() => setUpcomingFilter('week')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${upcomingFilter === 'week' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${upcomingFilter === 'week' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
                     >
-                        <FaCalendarWeek /> 7 Days
+                        <FaCalendarWeek /> Week
                     </button>
                     <button 
                         onClick={() => setUpcomingFilter('month')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${upcomingFilter === 'month' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${upcomingFilter === 'month' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
                     >
-                        <FaCalendarDay /> 30 Days
+                        <FaCalendarDay /> Month
                     </button>
-                </div>
+                </div> */}
+                <div className="relative">
+  <select
+    value={upcomingFilter}
+    onChange={(e) => setUpcomingFilter(e.target.value)}
+    className="px-4 py-2 pr-8 rounded-lg bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+  >
+    <option value="week">Week</option>
+    <option value="month">Month</option>
+  </select>
+</div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> */}
+            <div className="flex flex-wrap gap-6 md:mb-6 md:justify-center">
+
                 {upcomingItems.length > 0 ? upcomingItems.map((item, idx) => (
                     <motion.div 
                         key={`${item.itemType}-${item._id}`}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.05 }}
-                        className={`group p-6 rounded-[2rem] border transition-all cursor-pointer hover:shadow-xl ${
+                        className={`group p-6 md:w-[35vw] rounded-lg border transition-all cursor-pointer hover:shadow-xl ${
                             item.itemType === 'Exam' ? 'bg-rose-50/30 border-rose-100 hover:bg-white' : 'bg-indigo-50/30 border-indigo-100 hover:bg-white'
                         }`}
                         onClick={() => {

@@ -400,6 +400,18 @@ const Home = () => {
                     </div>
                 </div>
 
+                {/* Explore Section */}
+                <div className="w-full max-w-6xl mb-14 px-4 text-left">
+                    <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-6 uppercase tracking-tighter">Explore Portal</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
+                        <QuickLink to="/wall-of-fame" label="Wall of Fame" color="bg-orange-50 text-orange-600" />
+                        <QuickLink to="/achievements" label="Achievements" color="bg-emerald-50 text-emerald-600" />
+                        <QuickLink to="/gallery" label="Gallery" color="bg-indigo-50 text-indigo-600" />
+                        <QuickLink to="/calendar" label="Calendar" color="bg-blue-50 text-blue-600" />
+                        <QuickLink to="/notices" label="Notices" color="bg-purple-50 text-purple-600" />
+                    </div>
+                </div>
+
                 {/* Prospectus Section */}
                 <div className="w-full max-w-7xl px-4 mb-14">
                     <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-12 md:p-20 text-left relative overflow-hidden flex flex-col md:flex-row items-center gap-12">
@@ -617,7 +629,7 @@ const Home = () => {
                         {loadingUniversal ? (
                             <div className="py-20 text-center text-slate-300 font-black animate-pulse uppercase tracking-[0.2em]">Building Matrix...</div>
                         ) : (
-                            <div className="bg-white rounded-[3rem] shadow-soft-xl border border-slate-100 overflow-hidden">
+                            <div className="bg-white rounded-2xl shadow-soft-xl border border-slate-100 overflow-hidden">
                                 {(() => {
                                     const { dates: tableDates, rows: tableRows } = getUniversalTableData();
                                     if (tableDates.length === 0) return (
@@ -674,18 +686,6 @@ const Home = () => {
                         )}
                     </div>
                 )}
-
-                {/* Explore Section */}
-                <div className="w-full max-w-6xl mb-14 px-4 text-left">
-                    <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-6 uppercase tracking-tighter">Explore Portal</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
-                        <QuickLink to="/wall-of-fame" label="Wall of Fame" color="bg-orange-50 text-orange-600" />
-                        <QuickLink to="/achievements" label="Achievements" color="bg-emerald-50 text-emerald-600" />
-                        <QuickLink to="/gallery" label="Gallery" color="bg-indigo-50 text-indigo-600" />
-                        <QuickLink to="/calendar" label="Calendar" color="bg-blue-50 text-blue-600" />
-                        <QuickLink to="/notices" label="Notices" color="bg-purple-50 text-purple-600" />
-                    </div>
-                </div>
 
                 {/* Contact Section */}
                 <div className="w-full max-w-5xl bg-white rounded-4xl shadow-soft-xl overflow-hidden flex flex-col md:flex-row mx-4 border border-slate-100">

@@ -242,6 +242,9 @@ exports.addGalleryItem = async (req, res) => {
         const item = await Gallery.create(req.body);
         res.status(201).json(item);
     } catch (error) {
+        if (error.name === "ValidationError") {
+            return res.status(400).json({ message: error.message });
+        }
         res.status(500).json({ message: error.message });
     }
 };
@@ -260,6 +263,9 @@ exports.addAchievement = async (req, res) => {
         const item = await Achievement.create(req.body);
         res.status(201).json(item);
     } catch (error) {
+        if (error.name === "ValidationError") {
+            return res.status(400).json({ message: error.message });
+        }
         res.status(500).json({ message: error.message });
     }
 };
@@ -269,6 +275,9 @@ exports.addCarouselItem = async (req, res) => {
         const item = await Carousel.create(req.body);
         res.status(201).json(item);
     } catch (error) {
+        if (error.name === "ValidationError") {
+            return res.status(400).json({ message: error.message });
+        }
         res.status(500).json({ message: error.message });
     }
 };
