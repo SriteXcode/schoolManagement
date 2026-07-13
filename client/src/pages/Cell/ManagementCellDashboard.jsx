@@ -62,6 +62,31 @@ const ManagementCellDashboard = () => {
     }
   };
 
+  const printReceipt = () => {
+      const printContent = document.getElementById('salary-receipt');
+      const WinPrint = window.open('', '', 'width=900,height=650');
+      WinPrint.document.write(`
+        <html>
+          <head>
+            <title>Salary Receipt</title>
+            <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+            <style>
+                @media print {
+                    body { -webkit-print-color-adjust: exact; }
+                }
+            </style>
+          </head>
+          <body class="p-10">
+            ${printContent.innerHTML}
+            <script>
+                window.onload = function() { window.print(); window.close(); }
+            </script>
+          </body>
+        </html>
+      `);
+      WinPrint.document.close();
+  };
+
   const menuItems = [
       { id: 'staff', label: 'Personal', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
       { id: 'salary', label: 'Payroll & HR', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50' },
@@ -529,7 +554,7 @@ const PayrollManager = ({ staffList, salaries, refresh }) => {
                         </div>
                         <div className="p-8 bg-gray-50 border-t border-gray-100 flex gap-4">
                             <button 
-                                onClick={() => window.print()} 
+                                onClick={printReceipt} 
                                 className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:opacity-90 transition flex items-center justify-center gap-2 shadow-xl shadow-slate-100"
                             >
                                 <Plus size={18} /> Print Receipt

@@ -10,11 +10,6 @@ const Students = () => {
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  
-  // Generated Creds Modal
-  const [generatedCreds, setGeneratedCreds] = useState(null);
-  
   // Modal State
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -28,39 +23,14 @@ const Students = () => {
   const [previewStudents, setPreviewStudents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    classId: '',
-    gender: 'Male',
-    guardianName: '',
-    address: '',
-    transportMode: 'By Foot',
-    bus: '',
-    busStop: '',
-    isNewStopRequest: false,
-    bikeNumber: '',
-    drivingLicense: '',
-    roomNumber: '',
-    hostelName: ''
-  });
-
-  const [buses, setBuses] = useState([]);
-  const [selectedBusStops, setSelectedBusStops] = useState([]);
-
   const fetchData = async () => {
     try {
-      const [studentsRes, classesRes, busesRes] = await Promise.all([
+      const [studentsRes, classesRes] = await Promise.all([
         api.get('/student/getall'),
-        api.get('/class/getall'),
-        api.get('/management/bus/all')
+        api.get('/class/getall')
       ]);
       setStudents(studentsRes.data);
       setClasses(classesRes.data);
-      setBuses(busesRes.data);
-      if (classesRes.data.length > 0 && !formData.classId) {
-          setFormData(prev => ({ ...prev, classId: classesRes.data[0]._id }));
-      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -122,53 +92,7 @@ const Students = () => {
       }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'bus') {
-        const bus = buses.find(b => b._id === value);
-        setSelectedBusStops(bus?.stops || []);
-        setFormData({ ...formData, [name]: value, busStop: '' });
-    } else {
-        setFormData({ ...formData, [name]: value });
-    }
-  };
 
-  const handleAddStudent = async (e) => {
-    e.preventDefault();
-    if (!formData.classId) return toast.error("Please create a class first!");
-    
-    setSubmitting(true);
-    try {
-      const res = await api.post('/student/register', formData);
-      toast.success(res.data.message || 'Student registered!');
-      
-      // Show credentials
-      setGeneratedCreds(res.data.credentials);
-      
-      setFormData({
-        name: '',
-        phone: '',
-        classId: classes[0]?._id || '',
-        gender: 'Male',
-        guardianName: '',
-        address: '',
-        transportMode: 'By Foot',
-        bus: '',
-        busStop: '',
-        isNewStopRequest: false,
-        bikeNumber: '',
-        drivingLicense: '',
-        roomNumber: '',
-        hostelName: ''
-      });
-      setShowAddModal(false);
-      fetchData();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to register student');
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const handleReviewAdded = (updatedStudent) => {
       setStudents(prev => prev.map(s => s._id === updatedStudent._id ? updatedStudent : s));
@@ -186,18 +110,12 @@ const Students = () => {
             <h1 className="text-4xl font-black text-slate-900 tracking-tight">Student Body</h1>
             <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-1">Enrollment & Academic Lifecycle Management</p>
         </div>
-        <div className="flex gap-4 w-full md:w-auto">
+        <div className="flex gap-4 w-full md:w-auto justify-end">
           <button 
             onClick={() => setShowEnrollmentModal(true)}
-            className="flex-1 md:flex-none px-8 py-4 bg-white text-indigo-600 rounded-2xl border border-indigo-100 hover:bg-indigo-50 shadow-sm transition-all flex items-center justify-center gap-3 font-black uppercase text-[10px] tracking-widest"
+            className="w-full md:w-auto px-8 py-4 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 shadow-xl shadow-indigo-100 transition-all hover:scale-105 flex items-center justify-center gap-3 font-black uppercase text-[10px] tracking-widest cursor-pointer"
           >
-            <FaExchangeAlt /> Enrollment
-          </button>
-          <button 
-            onClick={() => setShowAddModal(true)}
-            className="flex-1 md:flex-none px-8 py-4 bg-teal-600 text-white rounded-2xl hover:bg-teal-700 shadow-xl shadow-teal-100 transition-all hover:scale-105 flex items-center justify-center gap-3 font-black uppercase text-[10px] tracking-widest"
-          >
-            <FaUserPlus /> Admission
+            <FaExchangeAlt /> Enrollment & Cleanup
           </button>
         </div>
       </div>
@@ -317,154 +235,7 @@ const Students = () => {
         </div>
       )}
 
-      {/* Success Modal for Credentials */}
-      {generatedCreds && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[200] p-4">
-            <div className="bg-white p-10 rounded-[3rem] shadow-2xl max-w-sm w-full text-center animate-in fade-in zoom-in duration-300">
-                <div className="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-soft">
-                  <FaUserPlus size={32} />
-                </div>
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase leading-none mb-2">Admission Success</h3>
-                <p className="text-slate-400 font-bold text-xs mb-8">Synchronize these credentials with the student</p>
-                
-                <div className="bg-slate-50 p-6 rounded-[2rem] text-left space-y-4 mb-8 border border-slate-100">
-                    <div>
-                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Authentication ID</span>
-                        <p className="font-mono text-base font-black text-indigo-600 break-all">{generatedCreds.username}</p>
-                    </div>
-                    <div>
-                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Initial Key</span>
-                         <p className="font-mono text-base font-black text-indigo-600">{generatedCreds.password}</p>
-                    </div>
-                </div>
 
-                <button 
-                    onClick={() => setGeneratedCreds(null)}
-                    className="w-full py-4 bg-slate-900 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-indigo-600 shadow-xl shadow-slate-200 transition-all"
-                >
-                    Dismiss Notification
-                </button>
-            </div>
-        </div>
-      )}
-
-      {/* Register Student Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-8 bg-teal-600 text-white flex justify-between items-center">
-              <h2 className="text-2xl font-black tracking-tight flex items-center gap-3 uppercase">
-                  Admission Onboarding
-              </h2>
-              <button 
-                onClick={() => setShowAddModal(false)}
-                className="text-white/60 hover:text-white transition p-3 bg-white/10 rounded-2xl"
-              >
-                <FaTimes size={18} />
-              </button>
-            </div>
-            
-            <form onSubmit={handleAddStudent} className="p-10 space-y-10">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Legal Full Name *</label>
-                  <input type="text" name="name" placeholder="John Doe" value={formData.name} onChange={handleChange} required className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-teal-50 transition-all outline-none" />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Target Unit *</label>
-                  <select name="classId" value={formData.classId} onChange={handleChange} required className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-teal-50 transition-all outline-none uppercase tracking-widest">
-                      <option value="" disabled>Select Unit</option>
-                      {classes.map(cls => (
-                          <option key={cls._id} value={cls._id}>{cls.grade}-{cls.section}</option>
-                      ))}
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact Number *</label>
-                  <input type="text" name="phone" placeholder="9876543210" value={formData.phone} onChange={handleChange} required className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-teal-50 transition-all outline-none" />
-                </div>
-
-                <div className="space-y-2">
-                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gender Identification</label>
-                   <select name="gender" value={formData.gender} onChange={handleChange} className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-teal-50 transition-all outline-none uppercase tracking-widest">
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
-                   </select>
-                </div>
-
-                <div className="space-y-2">
-                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Parent/Guardian</label>
-                   <input type="text" name="guardianName" placeholder="Legal Guardian" value={formData.guardianName} onChange={handleChange} className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-teal-50 transition-all outline-none" />
-                </div>
-
-                <div className="space-y-2">
-                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Residential Address</label>
-                   <input type="text" name="address" placeholder="City, State" value={formData.address} onChange={handleChange} className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-teal-50 transition-all outline-none" />
-                </div>
-
-                <div className="space-y-2">
-                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Logistics Mode</label>
-                   <select name="transportMode" value={formData.transportMode} onChange={handleChange} className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-teal-50 transition-all outline-none uppercase tracking-widest">
-                      <option value="Hostel">Hostel</option>
-                      <option value="Bicycle">Bicycle</option>
-                      <option value="Bike">Bike</option>
-                      <option value="Bus">Institutional Bus</option>
-                      <option value="By Foot">By Foot</option>
-                   </select>
-                </div>
-
-                {formData.transportMode === 'Bus' && (
-                  <>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Institutional Fleet</label>
-                        <select name="bus" value={formData.bus} onChange={handleChange} required className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-teal-50 transition-all outline-none uppercase tracking-widest">
-                            <option value="">Select Bus</option>
-                            {buses.map(bus => (
-                                <option key={bus._id} value={bus._id}>{bus.busNumber} - {bus.route}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Boarding Point</label>
-                        <select 
-                            name="busStop" 
-                            value={formData.isNewStopRequest ? 'REQUEST_NEW' : formData.busStop} 
-                            onChange={(e) => {
-                                if (e.target.value === 'REQUEST_NEW') {
-                                    setFormData({ ...formData, isNewStopRequest: true, busStop: '' });
-                                } else {
-                                    setFormData({ ...formData, isNewStopRequest: false, busStop: e.target.value });
-                                }
-                            }} 
-                            required 
-                            className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-sm focus:ring-4 focus:ring-teal-50 transition-all outline-none uppercase tracking-widest"
-                        >
-                            <option value="">Select Stop</option>
-                            {selectedBusStops.map((stop, i) => (
-                                <option key={i} value={stop.stopName}>{stop.stopName} (₹{stop.fee})</option>
-                            ))}
-                            <option value="REQUEST_NEW" className="text-indigo-600 font-black">REQUEST NEW HUB</option>
-                        </select>
-                    </div>
-                  </>
-                )}
-              </div>
-              
-              <button 
-                type="submit" 
-                disabled={submitting}
-                className="w-full py-5 text-white bg-teal-600 rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-teal-100 hover:bg-teal-700 transition-all active:scale-95"
-              >
-                Finalize Admission
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Student List */}
       <div className="bg-white rounded-[3rem] shadow-soft border border-slate-50 overflow-hidden px-2">

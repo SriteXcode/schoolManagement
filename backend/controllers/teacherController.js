@@ -48,7 +48,7 @@ exports.getTeachers = async (req, res) => {
 exports.updateTeacher = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, phone, qualification, age, schoolCell, profileImage, remark } = req.body;
+    const { name, email, phone, qualification, age, schoolCell, profileImage, remark, address, bloodGroup } = req.body;
     
     const teacher = await Teacher.findById(id);
     if (!teacher) {
@@ -65,17 +65,22 @@ exports.updateTeacher = async (req, res) => {
     if (age) teacher.age = age;
     if (profileImage) teacher.profileImage = profileImage;
     if (remark !== undefined) teacher.remark = remark;
+    if (address !== undefined) teacher.address = address;
+    if (bloodGroup !== undefined) teacher.bloodGroup = bloodGroup;
     if (req.user.role === "Admin" && schoolCell) teacher.schoolCell = schoolCell;
     
     await teacher.save();
 
-    // Update Linked User Fields (Email/Phone/Name/ProfileImage)
+    // Update Linked User Fields (Email/Phone/Name/ProfileImage/Address/BloodGroup/Remark)
     const user = await User.findById(teacher.user);
     if (user) {
         if (email) user.email = email;
         if (name) user.name = name; // Sync name
         if (phone) user.phone = phone;
         if (profileImage) user.profileImage = profileImage; // Sync profile image
+        if (address !== undefined) user.address = address;
+        if (bloodGroup !== undefined) user.bloodGroup = bloodGroup;
+        if (remark !== undefined) user.remark = remark;
         await user.save();
     }
 

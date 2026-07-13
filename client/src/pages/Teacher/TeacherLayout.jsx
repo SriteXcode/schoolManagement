@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom';
-import { FaClipboardCheck, FaBook, FaSignOutAlt, FaHome, FaMarker, FaCommentDots, FaIdCard, FaListAlt, FaSchool, FaUserGraduate, FaShieldAlt, FaBars, FaTimes } from 'react-icons/fa';
+import { FaClipboardCheck, FaBook, FaSignOutAlt, FaHome, FaMarker, FaCommentDots, FaIdCard, FaListAlt, FaSchool, FaUserGraduate, FaShieldAlt, FaBars, FaTimes, FaCalendarAlt, FaPaperPlane, FaClipboardList, FaMoneyBillWave, FaCreditCard } from 'react-icons/fa';
 import api from '../../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -88,7 +88,7 @@ const TeacherLayout = () => {
     );
   };
 
-  const SidebarContent = () => (
+  const sidebarContent = (
     <div className="flex flex-col h-full bg-white md:bg-transparent">
         {/* Profile Section */}
         <div className="p-4 pb-2">
@@ -149,7 +149,7 @@ const TeacherLayout = () => {
     <div className="flex min-h-screen bg-slate-50">
       {/* Desktop Sidebar */}
       <div className="hidden md:block w-64 sticky top-0 h-screen">
-        <SidebarContent />
+        {sidebarContent}
       </div>
 
       {/* Mobile Sidebar Overlay */}
@@ -170,7 +170,7 @@ const TeacherLayout = () => {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="fixed inset-y-0 left-0 w-64 bg-white z-50 md:hidden shadow-2xl"
             >
-              <SidebarContent />
+              {sidebarContent}
             </motion.div>
           </>
         )}

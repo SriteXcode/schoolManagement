@@ -87,7 +87,7 @@ const ImageUpload = ({
                 onDragOver={handleDrag}
                 onDragLeave={handleDrag}
                 onDrop={handleDrop}
-                className={`relative group border-2 border-dashed rounded-[2rem] transition-all duration-300 flex flex-col items-center justify-center p-8 min-h-[200px] text-center ${
+                className={`relative group border-2 border-dashed rounded-xl transition-all duration-300 flex flex-col items-center justify-center p-8 min-h-[200px] text-center ${
                     isDragging 
                     ? 'border-indigo-500 bg-indigo-50/50 scale-[1.02]' 
                     : 'border-slate-200 bg-slate-50 hover:border-indigo-300 hover:bg-white'
@@ -101,8 +101,8 @@ const ImageUpload = ({
                 ) : preview && !multiple ? (
                     <div className="relative group/preview">
                         <img src={preview} alt="Preview" className="w-32 h-32 rounded-2xl object-cover shadow-xl border-4 border-white" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
-                            <FaCloudUploadAlt className="text-white text-2xl" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                            <FaCloudUploadAlt className="text-white text-xl" />
                         </div>
                         <input 
                             type="file" 

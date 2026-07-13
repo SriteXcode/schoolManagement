@@ -210,9 +210,9 @@ exports.updateStudent = async (req, res) => {
     if (guardianName) student.guardianName = guardianName;
     if (classId) student.sClass = classId;
     if (category) student.category = category;
-    if (address) student.address = address;
+    if (address !== undefined) student.address = address;
     if (achievements) student.achievements = achievements;
-    if (bloodGroup) student.bloodGroup = bloodGroup;
+    if (bloodGroup !== undefined) student.bloodGroup = bloodGroup;
     if (profileImage) student.profileImage = profileImage;
     if (remark !== undefined) student.remark = remark;
     if (transportMode) student.transportMode = transportMode;
@@ -224,13 +224,16 @@ exports.updateStudent = async (req, res) => {
     
     await student.save();
 
-    // Update Linked User Fields (Email/Phone/Name/ProfileImage)
+    // Update Linked User Fields (Email/Phone/Name/ProfileImage/Address/BloodGroup/Remark)
     const user = await User.findById(student.user);
     if (user) {
         if (email) user.email = email;
         if (name) user.name = name; // Sync name
         if (phone) user.phone = phone;
         if (profileImage) user.profileImage = profileImage; // Sync profile image
+        if (address !== undefined) user.address = address;
+        if (bloodGroup !== undefined) user.bloodGroup = bloodGroup;
+        if (remark !== undefined) user.remark = remark;
         await user.save();
     }
 

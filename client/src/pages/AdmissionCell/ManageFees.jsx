@@ -20,6 +20,8 @@ const ManageFees = () => {
   // View State
   const [selectedFee, setSelectedFee] = useState(null); // The full fee record of a student
   const [view, setView] = useState('list'); // 'list' or 'detail'
+  const [viewReceipt, setViewReceipt] = useState(null); // The selected transaction for printing receipt
+  const [schoolConfig, setSchoolConfig] = useState(null);
   
   // Modal State
   const [activeModal, setActiveModal] = useState(null); // 'payment', 'charge', 'bulk', 'confirm-bulk'
@@ -48,7 +50,42 @@ const ManageFees = () => {
   useEffect(() => {
     fetchFees();
     fetchClasses();
+    fetchSchoolConfig();
   }, [minDue, pendingMonth]);
+
+  const fetchSchoolConfig = async () => {
+      try {
+          const res = await api.get('/management/school/config');
+          setSchoolConfig(res.data);
+      } catch (error) {
+          console.error("Failed to fetch school config", error);
+      }
+  };
+
+  const printReceipt = () => {
+      const printContent = document.getElementById('fee-receipt-content');
+      const WinPrint = window.open('', '', 'width=900,height=650');
+      WinPrint.document.write(`
+        <html>
+          <head>
+            <title>Fee Receipt</title>
+            <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+            <style>
+                @media print {
+                    body { -webkit-print-color-adjust: exact; }
+                }
+            </style>
+          </head>
+          <body class="p-10">
+            \${printContent.innerHTML}
+            <script>
+                window.onload = function() { window.print(); window.close(); }
+            </script>
+          </body>
+        </html>
+      `);
+      WinPrint.document.close();
+  };
 
   const fetchFees = async () => {
     setLoading(true);
@@ -465,72 +502,112 @@ const ManageFees = () => {
             )}
         </div>
       ) : (
-        /* Detail View: Monthly Grid */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            {selectedFee.monthlyFees.map((m, idx) => {
-                const monthTotal = m.charges.reduce((acc, c) => acc + c.amount, 0);
-                const isPaid = m.status === 'Paid';
+        /* Detail View: Dual Column Layout */
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8 items-start">
+            {/* Left/Main Column: Monthly Fee Grid */}
+            <div className="lg:col-span-3 space-y-6">
+                <h2 className="text-xl font-black text-gray-800 px-2 uppercase tracking-tight">Payment Schedule</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+                    {selectedFee.monthlyFees.map((m, idx) => {
+                        const monthTotal = m.charges.reduce((acc, c) => acc + c.amount, 0);
+                        const isPaid = m.status === 'Paid';
 
-                return (
-                    <div key={idx} className={`bg-white rounded-2xl md:rounded-[2rem] border overflow-hidden flex flex-col transition-all ${isPaid ? 'border-green-100 shadow-sm' : 'border-gray-100 shadow-md shadow-gray-100'}`}>
-                        <div className="p-5 md:p-6 flex-1">
-                            <div className="flex justify-between items-start mb-3 md:mb-4">
-                                <h3 className="text-lg md:text-xl font-black text-gray-800">{m.month}</h3>
-                                <span className={`px-2 py-0.5 rounded-full text-[7px] md:text-[8px] font-black uppercase tracking-widest border ${
-                                    m.status === 'Paid' ? 'bg-green-100 text-green-700 border-green-200' :
-                                    m.status === 'Partial' ? 'bg-amber-100 text-amber-700 border-amber-200' :
-                                    'bg-red-100 text-red-700 border-red-200'
-                                }`}>
-                                    {m.status}
-                                </span>
-                            </div>
-
-                            <div className="space-y-2 mb-4 md:mb-6">
-                                {m.charges.map((c, ci) => (
-                                    <div key={ci} className="flex justify-between items-center text-[10px] md:text-[11px] font-bold text-gray-500">
-                                        <div className="flex items-center gap-1.5 flex-1">
-                                            {c.status === 'Paid' && <div className="text-green-600"><CheckSquare size={12}/></div>}
-                                            <span className="line-clamp-1">{c.name}</span>
-                                        </div>
-                                        <span className="ml-2">₹{c.amount}</span>
+                        return (
+                            <div key={idx} className={`bg-white rounded-2xl md:rounded-[2rem] border overflow-hidden flex flex-col transition-all ${isPaid ? 'border-green-100 shadow-sm' : 'border-gray-100 shadow-md shadow-gray-100'}`}>
+                                <div className="p-5 md:p-6 flex-1">
+                                    <div className="flex justify-between items-start mb-3 md:mb-4">
+                                        <h3 className="text-lg md:text-xl font-black text-gray-800">{m.month}</h3>
+                                        <span className={`px-2 py-0.5 rounded-full text-[7px] md:text-[8px] font-black uppercase tracking-widest border ${
+                                            m.status === 'Paid' ? 'bg-green-100 text-green-700 border-green-200' :
+                                            m.status === 'Partial' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                                            'bg-red-100 text-red-700 border-red-200'
+                                        }`}>
+                                            {m.status}
+                                        </span>
                                     </div>
-                                ))}
-                                <div className="pt-2 border-t border-dashed border-gray-200 flex justify-between text-xs md:text-sm font-black text-gray-800">
-                                    <span>Total</span>
-                                    <span>₹{monthTotal}</span>
+
+                                    <div className="space-y-2 mb-4 md:mb-6">
+                                        {m.charges.map((c, ci) => (
+                                            <div key={ci} className="flex justify-between items-center text-[10px] md:text-[11px] font-bold text-gray-500">
+                                                <div className="flex items-center gap-1.5 flex-1">
+                                                    {c.status === 'Paid' && <div className="text-green-600"><CheckSquare size={12}/></div>}
+                                                    <span className="line-clamp-1">{c.name}</span>
+                                                </div>
+                                                <span className="ml-2">₹{c.amount}</span>
+                                            </div>
+                                        ))}
+                                        <div className="pt-2 border-t border-dashed border-gray-200 flex justify-between text-xs md:text-sm font-black text-gray-800">
+                                            <span>Total</span>
+                                            <span>₹{monthTotal}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between text-[9px] md:text-[10px] font-black uppercase mt-auto">
+                                        <span className="text-indigo-600">Paid: ₹{m.paidAmount}</span>
+                                        <span className={`${monthTotal - m.paidAmount <= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                                            {monthTotal - m.paidAmount < 0 ? `Credit: ₹${Math.abs(monthTotal - m.paidAmount)}` : `Due: ₹${monthTotal - m.paidAmount}`}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="bg-gray-50 p-3 md:p-4 grid grid-cols-2 gap-2">
+                                <button 
+                                    onClick={() => { 
+                                        setTargetMonth(m.month); 
+                                        setActiveModal('payment'); 
+                                        setFormData({ ...formData, amount: monthTotal - m.paidAmount });
+                                    }}
+                                    disabled={isPaid}
+                                    className={`flex items-center justify-center gap-2 py-2 md:py-2.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition ${isPaid ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700'}`}
+                                >
+                                    <CreditCard size={12} className="md:w-3.5 md:h-3.5" /> Pay
+                                </button>
+                                <button 
+                                    onClick={() => { setTargetMonth(m.month); setActiveModal('charge'); }}
+                                    className="flex items-center justify-center gap-2 py-2 md:py-2.5 bg-gray-900 text-white rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition"
+                                >
+                                    <PlusCircle size={12} className="md:w-3.5 md:h-3.5" /> Charge
+                                </button>
                                 </div>
                             </div>
+                        );
+                    })}
+                </div>
+            </div>
 
-                            <div className="flex justify-between text-[9px] md:text-[10px] font-black uppercase mt-auto">
-                                <span className="text-indigo-600">Paid: ₹{m.paidAmount}</span>
-                                <span className={`${monthTotal - m.paidAmount <= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                                    {monthTotal - m.paidAmount < 0 ? `Credit: ₹${Math.abs(monthTotal - m.paidAmount)}` : `Due: ₹${monthTotal - m.paidAmount}`}
-                                </span>
+            {/* Right Column: Transaction History Sidebar */}
+            <div className="lg:col-span-1 space-y-6">
+                <h2 className="text-xl font-black text-gray-800 px-2 uppercase tracking-tight">Recent Payments</h2>
+                <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-6 space-y-4">
+                    {(selectedFee.transactions || []).length > 0 ? (
+                        [...selectedFee.transactions].reverse().map((txn, tIdx) => (
+                            <div key={txn._id || tIdx} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-indigo-100 transition-all group">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-indigo-600 shadow-sm">
+                                        <CreditCard size={18} />
+                                    </div>
+                                    <div>
+                                        <div className="text-xs font-black text-gray-800">₹{txn.amount}</div>
+                                        <div className="text-[9px] font-bold text-gray-400 uppercase">{txn.month}</div>
+                                    </div>
+                                </div>
+                                <button 
+                                  onClick={() => setViewReceipt(txn)}
+                                  className="p-2 bg-white text-indigo-600 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 hover:bg-indigo-600 hover:text-white transition"
+                                  title="Print Invoice"
+                                >
+                                    <Download size={14} />
+                                </button>
                             </div>
+                        ))
+                    ) : (
+                        <div className="text-center py-10">
+                            <CreditCard className="mx-auto text-gray-300 mb-2" size={32} />
+                            <p className="text-[10px] font-bold text-gray-400 uppercase">No transactions found</p>
                         </div>
-
-                        <div className="bg-gray-50 p-3 md:p-4 grid grid-cols-2 gap-2">
-                        <button 
-                            onClick={() => { 
-                                setTargetMonth(m.month); 
-                                setActiveModal('payment'); 
-                                setFormData({ ...formData, amount: monthTotal - m.paidAmount });
-                            }}
-                            disabled={isPaid}
-                            className={`flex items-center justify-center gap-2 py-2 md:py-2.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition ${isPaid ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700'}`}
-                        >
-                            <CreditCard size={12} className="md:w-3.5 md:h-3.5" /> Pay
-                        </button>
-                        <button 
-                            onClick={() => { setTargetMonth(m.month); setActiveModal('charge'); }}
-                            className="flex items-center justify-center gap-2 py-2 md:py-2.5 bg-gray-900 text-white rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition"
-                        >
-                            <PlusCircle size={12} className="md:w-3.5 md:h-3.5" /> Charge
-                        </button>
-                        </div>
-                    </div>
-                );
-            })}
+                    )}
+                </div>
+            </div>
         </div>
       )}
 
@@ -819,6 +896,87 @@ const ManageFees = () => {
                 </form>
             </div>
         </div>
+      )}
+
+      {/* Receipt Modal */}
+      {viewReceipt && (
+          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+              <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden flex flex-col animate-in zoom-in duration-300">
+                  <div id="fee-receipt-content" className="p-10 space-y-8 text-left">
+                      <div className="flex justify-between items-start border-b-2 border-gray-100 pb-6">
+                          <div>
+                              <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">{schoolConfig?.name || "Academic Institution"}</h2>
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{schoolConfig?.address || "School Campus Address"}</p>
+                          </div>
+                          <div className="text-right">
+                              <div className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Receipt #</div>
+                              <div className="font-mono text-sm font-bold text-gray-300">{viewReceipt._id?.slice(-8).toUpperCase() || "NEW-TXN"}</div>
+                          </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-6 text-[11px]">
+                          <div className="space-y-4">
+                              <div>
+                                  <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Student</div>
+                                  <div className="font-black text-gray-800 uppercase">{selectedFee?.student?.name}</div>
+                                  <div className="font-bold text-gray-500">Roll: {selectedFee?.student?.rollNum}</div>
+                              </div>
+                              <div>
+                                  <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Class</div>
+                                  <div className="font-bold text-gray-800 uppercase">{selectedFee?.student?.sClass?.grade}-{selectedFee?.student?.sClass?.section}</div>
+                              </div>
+                          </div>
+                          <div className="space-y-4 text-right">
+                              <div>
+                                  <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Date</div>
+                                  <div className="font-bold text-gray-800">{new Date(viewReceipt.date).toLocaleDateString()}</div>
+                              </div>
+                              <div>
+                                  <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Payment Mode</div>
+                                  <div className="font-bold text-gray-800 uppercase">{viewReceipt.paymentMethod}</div>
+                              </div>
+                          </div>
+                      </div>
+
+                      <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
+                          <div className="flex justify-between items-center text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-200 pb-2">
+                               <span>Description</span>
+                               <span>Amount</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                              <span className="text-xs font-bold text-gray-700">Fee Payment for {viewReceipt.month}</span>
+                              <span className="text-xs font-black text-gray-900">₹{viewReceipt.amount}</span>
+                          </div>
+                          {viewReceipt.remarks && (
+                              <div className="text-[9px] text-gray-400 italic">Remarks: {viewReceipt.remarks}</div>
+                          )}
+                          <div className="pt-4 border-t-2 border-gray-900 flex justify-between items-center">
+                              <span className="text-xs font-black text-gray-900 uppercase tracking-widest">Total Paid</span>
+                              <span className="text-xl font-black text-gray-900">₹{viewReceipt.amount}</span>
+                          </div>
+                      </div>
+
+                      <div className="pt-6 text-center">
+                          <p className="text-[8px] font-bold text-gray-300 uppercase tracking-[0.3em]">This is a computer generated receipt</p>
+                      </div>
+                  </div>
+
+                  <div className="p-8 bg-gray-50 border-t border-slate-100 flex gap-4">
+                      <button 
+                        onClick={printReceipt}
+                        className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:opacity-90 transition flex items-center justify-center gap-2 shadow-xl shadow-slate-100"
+                      >
+                          <IndianRupee size={18} /> Print / Save PDF
+                      </button>
+                      <button 
+                        onClick={() => setViewReceipt(null)}
+                        className="px-8 py-4 bg-white text-slate-400 rounded-2xl font-black uppercase text-xs tracking-widest border border-slate-100 hover:bg-slate-100 transition"
+                      >
+                          Close
+                      </button>
+                  </div>
+              </div>
+          </div>
       )}
     </div>
   );

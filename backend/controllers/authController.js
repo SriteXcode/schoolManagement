@@ -87,7 +87,10 @@ exports.login = async (req, res) => {
         phone: user.phone,
         role: user.role,
         profileImage: user.profileImage,
-        schoolCell: user.schoolCell
+        schoolCell: user.schoolCell,
+        address: user.address || "",
+        bloodGroup: user.bloodGroup || "Unknown",
+        remark: user.remark || ""
       },
     });
   } catch (error) {
@@ -97,7 +100,7 @@ exports.login = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, phone, profileImage, password } = req.body;
+    const { name, phone, profileImage, password, address, bloodGroup, remark } = req.body;
     const user = await User.findById(req.user._id);
 
     if (!user) {
@@ -117,6 +120,9 @@ exports.updateProfile = async (req, res) => {
       if (phone) user.phone = phone;
       if (profileImage) user.profileImage = profileImage;
       if (password) user.password = password;
+      if (address !== undefined) user.address = address;
+      if (bloodGroup !== undefined) user.bloodGroup = bloodGroup;
+      if (remark !== undefined) user.remark = remark;
     }
 
     const updatedUser = await user.save();
@@ -126,7 +132,14 @@ exports.updateProfile = async (req, res) => {
         const Teacher = require("../models/teacherSchema");
         await Teacher.findOneAndUpdate(
             { user: updatedUser._id },
-            { email: updatedUser.email, name: updatedUser.name, profileImage: updatedUser.profileImage }
+            { 
+                email: updatedUser.email, 
+                name: updatedUser.name, 
+                profileImage: updatedUser.profileImage,
+                address: updatedUser.address,
+                bloodGroup: updatedUser.bloodGroup,
+                remark: updatedUser.remark
+            }
         );
     }
     
@@ -135,7 +148,13 @@ exports.updateProfile = async (req, res) => {
         const Student = require("../models/studentSchema");
         await Student.findOneAndUpdate(
             { user: updatedUser._id },
-            { name: updatedUser.name, profileImage: updatedUser.profileImage }
+            { 
+                name: updatedUser.name, 
+                profileImage: updatedUser.profileImage,
+                address: updatedUser.address,
+                bloodGroup: updatedUser.bloodGroup,
+                remark: updatedUser.remark
+            }
         );
     }
     
@@ -145,7 +164,14 @@ exports.updateProfile = async (req, res) => {
         const Staff = require("../models/staffSchema");
         await Staff.findOneAndUpdate(
             { user: updatedUser._id },
-            { name: updatedUser.name, phone: updatedUser.phone, profileImage: updatedUser.profileImage }
+            { 
+                name: updatedUser.name, 
+                phone: updatedUser.phone, 
+                profileImage: updatedUser.profileImage,
+                address: updatedUser.address,
+                bloodGroup: updatedUser.bloodGroup,
+                remark: updatedUser.remark
+            }
         );
     }
     
@@ -156,7 +182,10 @@ exports.updateProfile = async (req, res) => {
       phone: updatedUser.phone,
       role: updatedUser.role,
       profileImage: updatedUser.profileImage,
-      schoolCell: updatedUser.schoolCell
+      schoolCell: updatedUser.schoolCell,
+      address: updatedUser.address,
+      bloodGroup: updatedUser.bloodGroup,
+      remark: updatedUser.remark
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -14,7 +14,7 @@ const ExamCellDashboard = () => {
   const activeTab = location.pathname.split('/').pop(); // 'dashboard', 'exams', 'marks'
 
   const [exams, setExams] = useState([]);
-  const [classes, setAllClasses] = useState([]);
+  const [allClasses, setAllClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);

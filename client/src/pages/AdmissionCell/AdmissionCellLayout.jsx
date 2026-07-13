@@ -36,7 +36,7 @@ const AdmissionCellLayout = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const isAdmin = user?.role === 'Admin';
 
-  const SidebarContent = () => (
+  const sidebarContent = (
     <div className="flex flex-col h-full bg-white md:bg-transparent">
         <div className="p-4 pb-2 flex items-center gap-3">
             <div className="bg-indigo-600 p-2 rounded-lg text-white">
@@ -105,7 +105,7 @@ const AdmissionCellLayout = () => {
     <div className="flex min-h-screen bg-slate-50">
       {/* Desktop Sidebar */}
       <div className="hidden md:block w-64 sticky top-0 h-screen">
-        <SidebarContent />
+        {sidebarContent}
       </div>
 
       {/* Mobile Sidebar Overlay */}
@@ -126,7 +126,7 @@ const AdmissionCellLayout = () => {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="fixed inset-y-0 left-0 w-64 bg-white z-50 md:hidden shadow-2xl"
             >
-              <SidebarContent />
+              {sidebarContent}
             </motion.div>
           </>
         )}

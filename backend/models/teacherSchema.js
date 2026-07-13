@@ -40,6 +40,15 @@ const teacherSchema = new mongoose.Schema({
   remark: {
     type: String,
     default: ""
+  },
+  address: {
+    type: String,
+    default: ""
+  },
+  bloodGroup: {
+    type: String,
+    enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown"],
+    default: "Unknown"
   }
 }, { timestamps: true });
 

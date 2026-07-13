@@ -41,6 +41,15 @@ const staffSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  bloodGroup: {
+    type: String,
+    enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown"],
+    default: "Unknown"
+  },
+  remark: {
+    type: String,
+    default: ""
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Staff", staffSchema);

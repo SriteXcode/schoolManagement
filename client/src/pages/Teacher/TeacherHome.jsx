@@ -27,6 +27,31 @@ const TeacherHome = () => {
     fetchData();
   }, [user._id]);
 
+  const printReceipt = () => {
+      const printContent = document.getElementById('salary-receipt');
+      const WinPrint = window.open('', '', 'width=900,height=650');
+      WinPrint.document.write(`
+        <html>
+          <head>
+            <title>Pay Slip</title>
+            <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+            <style>
+                @media print {
+                    body { -webkit-print-color-adjust: exact; }
+                }
+            </style>
+          </head>
+          <body class="p-10">
+            ${printContent.innerHTML}
+            <script>
+                window.onload = function() { window.print(); window.close(); }
+            </script>
+          </body>
+        </html>
+      `);
+      WinPrint.document.close();
+  };
+
   const getAudienceLabel = (notice) => {
     const baseClass = "text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-widest flex items-center gap-1.5";
     if (notice.targetAudience === 'All') {
@@ -197,7 +222,7 @@ const TeacherHome = () => {
                         </div>
                         <div className="p-8 bg-slate-50 border-t border-slate-100 flex gap-4">
                             <button 
-                                onClick={() => window.print()} 
+                                onClick={printReceipt} 
                                 className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:opacity-90 transition flex items-center justify-center gap-2 shadow-xl shadow-slate-100"
                             >
                                 <FileText size={18} /> Download PDF

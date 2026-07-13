@@ -47,7 +47,7 @@ const AdminLayout = () => {
     );
   };
 
-  const SidebarContent = () => (
+  const sidebarContent = (
     <div className="flex flex-col h-full bg-white md:bg-transparent">
         {/* Profile Section */}
         <div className="p-4 pb-2">
@@ -111,7 +111,7 @@ const AdminLayout = () => {
     <div className="flex min-h-screen bg-slate-50">
       {/* Desktop Sidebar */}
       <div className="hidden md:block w-64 sticky top-0 h-screen">
-        <SidebarContent />
+        {sidebarContent}
       </div>
 
       {/* Mobile Sidebar Overlay */}
@@ -132,7 +132,7 @@ const AdminLayout = () => {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="fixed inset-y-0 left-0 w-64 bg-white z-50 md:hidden shadow-2xl"
             >
-              <SidebarContent />
+              {sidebarContent}
             </motion.div>
           </>
         )}

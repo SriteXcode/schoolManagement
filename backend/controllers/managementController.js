@@ -16,6 +16,8 @@ const Timetable = require("../models/timetableSchema");
 const Leave = require("../models/leaveSchema");
 const { validateSessionDate } = require("../middleware/sessionMiddleware");
 
+const mgmtRoles = ["Admin", "ManagementCell"];
+
 // --- Staff Management ---
 exports.addStaff = async (req, res) => {
     try {
@@ -81,10 +83,8 @@ exports.getStaffSalaryHistory = async (req, res) => {
 
         // If not Admin/Management and trying to see someone else's history
         if (!mgmtRoles.includes(user.role)) {
-            let profile;
-            if (user.role === 'Teacher') {
-                profile = await Teacher.findOne({ user: user._id });
-            } else {
+            let profile = await Teacher.findOne({ user: user._id });
+            if (!profile) {
                 profile = await Staff.findOne({ user: user._id });
             }
             if (!profile) return res.status(404).json({ message: "Profile not found" });

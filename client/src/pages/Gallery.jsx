@@ -43,10 +43,10 @@ const Gallery = () => {
   if (loading) return <div className="p-20 text-center font-black text-gray-300 animate-pulse">DEVELOPING VISUAL ARCHIVES...</div>;
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-12">
-      <div className="max-w-7xl mx-auto space-y-12">
-        <div className="text-center space-y-4">
-            <h1 className="text-5xl font-black text-slate-900 tracking-tight">School Gallery</h1>
+    <div className="min-h-screen bg-white p-4 md:p-[16px_48px_0px_48px]">
+      <div className="max-w-7xl mx-auto space-y-2">
+        <div className="text-center space-y-2">
+            <p className="text-5xl font-bold text-slate-900 tracking-tight">School Gallery</p>
             <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.2em]">Capture • Commemorate • Celebrate</p>
         </div>
 
@@ -55,7 +55,7 @@ const Gallery = () => {
             <input 
                 type="text" 
                 placeholder="Search by event or category..."
-                className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[2rem] font-bold text-slate-700 focus:ring-4 focus:ring-indigo-50 transition-all outline-none shadow-sm"
+                className="w-full pl-14 pr-6 py-4 bg-slate-50 border-none rounded-[2rem] font-bold text-slate-700 focus:ring-4 focus:ring-indigo-50 transition-all outline-none shadow-sm"
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
             />
@@ -66,7 +66,7 @@ const Gallery = () => {
             )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="columns-2 gap-3 md:columns-3 xl:columns-4 md:gap-8 space-y-8 [column-fill:_balance]">
           {allImages.map((img, index) => (
             <motion.div 
               key={index}
@@ -74,12 +74,12 @@ const Gallery = () => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               whileHover={{ y: -5 }}
-              className="relative group cursor-pointer"
+              className="break-inside-avoid-column inline-block w-full mb-8 relative group cursor-pointer"
               onClick={() => setSelectedImg(img)}
             >
-              <div className="aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-soft-xl border border-slate-100">
-                <img src={img.url} alt={img.title} className="w-full h-full object-cover transition duration-700 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-8">
+              <div className="relative rounded-lg overflow-hidden shadow-soft-xl border border-slate-100 bg-slate-50">
+                <img src={img.url} alt={img.title} className="w-full h-auto object-cover transition duration-700 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-350 flex flex-col justify-end p-8">
                     <div className="flex items-center gap-2 text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-2">
                         <Tag size={12} /> {img.category}
                     </div>

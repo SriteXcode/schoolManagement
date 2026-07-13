@@ -538,7 +538,7 @@ const Home = () => {
                         {loadingUpcoming ? (
                             <div className="py-20 text-center text-slate-300 font-black animate-pulse uppercase tracking-[0.2em]">Syncing Calendar...</div>
                         ) : (
-                            <div className="flex gap-6 overflow-x-auto pb-4 pt-4 px-4 snap-x snap-mandatory scrollbar-hide custom-scrollbar">
+                            <div className="flex gap-6 overflow-x-auto pb-4 pt-4 px-4 snap-x snap-mandatory scrollbar-hide">
                                 {upcomingItems.length > 0 ? upcomingItems.map((item, idx) => (
                                     <motion.div
                                         key={`${item.itemType}-${item._id}`}

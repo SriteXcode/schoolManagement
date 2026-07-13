@@ -43,6 +43,19 @@ const userSchema = new mongoose.Schema({
     enum: ["Approved", "Pending", "Rejected"],
     default: "Approved",
   },
+  address: {
+    type: String,
+    default: ""
+  },
+  bloodGroup: {
+    type: String,
+    enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown"],
+    default: "Unknown"
+  },
+  remark: {
+    type: String,
+    default: ""
+  },
 }, { timestamps: true });
 
 userSchema.pre("save", async function () {

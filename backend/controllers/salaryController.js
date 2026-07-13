@@ -15,7 +15,7 @@ exports.getAllSalaries = async (req, res) => {
 exports.getTeacherSalaryHistory = async (req, res) => {
   try {
     const teacher = await Teacher.findOne({ user: req.user._id });
-    const teacherId = req.user.role === 'Teacher' ? teacher._id : req.params.teacherId;
+    const teacherId = teacher ? teacher._id : req.params.teacherId;
 
     const salaries = await Salary.find({ teacher: teacherId }).sort({ year: -1, month: -1 });
     res.status(200).json(salaries);

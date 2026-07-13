@@ -35,16 +35,18 @@ exports.getNotices = async (req, res) => {
                 conditions.push({ targetAudience: 'Class', targetClass: student.sClass });
             }
             filter = { $or: conditions };
-        } else if (req.user.role === 'Teacher') {
+        } else {
             const teacher = await Teacher.findOne({ user: req.user._id });
-            const conditions = [
-                { targetAudience: 'All' },
-                { targetAudience: 'Teacher' }
-            ];
-            if (teacher?.sClass) {
-                conditions.push({ targetAudience: 'Class', targetClass: teacher.sClass });
+            if (teacher) {
+                const conditions = [
+                    { targetAudience: 'All' },
+                    { targetAudience: 'Teacher' }
+                ];
+                if (teacher.sClass) {
+                    conditions.push({ targetAudience: 'Class', targetClass: teacher.sClass });
+                }
+                filter = { $or: conditions };
             }
-            filter = { $or: conditions };
         }
     }
 

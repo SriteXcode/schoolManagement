@@ -12,7 +12,7 @@ const {
 const { auth, authorizeRole } = require("../middleware/authMiddleware");
 
 // Define roles that can manage fees (Admission staff, Admin, and high-level management)
-const feeManagerRoles = ["AdmissionCell", "Admin", "ManagementCell"];
+const feeManagerRoles = ["AdmissionCell", "Admin", "ManagementCell", "Teacher"];
 
 router.get("/all", auth, authorizeRole(...feeManagerRoles), getAllFees);
 router.get("/student/:studentId", auth, getStudentFee);

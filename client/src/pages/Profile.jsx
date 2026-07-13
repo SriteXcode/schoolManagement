@@ -25,11 +25,11 @@ const Profile = () => {
     phone: user.phone || '',
     email: user.email || '',
     profileImage: user.profileImage || '',
-    bloodGroup: 'Unknown',
-    address: '',
+    bloodGroup: user.bloodGroup || 'Unknown',
+    address: user.address || '',
     qualification: '',
     age: '',
-    remark: '',
+    remark: user.remark || '',
     password: ''
   });
 
@@ -158,7 +158,10 @@ const Profile = () => {
           name: formData.name, 
           email: formData.email, 
           phone: formData.phone,
-          profileImage: formData.profileImage
+          profileImage: formData.profileImage,
+          bloodGroup: formData.bloodGroup,
+          address: formData.address,
+          remark: formData.remark
       };
       localStorage.setItem('user', JSON.stringify(updatedUser));
 
@@ -179,11 +182,11 @@ const Profile = () => {
       phone: user.phone || '',
       email: user.email || '',
       profileImage: user.profileImage || '',
-      bloodGroup: profileData?.bloodGroup || 'Unknown',
-      address: profileData?.address || '',
+      bloodGroup: profileData?.bloodGroup || user.bloodGroup || 'Unknown',
+      address: profileData?.address || user.address || '',
       qualification: profileData?.qualification || '',
       age: profileData?.age || '',
-      remark: profileData?.remark || '',
+      remark: profileData?.remark || user.remark || '',
       password: '',
       transportMode: profileData?.transportMode || 'By Foot',
       bus: profileData?.bus?._id || profileData?.bus || ''
@@ -194,7 +197,7 @@ const Profile = () => {
   if (loading) return <Loader fullScreen text="Accessing Secure Profile..." />;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10 pb-20 relative">
+    <div className="max-w-5xl mx-auto space-y-6 relative">
       {(uploading || submitting) && <Loader fullScreen text={uploading ? "Optimizing Media Asset..." : "Synchronizing Global Profile..."} />}
       
       <style>{`
@@ -204,9 +207,9 @@ const Profile = () => {
         .rotate-y-180 { transform: rotateY(180deg); }
       `}</style>
 
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-2 text-left">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 px-2 text-left">
         <div>
-            <h1 className="text-5xl font-black text-slate-900 tracking-tighter">Account Hub</h1>
+            <h1 className="text-5xl font-black text-slate-900 tracking-tighter">Welcome {user.name?.slice(0,10)}...</h1>
             <div className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.4em] mt-2 ml-1 flex items-center gap-2">
                 <div className="w-10 h-px bg-indigo-500" /> SECURE IDENTITY PREFERENCES
             </div>
@@ -215,14 +218,14 @@ const Profile = () => {
             <div className="flex gap-4">
                 <button 
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 px-8 py-4 bg-white text-indigo-600 rounded-2xl font-black hover:bg-indigo-50 transition shadow-xl shadow-indigo-100 border border-indigo-50 text-sm tracking-tight"
+                    className="flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 rounded-lg font-[800] hover:bg-indigo-50 transition shadow-md shadow-gray-300 border border-indigo-50 text-sm tracking-tight"
                 >
                     <FaEdit /> Modify Profile
                 </button>
                 { (isStudent || isTeacher) && (
                     <button 
                         onClick={() => setShowIDCard(true)}
-                        className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition shadow-xl shadow-indigo-100 text-sm tracking-tight"
+                        className="flex items-center gap-6 px-6 py-3 bg-indigo-600 text-white rounded-lg font-[700] hover:bg-indigo-700 transition shadow-md shadow-gray-300 text-sm tracking-tight"
                     >
                         <FaIdCard /> Identity Card
                     </button>
@@ -232,13 +235,13 @@ const Profile = () => {
             <div className="flex gap-4">
                 <button 
                     onClick={cancelEdit}
-                    className="px-8 py-4 bg-slate-100 text-slate-500 rounded-2xl font-black hover:bg-slate-200 transition text-sm tracking-tight"
+                    className="px-6 py-3 bg-slate-100 text-slate-500 rounded-md font-bold hover:bg-slate-200 transition text-sm tracking-tight"
                 >
                     Discard
                 </button>
                 <button 
                     onClick={handleUpdate}
-                    className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition shadow-xl shadow-indigo-100 text-sm tracking-tight"
+                    className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-md font-bold hover:bg-indigo-700 transition shadow-xl shadow-indigo-100 text-sm tracking-tight"
                 >
                     <FaCheck /> Commit Changes
                 </button>
@@ -249,10 +252,10 @@ const Profile = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Avatar Section */}
           <div className="lg:col-span-1 space-y-10">
-              <div className="bg-white p-10 rounded-[3rem] shadow-soft border border-slate-100 text-center relative group overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-32 bg-indigo-600/5 group-hover:bg-indigo-600/10 transition-colors" />
+              <div className="bg-white p-4 rounded-2xl shadow-soft border border-slate-100 text-center relative group overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-24 bg-indigo-600/5 group-hover:bg-indigo-600/10 transition-colors" />
                   
-                  <div className="relative mt-10">
+                  <div className="relative">
                       <div className="relative inline-block">
                           {isEditing ? (
                               <ImageUpload 
@@ -264,13 +267,12 @@ const Profile = () => {
                               <img 
                                 src={formData.profileImage || "https://cdn-icons-png.flaticon.com/512/149/149071.png"} 
                                 alt="Profile" 
-                                className="w-40 h-40 rounded-[3rem] object-cover border-8 border-white shadow-2xl transition-transform duration-500 group-hover:scale-105"
+                                className="w-40 h-40 rounded-xl object-fit border-4 border-white shadow-2xl transition-transform duration-900 group-hover:scale-105"
                               />
                           )}
                       </div>
                   </div>
-
-                  <div className="mt-8 space-y-2">
+                  <div className="mt-2 space-y-2">
                       <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">{user.name}</h3>
                       <div className="flex items-center justify-center gap-2">
                           <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-widest">{user.role}</span>
@@ -278,28 +280,28 @@ const Profile = () => {
                       </div>
                   </div>
 
-                  <div className="mt-10 pt-10 border-t border-slate-50 grid grid-cols-2 gap-4">
+                  <div className="mt-0 border-t border-slate-50 grid grid-cols-2 gap-4">
                       <div className="text-left p-4 bg-slate-50 rounded-2xl">
                           <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Blood Group</p>
-                          <p className="font-black text-slate-700 flex items-center gap-2 mt-1">
+                          <p className="font-bold text-[12px] text-slate-700 flex items-center gap-2 mt-1">
                               <FaTint className="text-rose-500" /> {formData.bloodGroup}
                           </p>
                       </div>
                       <div className="text-left p-4 bg-slate-50 rounded-2xl">
-                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Phone Ext.</p>
-                          <p className="font-black text-slate-700 flex items-center gap-2 mt-1">
-                              <FaPhone className="text-indigo-500" /> {user.phone?.slice(-4)}
+                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Phone no.</p>
+                          <p className="font-bold text-[12px] text-slate-700 flex items-center gap-2 mt-1">
+                              <FaPhone className="text-indigo-500 rotate-90" /> ..{user.phone?.slice(-4)}
                           </p>
-                      </div>
+                      </div> 
                   </div>
               </div>
 
-              <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white space-y-6 relative overflow-hidden group">
-                  <div className="absolute right-0 top-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16" />
-                  <h4 className="font-black uppercase text-xs tracking-[0.2em] flex items-center gap-3">
+              {/* <div className="bg-slate-900 p-6 rounded-2xl text-white space-y-4 relative overflow-hidden group">
+                  <div className="absolute border-12 border-red-800 right-0 top-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16" />
+                  <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-3">
                       <FaLock className="text-indigo-400" /> Security Status
-                  </h4>
-                  <div className="space-y-4">
+                  </p>
+                  <div className="space-y-3">
                       <div className="flex justify-between items-center text-sm font-bold text-slate-400">
                           <span>2FA Authentication</span>
                           <span className="text-indigo-400">Active</span>
@@ -309,30 +311,30 @@ const Profile = () => {
                           <span>Today, 09:41 AM</span>
                       </div>
                   </div>
-              </div>
+              </div> */}
           </div>
 
           {/* Form Section */}
           <div className="lg:col-span-2">
-              <form onSubmit={handleUpdate} className="bg-white p-10 md:p-16 rounded-[3.5rem] shadow-soft border border-slate-100 space-y-12">
-                  <div className="space-y-10">
+              <form onSubmit={handleUpdate} className="bg-white p-10 md:px-16 md:py-6 rounded-2xl shadow-soft border-t-4 border-slate-800 space-y-4">
+                  <div className="space-y-2">
                       <h4 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
                           <div className="bg-indigo-50 p-2 rounded-xl text-indigo-500"><FaUserGraduate size={16}/></div> Public Information
                       </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2 text-left">
-                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Legal Name</label>
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name:</label>
                               <input 
                                 value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} 
-                                className={`w-full px-6 py-4 rounded-2xl outline-none transition-all font-bold text-sm ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50'}`} 
+                                className={`w-full px-6 py-2 rounded-2xl outline-none transition-all font-semibold text-sm ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50'}`} 
                                 disabled={!isEditing} 
                               />
                           </div>
                           <div className="space-y-2 text-left">
-                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Official Email</label>
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email:</label>
                               <input 
                                 value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} 
-                                className={`w-full px-6 py-4 rounded-2xl outline-none transition-all font-bold text-sm ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50'}`} 
+                                className={`w-full px-6 py-2 rounded-2xl outline-none transition-all font-semibold text-sm ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50'}`} 
                                 disabled={!isEditing} 
                               />
                           </div>
@@ -340,7 +342,7 @@ const Profile = () => {
                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact Number</label>
                               <input 
                                 value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} 
-                                className={`w-full px-6 py-4 rounded-2xl outline-none transition-all font-bold text-sm ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50'}`} 
+                                className={`w-full px-6 py-2 rounded-2xl outline-none transition-all font-semibold text-sm ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50'}`} 
                                 disabled={!isEditing} 
                               />
                           </div>
@@ -348,7 +350,7 @@ const Profile = () => {
                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Blood Identification</label>
                               <select 
                                 value={formData.bloodGroup} onChange={(e) => setFormData({...formData, bloodGroup: e.target.value})} 
-                                className={`w-full px-6 py-4 rounded-2xl outline-none transition-all font-black text-sm ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50'}`} 
+                                className={`w-full px-6 py-2 rounded-2xl outline-none transition-all font-semibold text-sm ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50'}`} 
                                 disabled={!isEditing}
                               >
                                   {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown'].map(bg => <option key={bg} value={bg}>{bg}</option>)}
@@ -357,16 +359,16 @@ const Profile = () => {
                       </div>
                   </div>
 
-                  <div className="pt-10 border-t border-slate-50 space-y-10">
+                  <div className="pt-2 space-y-4">
                       <h4 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
                           <div className="bg-indigo-50 p-2 rounded-xl text-indigo-500"><FaMapMarkerAlt size={16}/></div> Localization & bio
                       </h4>
-                      <div className="space-y-8">
+                      <div className="space-y-4">
                           <div className="space-y-2 text-left">
                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Residential Address</label>
                               <input 
                                 value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} 
-                                className={`w-full px-6 py-4 rounded-2xl outline-none transition-all font-bold text-sm ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50'}`} 
+                                className={`w-full px-6 py-2 rounded-2xl outline-none transition-all font-semibold text-sm ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50'}`} 
                                 disabled={!isEditing} 
                               />
                           </div>
@@ -374,7 +376,7 @@ const Profile = () => {
                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Professional / Personal Bio</label>
                               <textarea 
                                 value={formData.remark} onChange={(e) => setFormData({...formData, remark: e.target.value})} 
-                                className={`w-full px-6 py-4 rounded-2xl outline-none transition-all font-bold text-sm min-h-[120px] ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50'}`} 
+                                className={`w-full px-6 py-2 rounded-2xl outline-none transition-all font-semibold text-sm min-h-[56px] max-h-[200px] ${!isEditing ? 'bg-slate-50 text-slate-400' : 'bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50'}`} 
                                 disabled={!isEditing} 
                               />
                           </div>
@@ -382,7 +384,7 @@ const Profile = () => {
                   </div>
 
                   {isStudent && (
-                      <div className="pt-10 border-t border-slate-50 mt-10">
+                      <div className="pt-2 border-t border-slate-50 mt-2">
                           <div className="flex justify-between items-center mb-6">
                             <h4 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                                 <div className="bg-indigo-50 p-2 rounded-xl text-indigo-500"><FaMapMarkerAlt size={16}/></div> Logistics & Transport
@@ -394,7 +396,7 @@ const Profile = () => {
                                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Transport Mode</label>
                                   <select 
                                     value={formData.transportMode} 
-                                    className="w-full px-6 py-4 rounded-2xl outline-none transition-all font-black text-slate-400 bg-slate-50 cursor-not-allowed" 
+                                    className="w-full px-6 py-2 rounded-2xl outline-none transition-all font-semibold text-slate-400 bg-slate-50 cursor-not-allowed" 
                                     disabled
                                   >
                                       <option value="Hostel">Hostel</option>
@@ -409,7 +411,7 @@ const Profile = () => {
                                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Bus</label>
                                       <select 
                                         value={formData.bus} 
-                                        className="w-full px-6 py-4 rounded-2xl outline-none transition-all font-black text-slate-400 bg-slate-50 cursor-not-allowed" 
+                                        className="w-full px-6 py-2 rounded-2xl outline-none transition-all font-semibold text-slate-400 bg-slate-50 cursor-not-allowed" 
                                         disabled
                                       >
                                           <option value="">Select Bus</option>
@@ -423,7 +425,7 @@ const Profile = () => {
                   )}
 
                   {isEditing && (
-                      <div className="pt-10 border-t border-slate-50 space-y-6">
+                      <div className="pt-2 space-y-4">
                           <h4 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
                               <FaLock className="text-rose-500" /> Security Credential Update
                           </h4>
@@ -432,7 +434,7 @@ const Profile = () => {
                               <input 
                                 type="password" placeholder="Leave blank to keep current" 
                                 value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} 
-                                className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-50 transition-all font-bold text-sm" 
+                                className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-50 transition-all font-semibold text-sm" 
                               />
                           </div>
                       </div>
@@ -444,125 +446,134 @@ const Profile = () => {
       {/* ID Card Modal */}
       {showIDCard && profileData && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setShowIDCard(false)}>
-              <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-md w-full overflow-hidden flex flex-col animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
-                  <div className="p-8 border-b flex justify-between items-center">
+              <div className="bg-white rounded-2xl max-h-[95vh] shadow-2xl max-w-md w-full overflow-hidden flex flex-col animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+                  <div className="px-8 pt-4 border-b flex justify-between items-center">
                       <div>
                         <h3 className="text-xl font-black text-slate-900 tracking-tighter uppercase">Academy Identity</h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Click card to flip</p>
+                        <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest">Click card to flip</p>
                       </div>
-                      <button onClick={() => setShowIDCard(false)} className="bg-slate-100 p-2 rounded-xl text-slate-400 hover:text-slate-600 transition-colors"><FaTimes size={18}/></button>
+                      <button onClick={() => setShowIDCard(false)} className="bg-slate-100 p-2 rounded-full text-slate-400 hover:text-slate-600 transition-colors"><FaTimes size={18}/></button>
                   </div>
                   
-                  <div className="p-8 perspective-1000">
+                  <div className="px-8 perspective-1000">
                       <div 
-                        className={`relative w-full h-[480px] transition-all duration-700 preserve-3d cursor-pointer ${isFlipped ? 'rotate-y-180' : ''}`}
+                        className={`relative w-full h-[450px] transition-all duration-700 preserve-3d cursor-pointer ${isFlipped ? 'rotate-y-180' : ''}`}
                         onClick={() => setIsFlipped(!isFlipped)}
                       >
                           {/* Front Side */}
-                          <div id="id-card-front" className="absolute inset-0 w-full h-full bg-slate-900 rounded-[2.5rem] shadow-2xl backface-hidden text-white flex flex-col items-center p-8 overflow-hidden">
-                              <div className="absolute top-0 left-0 w-full h-20 bg-white/5 backdrop-blur-md flex items-center px-8 border-b border-white/5">
-                                  <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-black text-lg mr-3 shadow-lg"><FaSchool /></div>
-                                  <div className="text-left">
+                          <div id="id-card-front" className="absolute pb-8 inset-0 w-full h-full bg-gray-700/60 rounded-2xl shadow-2xl backface-hidden text-white flex flex-col items-center p-4 overflow-scroll scrollbar-hide custom-scrollbar">
+                              <div className="absolute top-0 left-0 w-full h-16 bg-white/5 backdrop-blur-md flex items-center justify-between px-8 border-b border-white/5">
+                                  <div className="flex ">
+                                  <div className="w-8 h-8 bg-indigo-600 rounded-md flex items-center justify-center font-black text-lg mr-3 shadow-lg"><FaSchool /></div>
+                                     <div  className="flex flex-col items-start justify-center">
+
                                       <h4 className="font-black text-xs tracking-tighter uppercase leading-none">EduManage Pro</h4>
-                                      <p className="text-[7px] font-bold text-white/40 tracking-widest uppercase mt-1">Academic ID • {academicYear}</p>
+                                      <p className="text-[7px] font-bold text-white/40 tracking-widest uppercase mt-1">College address</p>
+                                     </div>
+                                  </div>
+                                  <div className="">
+                                      <h4 className="font-black text-xs tracking-tighter uppercase leading-none">Session</h4>
+                                      <p className="text-[7px] font-bold text-white/40 tracking-widest uppercase mt-1">{academicYear}</p>
                                   </div>
                               </div>
 
-                              <div className="mt-16 relative">
-                                  <div className="absolute inset-0 bg-indigo-500 rounded-[2rem] blur-2xl opacity-20"></div>
-                                  <img src={formData.profileImage || "https://cdn-icons-png.flaticon.com/512/149/149071.png"} alt="Profile" className="w-28 h-28 rounded-[2rem] object-cover border-4 border-white/10 shadow-2xl relative z-10" />
+                              <div className="mt-16 flex items-center justify-center relative">
+                                  <div className="absolute inset-0 bg-indigo-500 rounded-lg blur-2xl opacity-20"></div>
+                                  <img src={formData.profileImage || "https://cdn-icons-png.flaticon.com/512/149/149071.png"} alt="Profile" className="w-28 h-28 rounded-lg object-cover border-4 border-white/10 shadow-2xl relative z-10" />
                               </div>
 
-                              <div className="mt-6 text-center">
+                              <div className="mt-2 text-center">
                                   <h3 className="text-xl font-black tracking-tighter uppercase">{user.name}</h3>
-                                  <p className="font-black text-[9px] uppercase tracking-[0.2em] text-indigo-400 mt-1">{user.role}</p>
+                                  <p className="font-black text-[9px] uppercase tracking-[0.2em] text-indigo-400 mt-0">{user.role}</p>
                               </div>
 
-                              <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 w-full border-t border-white/5 pt-6 text-left">
+                              <div className="grid grid-cols-2 justify-around gap-x-6 gap-y-3 w-full border-t border-white/5 pt-2 text-left">
                                   <div>
-                                      <p className="text-[7px] font-black text-white/30 uppercase tracking-widest">Enrollment</p>
-                                      <p className="font-black text-[10px] mt-0.5 truncate">{isStudent ? profileData.rollNum : 'EMP-'+profileData._id.toString().slice(-4).toUpperCase()}</p>
+                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Enrollment</p>
+                                      <p className="font-black text-[10px] mt-0.5 truncate">{isStudent ? profileData.rollNum : 'EMP-...'+profileData._id.toString().slice(-4).toUpperCase()}</p>
                                   </div>
                                   <div>
-                                      <p className="text-[7px] font-black text-white/30 uppercase tracking-widest">Class</p>
+                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Class</p>
                                       <p className="font-black text-[10px] mt-0.5">{isStudent ? `${profileData.sClass?.grade}-${profileData.sClass?.section}` : 'Faculty'}</p>
                                   </div>
                                   <div>
-                                      <p className="text-[7px] font-black text-white/30 uppercase tracking-widest">Parent/Guardian</p>
+                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Parent/Guardian</p>
                                       <p className="font-black text-[10px] mt-0.5 truncate">{profileData.guardianName || 'Not Provided'}</p>
                                   </div>
                                   <div>
-                                      <p className="text-[7px] font-black text-white/30 uppercase tracking-widest">Phone</p>
+                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Phone</p>
                                       <p className="font-black text-[10px] mt-0.5">{user.phone}</p>
                                   </div>
                                   <div className="col-span-2">
-                                      <p className="text-[7px] font-black text-white/30 uppercase tracking-widest">Address</p>
+                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Address</p>
                                       <p className="font-black text-[9px] mt-0.5 line-clamp-1 italic">{profileData.address || 'Campus Resident'}</p>
                                   </div>
                                   <div>
-                                      <p className="text-[7px] font-black text-white/30 uppercase tracking-widest">Transport</p>
+                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Transport</p>
                                       <p className="font-black text-[9px] mt-0.5 flex items-center gap-1">
                                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                           {profileData.transportMode || 'By Foot'}
                                       </p>
                                   </div>
                                   <div className="text-right">
-                                      <p className="text-[7px] font-black text-white/30 uppercase tracking-widest">Blood Group</p>
-                                      <p className="font-black text-[10px] mt-0.5 text-rose-400">{profileData.bloodGroup || 'O+'}</p>
+                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Blood Group</p>
+                                      <p className="font-black text-[10px] mt-0.5 text-rose-400">{profileData.bloodGroup || 'Unknown'}</p>
                                   </div>
                               </div>
 
-                              <div className="absolute bottom-0 left-0 w-full p-4 bg-white/5 text-center border-t border-white/5">
-                                  <p className="text-[8px] font-bold text-white/40 uppercase tracking-[0.2em]">{user.email}</p>
+                              <div className="absolute bottom-0 left-0 w-full p-3 bg-white/5 text-center border-t border-white/5">
+                                  <p className="text-[8px] font-bold text-white/100 uppercase tracking-[0.2em]">{user.email}</p>
                               </div>
                           </div>
 
                           {/* Back Side */}
-                          <div id="id-card-back" className="absolute inset-0 w-full h-full bg-white rounded-[2.5rem] shadow-2xl backface-hidden rotate-y-180 flex flex-col p-10 border-2 border-slate-100 text-slate-800">
-                              <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
+                          <div id="id-card-back" className="absolute inset-0 w-full h-full bg-white rounded-2xl shadow-2xl backface-hidden rotate-y-180 flex flex-col px-10 py-6 border-2 border-slate-100 text-slate-800">
+                              <div className="flex items-center gap-2 mb-4 border-b border-slate-100">
                                   <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg"><FaSchool size={12}/></div>
                                   <h4 className="font-black text-xs text-slate-800 uppercase tracking-widest">Student Guidelines</h4>
                               </div>
                               
-                              <ul className="space-y-4 flex-1">
-                                  {[
-                                      "Always carry this ID card while on campus or representing the school.",
-                                      "The card is non-transferable and must be presented on demand by school authorities.",
-                                      "Report any loss of this card to the Admission Office immediately.",
-                                      "Abide by all school rules and maintain academic integrity at all times.",
-                                      "Keep this card safe from heat, moisture, and sharp objects."
-                                  ].map((rule, i) => (
-                                      <li key={i} className="flex gap-3 items-start">
-                                          <span className="w-4 h-4 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-[8px] font-black flex-shrink-0 mt-0.5">{i+1}</span>
-                                          <p className="text-[10px] font-bold text-slate-500 leading-relaxed">{rule}</p>
-                                      </li>
-                                  ))}
-                              </ul>
+                              <div className="flex-1 flex flex-col justify-center space-y-4">
+                                  <ul className="space-y-2.5">
+                                      {[
+                                          "Always carry this ID card while on campus or representing the school.",
+                                          "The card is non-transferable and must be presented on demand by school authorities.",
+                                          "Report any loss of this card to the Admission Office immediately.",
+                                          "Abide by all school rules and maintain academic integrity at all times.",
+                                          "Keep this card safe from heat, moisture, and sharp objects."
+                                      ].map((rule, i) => (
+                                          <li key={i} className="flex gap-3 items-start">
+                                              <span className="w-4 h-4 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-[8px] font-black flex-shrink-0 mt-0.5">{i+1}</span>
+                                              <p className="text-[10px] font-bold text-slate-500 leading-relaxed">{rule}</p>
+                                          </li>
+                                      ))}
+                                  </ul>
 
-                              <div className="mt-8 pt-6 border-t border-dashed border-slate-200">
-                                  <div className="flex justify-between items-end">
-                                      <div className="text-center">
-                                          <div className="w-24 h-10 bg-slate-50 rounded-lg mb-2 border border-slate-100"></div>
-                                          <p className="text-[7px] font-black text-slate-400 uppercase">Issuing Authority</p>
-                                      </div>
-                                      <div className="text-right">
-                                          <div className="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center mb-2 mx-auto overflow-hidden border border-slate-100">
-                                              <div className="text-[6px] font-black text-slate-300 uppercase rotate-45">QR CODE</div>
+                                  <div className="pt-4 border-2 border-dashed border-slate-200">
+                                      <div className="flex items-center justify-between">
+                                          <div className="text-center">
+                                              <div className="w-24 h-10 text-[7px] bg-slate-50 rounded-lg mb-2 border-4 border-slate-100">signature</div>
+                                              <p className="text-[7px] font-black text-slate-400 uppercase">Issuing Authority</p>
                                           </div>
-                                          <p className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">Scan for Verification</p>
+                                          <div className="text-right">
+                                              <div className="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center mb-2 mx-auto overflow-hidden border border-slate-100">
+                                                  <div className="text-[6px] font-black text-slate-300 uppercase rotate-45">QR CODE</div>
+                                              </div>
+                                              <p className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">Scan for Verification</p>
+                                          </div>
                                       </div>
                                   </div>
                               </div>
 
-                              <div className="absolute bottom-6 left-0 w-full text-center">
+                              <div className="absolute bottom-3 left-0 w-full text-center">
                                   <p className="text-[8px] font-black text-indigo-600 uppercase tracking-widest">EduManage • Excellence in Education</p>
                               </div>
                           </div>
                       </div>
                   </div>
 
-                  <div className="p-8 bg-slate-50 border-t flex gap-3">
-                      <button onClick={handlePrintID} className="flex-1 py-5 bg-slate-900 text-white font-black uppercase tracking-widest text-[10px] rounded-[1.5rem] hover:bg-slate-800 transition flex items-center justify-center gap-2 shadow-xl shadow-slate-200">
+                  <div className="px-8 py-1 bg-slate-50 border-t flex gap-3">
+                      <button onClick={handlePrintID} className="flex-1 py-3 bg-slate-900 text-white font-black uppercase tracking-widest text-[10px] rounded-[1.5rem] hover:bg-slate-800 transition flex items-center justify-center gap-2 shadow-xl shadow-slate-200">
                           <FaDownload /> Print / Save ID
                       </button>
                   </div>

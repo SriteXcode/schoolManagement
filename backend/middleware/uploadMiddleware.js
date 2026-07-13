@@ -10,7 +10,7 @@ let storage;
 
 if (isConfigured) {
     console.log("☁️  Configuring Cloudinary with:", {
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME ? "EXISTS" : "MISSING",
         api_key: process.env.CLOUDINARY_API_KEY ? "EXISTS" : "MISSING"
     });
 

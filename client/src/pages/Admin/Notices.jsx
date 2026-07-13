@@ -10,6 +10,31 @@ const Notices = () => {
     const [targetAudience, setTargetAudience] = useState('All');
     const [targetClass, setTargetClass] = useState('');
     const [classes, setClasses] = useState([]);
+    const [filterType, setFilterType] = useState('week'); // 'week', 'month', 'year', 'all'
+
+    const filteredNotices = notices.filter(notice => {
+        const noticeDate = new Date(notice.date);
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+
+        if (filterType === 'week') {
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            oneWeekAgo.setHours(0, 0, 0, 0);
+            return noticeDate >= oneWeekAgo && noticeDate <= today;
+        }
+        if (filterType === 'month') {
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
+            oneMonthAgo.setHours(0, 0, 0, 0);
+            return noticeDate >= oneMonthAgo && noticeDate <= today;
+        }
+        if (filterType === 'year') {
+            const thisYearStart = new Date(new Date().getFullYear(), 0, 1);
+            return noticeDate >= thisYearStart && noticeDate <= today;
+        }
+        return true; // 'all'
+    });
 
     const fetchData = async () => {
         try {
@@ -98,24 +123,45 @@ const Notices = () => {
                 </form>
             </div>
 
-            <div className="space-y-4">
-                {notices.map(notice => (
-                    <div key={notice._id} className="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded shadow-sm relative">
-                        <div className="flex justify-between items-center">
-                            <h3 className="font-bold text-lg">{notice.title}</h3>
-                            <div className="flex flex-col items-end">
-                                <span className="text-sm text-gray-500">{new Date(notice.date).toLocaleDateString()}</span>
-                                <span className="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded mt-1">
-                                    {notice.targetAudience === 'Class' && notice.targetClass ? 
-                                        `Class ${notice.targetClass.grade}-${notice.targetClass.section}` : 
-                                        notice.targetAudience
-                                    }
-                                </span>
-                            </div>
-                        </div>
-                        <p className="mt-2 text-gray-700">{notice.details}</p>
+            <div className="bg-white p-6 rounded-lg shadow-md space-y-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
+                    <h2 className="text-xl font-bold text-gray-700 uppercase tracking-tight">Notice History</h2>
+                    <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-xl border">
+                        <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Filter:</span>
+                        <select 
+                            value={filterType} 
+                            onChange={e => setFilterType(e.target.value)}
+                            className="text-xs font-bold text-gray-700 bg-transparent outline-none border-none cursor-pointer"
+                        >
+                            <option value="week">Last 7 Days (1 Week)</option>
+                            <option value="month">Last 30 Days (1 Month)</option>
+                            <option value="year">This Year ({new Date().getFullYear()})</option>
+                            <option value="all">All Bulletins</option>
+                        </select>
                     </div>
-                ))}
+                </div>
+
+                <div className="space-y-4">
+                    {filteredNotices.length === 0 ? (
+                        <p className="text-center text-gray-400 font-bold italic py-6">No notices posted in this range.</p>
+                    ) : filteredNotices.map(notice => (
+                        <div key={notice._id} className="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded shadow-sm relative">
+                            <div className="flex justify-between items-center">
+                                <h3 className="font-bold text-lg">{notice.title}</h3>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-sm text-gray-500">{new Date(notice.date).toLocaleDateString()}</span>
+                                    <span className="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded mt-1">
+                                        {notice.targetAudience === 'Class' && notice.targetClass ? 
+                                            `Class ${notice.targetClass.grade}-${notice.targetClass.section}` : 
+                                            notice.targetAudience
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+                            <p className="mt-2 text-gray-700">{notice.details}</p>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     )

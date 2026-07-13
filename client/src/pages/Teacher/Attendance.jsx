@@ -13,7 +13,7 @@ const Attendance = () => {
   const [students, setStudents] = useState([]);
   const [attendanceData, setAttendanceData] = useState({});
   const [classStats, setClassStats] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   
   // Permission & Class Info
@@ -150,7 +150,7 @@ const Attendance = () => {
     toast.success("All students marked as Present");
   };
 
-  if (loading) return <Loader fullScreen text="Accessing Attendance Registers..." />;
+
 
   return (
     <div className="space-y-6 pb-20 md:pb-6 relative">
@@ -167,7 +167,9 @@ const Attendance = () => {
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
           >
-            <option value="" className="font-normal text-slate-400 italic">-- Choose Target Class --</option>
+            <option value="" className="font-normal text-slate-400 italic">
+              {classes.length === 0 ? "Loading classes..." : "-- Choose Target Class --"}
+            </option>
             {classes.map(c => (
                 <option key={c._id} value={c._id} className={isMyClass(c) ? "font-bold text-indigo-600" : "font-normal"}>
                     Grade {c.grade} - {c.section} {isMyClass(c) ? " (My Class)" : ""}
@@ -213,7 +215,33 @@ const Attendance = () => {
         </div>
       )}
 
-      {students.length > 0 && (
+      {/* Attendance Register Section */}
+      {!selectedClass ? (
+        <div className="bg-white p-12 rounded-2xl shadow-sm border border-gray-100 text-center space-y-4">
+            <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto">
+                <FaUserCheck size={28} />
+            </div>
+            <div>
+                <h3 className="text-lg font-black text-gray-800 uppercase tracking-widest">No Class Selected</h3>
+                <p className="text-xs text-gray-400 font-bold uppercase mt-1">Please select a class from the dropdown above to load the attendance register.</p>
+            </div>
+        </div>
+      ) : loading ? (
+        <div className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-gray-100 shadow-sm animate-pulse">
+            <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mb-4" />
+            <p className="text-xs font-black text-indigo-600 uppercase tracking-widest">Accessing Attendance Registers...</p>
+        </div>
+      ) : students.length === 0 ? (
+        <div className="bg-white p-12 rounded-2xl shadow-sm border border-gray-100 text-center space-y-4">
+            <div className="w-16 h-16 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mx-auto animate-bounce">
+                <FaInfoCircle size={28} />
+            </div>
+            <div>
+                <h3 className="text-lg font-black text-gray-800 uppercase tracking-widest">No Students Found</h3>
+                <p className="text-xs text-gray-400 font-bold uppercase mt-1">There are no students enrolled in this class.</p>
+            </div>
+        </div>
+      ) : (
         <div className="space-y-4">
           {/* Action Header for Mobile */}
           {canEdit && isEditing && (

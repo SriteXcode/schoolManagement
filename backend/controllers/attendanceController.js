@@ -18,8 +18,8 @@ exports.markAttendance = async (req, res) => {
     
     // Validate Class Teacher Permission
     // We assume the middleware adds 'req.user'
-    if (req.user.role === 'Teacher') {
-        const teacher = await Teacher.findOne({ user: req.user._id });
+    const teacher = await Teacher.findOne({ user: req.user._id });
+    if (teacher) {
         const targetClass = await Class.findById(sClass);
         
         if (!targetClass) {
