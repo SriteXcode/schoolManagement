@@ -181,9 +181,15 @@ const Marks = () => {
     
     setCreateLoading(true);
     setSubmitting(true);
+    
+    const sanitizedSubject = newExamSubject.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const sanitizedName = newExamName.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const generatedCode = `CT_${sanitizedSubject}_${sanitizedName}` || `CT_${Date.now()}`;
+    
     try {
       await api.post('/exam/create', {
         name: newExamName,
+        examCode: generatedCode,
         date: newExamDate,
         time: newExamTime,
         sClass: selectedClass,

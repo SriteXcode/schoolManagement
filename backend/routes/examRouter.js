@@ -3,7 +3,7 @@ const router = express.Router();
 const { createExam, getExams, getAllExams, bulkCreateExams, deleteExam, updateExam } = require("../controllers/examController");
 const { auth, authorizeRole } = require("../middleware/authMiddleware");
 
-const teacherRoles = ["Admin", "ExamCell"];
+const teacherRoles = ["Teacher", "Admin", "ExamCell", "AdmissionCell", "DisciplineCell", "SportsCell", "ManagementCell"];
 
 router.get("/all", auth, getAllExams);
 router.post("/create", auth, authorizeRole(...teacherRoles), createExam);

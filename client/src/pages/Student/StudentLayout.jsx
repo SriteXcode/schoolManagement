@@ -78,20 +78,20 @@ const StudentLayout = () => {
   const sidebarContent = (
     <div className="flex flex-col h-full bg-white md:bg-transparent">
         {/* Profile Section */}
-        <div className="p-4 pb-2">
-            <Link to="/student/profile" className="flex items-center space-x-3 p-3 bg-slate-50 rounded-2xl hover:bg-slate-100 transition group" onClick={() => setIsSidebarOpen(false)}>
-                {renderProfileImage("w-10 h-10")}
+        <div className="p-4 pb-2 pt-2">
+            <Link to="/student/profile" className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition group" onClick={() => setIsSidebarOpen(false)}>
+                {renderProfileImage("rounded-lg w-10 h-10")}
                 <div className="overflow-hidden text-left">
-                    <h2 className="font-black text-slate-800 truncate text-fluid-base">{student ? student.name : user.name}</h2>
+                    <h2 className="font-black text-slate-800 truncate text-fluid-base">{student ? student.name.split(" ")[0]: user.name.split(" ")[0]}</h2>
                     <p className="text-fluid-xs text-teal-600 font-bold uppercase tracking-widest">
-                        {student?.sClass ? `Class ${student.sClass.grade}-${student.sClass.section}` : user.role}
+                        {student?.sClass ? `Class : ${student.sClass.grade}-${student.sClass.section}` : user.role}
                     </p>
                 </div>
             </Link>
         </div>
 
         {/* Navigation Links */}
-        <div className="flex-1 px-4 py-2 space-y-1 overflow-y-auto custom-scrollbar text-left">
+        <div className="flex-1 px-4 py-2 space-y-1 overflow-y-auto scrollbar-hide custom-scrollbar text-left">
           {navLinks.map((link) => (
             <Link 
               key={link.to}
@@ -103,18 +103,18 @@ const StudentLayout = () => {
                 : 'text-slate-500 hover:bg-slate-50 hover:text-teal-600'
               }`}
             >
-              <span className="text-xl">{link.icon}</span>
-              <span>{link.label}</span>
+              <span className="text-lg">{link.icon}</span>
+              <span className="text-sm">{link.label}</span>
             </Link>
           ))}
         </div>
 
         {/* Logout Section */}
         <div className="p-4 pt-2 space-y-2">
-          <Link to="/" className="flex items-center justify-center p-2 text-slate-400 hover:text-slate-600 font-bold text-fluid-xs transition" onClick={() => setIsSidebarOpen(false)}>
+          <Link to="/" className="flex items-center justify-center p-2 text-slate-400 hover:text-slate-600 font-semibold text-md transition" onClick={() => setIsSidebarOpen(false)}>
              Exit Dashboard
           </Link>
-          <button onClick={handleLogout} className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-black shadow-sm text-fluid-sm">
+          <button onClick={handleLogout} className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-bold shadow-sm text-md">
             <FaSignOutAlt /> <span>Logout</span>
           </button>
         </div>
@@ -200,7 +200,7 @@ const StudentLayout = () => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 md:p-10 lg:p-12 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-10 md:pt-6 lg:p-12 lg:pt-8 overflow-y-auto">
             <div className="max-w-7xl mx-auto">
                 <Outlet context={{ student }} />
             </div>

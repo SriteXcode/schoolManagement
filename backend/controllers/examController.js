@@ -6,6 +6,16 @@ exports.createExam = async (req, res) => {
   try {
     const { name, examCode, sClass, date, time, shift, subject, maxMarks, syllabus, type } = req.body;
     
+    const resolvedShift = shift || "Morning";
+    const resolvedType = type || (req.user.role === "Admin" ? "Main Exam" : "Class Test");
+    
+    let resolvedExamCode = examCode;
+    if (!resolvedExamCode) {
+      const sanitizedSubject = (subject || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+      const sanitizedName = (name || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+      resolvedExamCode = `CT_${sanitizedSubject}_${sanitizedName}` || `CT_${Date.now()}`;
+    }
+    
     // Academic Session Validation
     try {
         await validateSessionDate(date);
@@ -28,7 +38,7 @@ exports.createExam = async (req, res) => {
     }
 
     // Check for time/date/shift conflict in this class
-    const conflict = await Exam.findOne({ sClass, date, time, shift });
+    const conflict = await Exam.findOne({ sClass, date, time, shift: resolvedShift });
     if (conflict) {
         return res.status(400).json({ message: `Scheduling conflict: Another test (${conflict.subject} - ${conflict.name}) is already scheduled for this class at this time/shift.` });
     }
@@ -48,15 +58,15 @@ exports.createExam = async (req, res) => {
 
     const exam = await Exam.create({
       name,
-      examCode,
+      examCode: resolvedExamCode,
       sClass,
       date,
       time,
-      shift,
+      shift: resolvedShift,
       subject,
       maxMarks,
       syllabus,
-      type: type || (req.user.role === "Admin" ? "Main Exam" : "Class Test"),
+      type: resolvedType,
       creator: creatorId,
       creatorModel: creatorModel
     });

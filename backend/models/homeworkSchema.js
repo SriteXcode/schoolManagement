@@ -24,6 +24,10 @@ const homeworkSchema = new mongoose.Schema({
   dueDate: {
     type: Date,
   },
+  teacher: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Teacher",
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Homework", homeworkSchema);

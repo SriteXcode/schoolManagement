@@ -18,12 +18,20 @@ exports.createHomework = async (req, res) => {
     const defaultDueDate = new Date();
     defaultDueDate.setDate(defaultDueDate.getDate() + 1);
     
+    let teacherId = null;
+    const Teacher = require("../models/teacherSchema");
+    const teacher = await Teacher.findOne({ user: req.user._id });
+    if (teacher) {
+        teacherId = teacher._id;
+    }
+    
     const homework = await Homework.create({
       sClass,
       subject,
       title,
       description,
       dueDate: dueDate || defaultDueDate,
+      teacher: teacherId,
     });
 
     res.status(201).json({ message: "Homework created successfully", homework });
@@ -35,7 +43,7 @@ exports.createHomework = async (req, res) => {
 exports.getHomework = async (req, res) => {
   try {
     const { sClass } = req.params;
-    const homework = await Homework.find({ sClass }).sort({ date: -1 });
+    const homework = await Homework.find({ sClass }).populate("teacher").sort({ date: -1 });
 
     // If student, attach their personal status for each homework
     if (req.user.role === 'Student') {
