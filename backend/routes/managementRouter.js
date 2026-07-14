@@ -27,10 +27,10 @@ router.get("/salary/receipt/:id", auth, getSalaryReceipt);
 // Transport
 router.post("/bus/add", auth, authorizeRole(...mgmtRoles), addBus);
 router.get("/bus/all", auth, getAllBuses); // Accessible to all logged-in users
+router.put("/bus/nickname", auth, updateBusNickname); // Students can also update nickname
 router.put("/bus/:id", auth, authorizeRole(...mgmtRoles), updateBus);
 router.post("/bus/assign-student", auth, authorizeRole(...mgmtRoles), assignStudentToBus);
 router.get("/bus/:busId/students", auth, authorizeRole(...mgmtRoles), getStudentsByBus);
-router.put("/bus/nickname", auth, updateBusNickname); // Students can also update nickname
 
 // Scheduling & Timetable
 router.post("/schedule/phase/add", auth, authorizeRole(...mgmtRoles), addSchedulePhase);

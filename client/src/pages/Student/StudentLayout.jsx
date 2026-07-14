@@ -202,7 +202,7 @@ const StudentLayout = () => {
         {/* Page Content */}
         <main className="flex-1 p-4 md:p-10 md:pt-6 lg:p-12 lg:pt-8 overflow-y-auto">
             <div className="max-w-7xl mx-auto">
-                <Outlet context={{ student }} />
+                <Outlet context={{ student, setStudent }} />
             </div>
         </main>
       </div>

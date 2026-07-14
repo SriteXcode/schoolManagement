@@ -32,8 +32,8 @@ const StudentAttendance = () => {
     <div className="space-y-6">
        <h1 className="text-3xl font-bold text-gray-800">My Attendance</h1>
 
-       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-           <div className={`col-span-2 p-6 rounded-lg text-white shadow-lg ${percentage >= 75 ? 'bg-green-500' : 'bg-red-500'}`}>
+       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+           <div className={`col-span-2 px-6 py-2 rounded-lg text-white shadow-lg ${percentage >= 75 ? 'bg-green-500' : 'bg-red-500'}`}>
                <h3 className="text-xl font-bold">Attendance Rate</h3>
                <p className="text-4xl font-bold mt-2">{percentage}%</p>
                <p className="text-sm mt-1 opacity-80">{percentage >= 75 ? 'Good Job!' : 'Needs Improvement'}</p>
@@ -50,7 +50,7 @@ const StudentAttendance = () => {
            </div>
        </div>
 
-       <div className="bg-white p-6 rounded-lg shadow-md mt-6">
+       <div className="bg-white px-6 py-2 rounded-lg shadow-md mt-2">
            <h3 className="text-xl font-bold mb-4">Attendance Calendar</h3>
            <AttendanceCalendar studentId={student?._id} />
        </div>

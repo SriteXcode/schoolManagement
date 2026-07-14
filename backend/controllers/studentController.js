@@ -176,7 +176,7 @@ exports.getStudentProfile = async (req, res) => {
   try {
     const student = await Student.findOne({ user: req.user._id })
         .populate("sClass")
-        .populate("bus")
+        .populate({ path: "bus", populate: { path: "driver" } })
         .populate("reviews.reviewer", "name role");
     if (!student) {
       return res.status(404).json({ message: "Student profile not found" });
