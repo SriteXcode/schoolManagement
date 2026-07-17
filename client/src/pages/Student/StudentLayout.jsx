@@ -151,7 +151,7 @@ const StudentLayout = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex h-screen bg-slate-50 overflow-hidden">
       {/* Desktop Sidebar */}
       <div className="hidden md:block w-64 sticky top-0 h-screen">
         {sidebarContent}
@@ -200,7 +200,7 @@ const StudentLayout = () => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 md:p-10 md:pt-6 lg:p-12 lg:pt-8 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-10 md:pt-6 lg:p-12 lg:pt-8 overflow-y-auto overflow-hidden scrollbar-hide custom-scrollbar">
             <div className="max-w-7xl mx-auto">
                 <Outlet context={{ student, setStudent }} />
             </div>

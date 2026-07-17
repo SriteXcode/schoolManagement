@@ -262,9 +262,7 @@ const StudentHome = () => {
     }, [student]);
 
     const getSyllabusStats = (syllabus) => {
-        const total = syllabus.chapters?.length || 0;
-        const completed = syllabus.chapters?.filter(c => c.status === 'Completed').length || 0;
-        const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+        const percentage = syllabus.totalProgress || 0;
 
         const lastCompleted = [...(syllabus.chapters || [])]
             .filter(c => c.status === 'Completed')
@@ -935,7 +933,7 @@ const StudentHome = () => {
                                             </div>
                                             <div>
                                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-1">Vehicle ID</span>
-                                                <h4 className="font-black text-amber-600 text-fluid-lg uppercase">#{student.bus.busNumber}</h4>
+                                                <h4 className="font-black text-amber-600 text-fluid-sm uppercase">#{student.bus.busNumber}</h4>
                                             </div>
                                         </div>
 
@@ -945,7 +943,7 @@ const StudentHome = () => {
                                             </div>
                                             <div>
                                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-1">Assigned Route</span>
-                                                <h4 className="font-black text-slate-900 text-fluid-lg uppercase">{student.bus.route}</h4>
+                                                <h4 className="font-black text-slate-900 text-fluid-sm uppercase">{student.bus.route}</h4>
                                             </div>
                                         </div>
                                     </div>
@@ -957,7 +955,7 @@ const StudentHome = () => {
                                             </div>
                                             <div className="flex-1">
                                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-1">Route Operator</span>
-                                                <h4 className="font-black text-slate-900 text-fluid-lg">{student.bus.driver?.name || "Assigning Operator..."}</h4>
+                                                <h4 className="font-black text-slate-900 text-fluid-sm">{student.bus.driver?.name || "Assigning Operator..."}</h4>
                                                 <p className="text-[14px] font-bold text-slate-400 mt-1">EMERGENCY:</p>
                                                 {student.bus.driver?.phone && (
                                                     <p className="text-[12px] font-bold text-slate-400 mt-1">{student.bus.driver.phone}</p>
@@ -987,7 +985,7 @@ const StudentHome = () => {
                                 </div>
                                 <div className="text-left w-74">
                                     <span className="text-fluid-xs font-black text-teal-600 uppercase tracking-widest block mb-1">Class Teacher</span>
-                                    <h4 className="font-black text-slate-900 truncate max-w-[240px] text-fluid-base">
+                                    <h4 className="font-black text-slate-900 truncate max-w-[240px] text-fluid-sm">
                                         {classDetails?.classTeacher?.name || "Unassigned"}
                                     </h4>
                                     <p className="text-[10px] text-teal-700/60 truncate max-w-[240px]">{classDetails?.classTeacher?.email}</p>
@@ -1002,7 +1000,7 @@ const StudentHome = () => {
                                     </div>
                                     <div className="text-left w-74">
                                         <span className="text-fluid-xs font-black text-slate-400 uppercase tracking-widest block mb-1">{sub.subName}</span>
-                                        <h4 className="font-black text-slate-900 truncate max-w-[240px] text-fluid-base">
+                                        <h4 className="font-black text-slate-900 truncate max-w-[240px] text-fluid-sm">
                                             {sub.teacher?.name || "TBA"}
                                         </h4>
                                     </div>
@@ -1036,7 +1034,7 @@ const StudentHome = () => {
 
                             {/* Review Row - Scrollable */}
                             <div className="w-full overflow-hidden">
-                                <h3 className="text-md font-black uppercase text-slate-400 tracking-widest mb-2">Recent Feedback</h3>
+                                <h3 className="text-sm font-black uppercase text-slate-400 tracking-widest mb-4">Recent Feedback</h3>
                                 <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4">
                                     {student.reviews && student.reviews.length > 0 ? (
                                         [...student.reviews].reverse().map((review, idx) => (
@@ -1046,15 +1044,15 @@ const StudentHome = () => {
                                                 className="min-w-[175px] flex-shrink-0 snap-start px-3 py-2 rounded-lg bg-slate-50 hover:bg-white hover:shadow-md transition-all relative border-l-3 border-indigo-500 group cursor-pointer"
                                             >
                                                 <div className="flex items-center gap-4 justify-start mb-2">
-                                                    <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">{new Date(review.date).toLocaleDateString()}</span>
+                                                    <span className="text-fluid-xs font-bold text-slate-400 uppercase tracking-widest">{new Date(review.date).toLocaleDateString()}</span>
                                                     {renderStars(review.rating)}
                                                 </div>
-                                                <p className="max-h-16 min-h-6 max-w-[170px] text-sm overflow-y-auto scrollbar-hide custom-scrollbar text-slate-600 leading-relaxed font-medium mb-2 italic line-clamp-3">"{review.comment}"</p>
+                                                <p className="max-h-16 min-h-6 w-[250px] md:w-[170px] text-sm overflow-y-auto scrollbar-hide custom-scrollbar text-slate-600 leading-relaxed font-medium mb-2 italic line-clamp-3">"{review.comment}"</p>
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-6 h-6 rounded-lg bg-white flex items-center justify-center text-[10px] font-black text-slate-500 shadow-sm">
                                                         {review.reviewer?.name?.charAt(0) || 'T'}
                                                     </div>
-                                                    <span className="text-xs font-black text-slate-500 uppercase tracking-widest">{review.reviewer?.name.slice(0, 18) || 'Faculty'}</span>
+                                                    <span className="text-fluid-xs font-black text-slate-500 uppercase tracking-widest">{review.reviewer?.name.slice(0, 18) || 'Faculty'}</span>
                                                 </div>
                                             </div>
                                         ))
@@ -1070,25 +1068,25 @@ const StudentHome = () => {
 
                     {/* Bulletins Section */}
                     <div className="bg-white rounded-lg border-t-2 border-green-500 shadow-soft px-8 py-4 overflow-hidden">
-                        <h2 className="text-fluid-2xl font-black text-slate-900 mb-4 flex items-center gap-3 tracking-tight">
+                        <h3 className="text-xl font-black text-slate-900 mb-4 flex items-center gap-3 tracking-tight">
                             <div className="bg-orange-50 p-2 rounded-xl text-orange-500">
                                 <FaBullhorn />
                             </div>
                             Bulletins
-                        </h2>
+                        </h3>
 
                         <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4">
                             {notices.length > 0 ? notices.slice(0, 5).map(notice => (
                                 <div
                                     key={notice._id}
                                     onClick={() => setSelectedNotice(notice)}
-                                    className="w-[200px] flex-shrink-0 snap-start group cursor-pointer p-6 bg-slate-50 rounded-3xl hover:bg-white hover:shadow-md transition-all border-t-4 border-orange-500/20 hover:border-orange-500 transition-colors"
+                                    className="w-[250px] md:w-[200px] flex-shrink-0 snap-start group cursor-pointer p-6 bg-slate-50 rounded-3xl hover:bg-white hover:shadow-md transition-all border-t-4 border-orange-500/20 hover:border-orange-500 transition-colors"
                                 >
                                     <div className="flex justify-between items-center mb-4">
-                                        <span className="text-fluid-xs font-black text-slate-400 uppercase tracking-widest">{new Date(notice.date).toLocaleDateString()}</span>
+                                        <span className="text-fluid-xs font-bold text-slate-400 uppercase tracking-widest">{new Date(notice.date).toLocaleDateString()}</span>
                                         <div className="w-2 h-2 rounded-full bg-orange-200 group-hover:bg-orange-500 transition-colors"></div>
                                     </div>
-                                    <h4 className="font-black text-slate-800 text-fluid-md group-hover:text-orange-600 transition-colors leading-tight mb-3 line-clamp-1">{notice.title}</h4>
+                                    <h4 className="font-bold text-slate-800 text-fluid-sm group-hover:text-orange-600 transition-colors leading-tight mb-3 line-clamp-1">{notice.title}</h4>
                                     <p className="text-fluid-sm text-slate-600 line-clamp-2">{notice.details.slice(0, 30)}...</p>
                                 </div>
                             )) : (
@@ -1162,7 +1160,7 @@ const StudentHome = () => {
                                                 : 'bg-blue-100 text-blue-700'
                                             }`}>{event.type === 'Exam' ? 'Exam Info' : event.type}</span>
                                     </div>
-                                    <h4 className="font-black text-slate-800 text-fluid-base leading-tight mb-1">{event.title}</h4>
+                                    <h4 className="font-bold text-slate-800 text-fluid-md leading-tight mb-2">{event.title}</h4>
                                     <p className="text-xs font-bold text-gray-500 line-clamp-2 italic">"{event.description}"</p>
                                 </div>
                             )) : (

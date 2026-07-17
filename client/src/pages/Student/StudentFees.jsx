@@ -80,14 +80,14 @@ const StudentFees = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-10 space-y-10">
+    <div className="max-w-6xl mx-auto p-4 md:px-10 space-y-4">
       {/* Financial Summary Header */}
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
-          <div className="bg-indigo-600 p-8 text-white flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden sticky -top-8">
+          <div className="bg-indigo-600 px-8 py-4 text-white flex flex-col md:flex-row justify-between items-center gap-6">
               <div>
-                  <h1 className="text-3xl font-black flex items-center gap-3">
+                  <h3 className="text-3xl font-black flex items-center gap-3">
                       <CreditCard size={32} /> Academic Ledger
-                  </h1>
+                  </h3>
                   <p className="text-indigo-100 font-medium mt-1 uppercase tracking-widest text-[10px]">Session {feeData.academicYear}</p>
               </div>
               <div className="flex gap-8 text-center">
@@ -108,9 +108,9 @@ const StudentFees = () => {
               </div>
           </div>
           
-          <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="px-8 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-indigo-600 shadow-sm">
+                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-indigo-600 shadow-sm">
                       <Calendar size={20} />
                   </div>
                   <div>
@@ -128,8 +128,8 @@ const StudentFees = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Monthly Fee List */}
-          <div className="lg:col-span-2 space-y-6">
-              <h2 className="text-2xl font-black text-gray-800 px-2">Payment Schedule</h2>
+          <div className="lg:col-span-2 space-y-4">
+              <h3 className="text-2xl font-black text-gray-800 px-2">Payment Schedule</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {feeData.monthlyFees.map((m, idx) => {
                     const monthTotal = m.charges.reduce((acc, c) => acc + c.amount, 0);
@@ -138,17 +138,17 @@ const StudentFees = () => {
                     return (
                         <div 
                             key={idx} 
-                            className={`bg-white rounded-[2rem] border transition-all duration-300 overflow-hidden flex flex-col h-fit ${isExpanded ? 'border-indigo-500 ring-4 ring-indigo-50 shadow-lg' : 'border-gray-100 hover:border-gray-200 shadow-sm'}`}
+                            className={`bg-white rounded-lg border transition-all duration-300 overflow-hidden flex flex-col h-fit ${isExpanded ? 'border-indigo-500 ring-4 ring-indigo-50 shadow-lg' : 'border-gray-100 hover:border-gray-200 shadow-sm'}`}
                         >
                             {/* Month Header Card */}
                             <div 
                                 onClick={() => setExpandedMonth(isExpanded ? null : m.month)}
-                                className={`p-6 cursor-pointer select-none transition-colors ${isExpanded ? 'bg-indigo-50/50' : 'hover:bg-gray-50'}`}
+                                className={`px-6 py-4 cursor-pointer select-none transition-colors ${isExpanded ? 'bg-indigo-50/50' : 'hover:bg-gray-50'}`}
                             >
-                                <div className="flex justify-between items-start mb-4">
+                                <div className="flex justify-between items-start mb-2">
                                     <div>
                                         <h3 className="text-xl font-black text-gray-800">{m.month}</h3>
-                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Due: {new Date(m.dueDate).toLocaleDateString()}</div>
+                                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Due: {new Date(m.dueDate).toLocaleDateString()}</div>
                                     </div>
                                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusColor(m.status)}`}>
                                         {m.status}
@@ -157,8 +157,8 @@ const StudentFees = () => {
 
                                 <div className="flex justify-between items-end">
                                     <div>
-                                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Monthly Amount</div>
-                                        <div className="text-2xl font-black text-gray-800">₹{monthTotal}</div>
+                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Monthly Amount</div>
+                                        <div className="text-xl font-black text-gray-800">₹{monthTotal}</div>
                                     </div>
                                     {isExpanded ? <ChevronUp className="text-indigo-400" /> : <ChevronDown className="text-gray-300" />}
                                 </div>
@@ -185,7 +185,7 @@ const StudentFees = () => {
                                     </div>
 
                                     {/* Payment Progress */}
-                                    <div className="pt-4 border-t border-dashed border-gray-200">
+                                    <div className="pt-0 border-t border-dashed border-gray-200">
                                         <div className="flex justify-between text-[10px] font-black uppercase tracking-widest mb-1">
                                             <span className="text-gray-400">Paid: ₹{m.paidAmount}</span>
                                             <span className="text-indigo-600">Remaining: ₹{monthTotal - m.paidAmount}</span>
@@ -212,19 +212,19 @@ const StudentFees = () => {
           </div>
 
           {/* Transaction History Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-              <h2 className="text-2xl font-black text-gray-800 px-2">Recent Payments</h2>
-              <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-6 space-y-4">
+          <div className="lg:col-span-1 space-y-4">
+              <h3 className="text-2xl font-black text-gray-800 px-2">Recent Payments</h3>
+              <div className="bg-white rounded-lg border border-gray-100 shadow-sm px-4 py-2 space-y-4">
                   {(feeData.transactions || []).length > 0 ? (
                       [...feeData.transactions].reverse().map((txn, tIdx) => (
-                          <div key={tIdx} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-indigo-100 transition-all group">
+                          <div key={tIdx} className="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-2xl border border-transparent hover:border-indigo-100 transition-all group">
                               <div className="flex items-center gap-3">
                                   <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-indigo-600 shadow-sm">
                                       <CheckCircle size={18} />
                                   </div>
                                   <div>
                                       <div className="text-xs font-black text-gray-800">₹{txn.amount}</div>
-                                      <div className="text-[9px] font-bold text-gray-400 uppercase">{txn.month} Payment</div>
+                                      <div className="text-[8px] font-bold text-gray-400 uppercase">{txn.month} Payment</div>
                                   </div>
                               </div>
                               <button 

@@ -46,12 +46,12 @@ const StudentComms = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800">Raise an Issue or Feedback</h1>
+    <div className="space-y-2">
+      <h1 className="text-3xl font-bold text-gray-800 rounded-lg">Raise an Issue or Feedback</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Form */}
-        <div className="bg-white p-6 rounded-lg shadow-md border-t-4 border-indigo-600">
+        <div className="bg-white px-6 py-2 rounded-lg shadow-md border-t-4 h-[75vh] overflow-y-auto overflow-hidden scrollbar-hide custom-scrollbar border-indigo-600">
             <h2 className="text-xl font-bold mb-4 text-gray-700">Compose Message</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>

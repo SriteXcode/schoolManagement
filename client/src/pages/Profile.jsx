@@ -34,6 +34,7 @@ const Profile = () => {
   });
 
   const [buses, setBuses] = useState([]);
+  const [schoolConfig, setSchoolConfig] = useState(null);
 
   const handlePrintID = () => {
     const frontContent = document.getElementById('id-card-front').innerHTML;
@@ -81,6 +82,13 @@ const Profile = () => {
   useEffect(() => {
       const fetchProfile = async () => {
           try {
+              try {
+                  const schoolRes = await api.get('/management/school/config');
+                  setSchoolConfig(schoolRes.data);
+              } catch (schoolErr) {
+                  console.error("Failed to load school config:", schoolErr);
+              }
+              
               let res;
               if (isStudent) {
                   res = await api.get('/student/profile');
@@ -446,7 +454,7 @@ const Profile = () => {
       {/* ID Card Modal */}
       {showIDCard && profileData && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setShowIDCard(false)}>
-              <div className="bg-white rounded-2xl max-h-[95vh] shadow-2xl max-w-md w-full overflow-hidden flex flex-col animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+              <div className="bg-white rounded-2xl max-h-[95vh] shadow-2xl max-w-[480px] w-full overflow-hidden flex flex-col animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
                   <div className="px-8 pt-4 border-b flex justify-between items-center">
                       <div>
                         <h3 className="text-xl font-black text-slate-900 tracking-tighter uppercase">Academy Identity</h3>
@@ -455,124 +463,142 @@ const Profile = () => {
                       <button onClick={() => setShowIDCard(false)} className="bg-slate-100 p-2 rounded-full text-slate-400 hover:text-slate-600 transition-colors"><FaTimes size={18}/></button>
                   </div>
                   
-                  <div className="px-8 perspective-1000">
+                  <div className="px-8 py-6 perspective-1000">
                       <div 
-                        className={`relative w-full h-[450px] transition-all duration-700 preserve-3d cursor-pointer ${isFlipped ? 'rotate-y-180' : ''}`}
+                        className={`relative w-full h-[260px] transition-all duration-700 preserve-3d cursor-pointer ${isFlipped ? 'rotate-y-180' : ''}`}
                         onClick={() => setIsFlipped(!isFlipped)}
                       >
                           {/* Front Side */}
-                          <div id="id-card-front" className="absolute pb-8 inset-0 w-full h-full bg-gray-700/60 rounded-2xl shadow-2xl backface-hidden text-white flex flex-col items-center p-4 overflow-scroll scrollbar-hide custom-scrollbar">
-                              <div className="absolute top-0 left-0 w-full h-16 bg-white/5 backdrop-blur-md flex items-center justify-between px-8 border-b border-white/5">
-                                  <div className="flex ">
-                                  <div className="w-8 h-8 bg-indigo-600 rounded-md flex items-center justify-center font-black text-lg mr-3 shadow-lg"><FaSchool /></div>
-                                     <div  className="flex flex-col items-start justify-center">
-
-                                      <h4 className="font-black text-xs tracking-tighter uppercase leading-none">EduManage Pro</h4>
-                                      <p className="text-[7px] font-bold text-white/40 tracking-widest uppercase mt-1">College address</p>
-                                     </div>
-                                  </div>
-                                  <div className="">
-                                      <h4 className="font-black text-xs tracking-tighter uppercase leading-none">Session</h4>
-                                      <p className="text-[7px] font-bold text-white/40 tracking-widest uppercase mt-1">{academicYear}</p>
-                                  </div>
-                              </div>
-
-                              <div className="mt-16 flex items-center justify-center relative">
-                                  <div className="absolute inset-0 bg-indigo-500 rounded-lg blur-2xl opacity-20"></div>
-                                  <img src={formData.profileImage || "https://cdn-icons-png.flaticon.com/512/149/149071.png"} alt="Profile" className="w-28 h-28 rounded-lg object-cover border-4 border-white/10 shadow-2xl relative z-10" />
-                              </div>
-
-                              <div className="mt-2 text-center">
-                                  <h3 className="text-xl font-black tracking-tighter uppercase">{user.name}</h3>
-                                  <p className="font-black text-[9px] uppercase tracking-[0.2em] text-indigo-400 mt-0">{user.role}</p>
-                              </div>
-
-                              <div className="grid grid-cols-2 justify-around gap-x-6 gap-y-3 w-full border-t border-white/5 pt-2 text-left">
-                                  <div>
-                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Enrollment</p>
-                                      <p className="font-black text-[10px] mt-0.5 truncate">{isStudent ? profileData.rollNum : 'EMP-...'+profileData._id.toString().slice(-4).toUpperCase()}</p>
-                                  </div>
-                                  <div>
-                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Class</p>
-                                      <p className="font-black text-[10px] mt-0.5">{isStudent ? `${profileData.sClass?.grade}-${profileData.sClass?.section}` : 'Faculty'}</p>
-                                  </div>
-                                  <div>
-                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Parent/Guardian</p>
-                                      <p className="font-black text-[10px] mt-0.5 truncate">{profileData.guardianName || 'Not Provided'}</p>
-                                  </div>
-                                  <div>
-                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Phone</p>
-                                      <p className="font-black text-[10px] mt-0.5">{user.phone}</p>
-                                  </div>
-                                  <div className="col-span-2">
-                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Address</p>
-                                      <p className="font-black text-[9px] mt-0.5 line-clamp-1 italic">{profileData.address || 'Campus Resident'}</p>
-                                  </div>
-                                  <div>
-                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Transport</p>
-                                      <p className="font-black text-[9px] mt-0.5 flex items-center gap-1">
-                                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                          {profileData.transportMode || 'By Foot'}
-                                      </p>
+                          <div id="id-card-front" className="absolute inset-0 w-full h-full bg-slate-900 rounded-2xl shadow-2xl backface-hidden text-white flex flex-col p-5 border border-white/10 overflow-hidden select-none">
+                              {/* Header Bar */}
+                              <div className="w-full flex items-center justify-between pb-2.5 border-b border-white/10 mb-4">
+                                  <div className="flex items-center gap-2">
+                                      <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                                          {schoolConfig?.logo ? (
+                                              <img src={schoolConfig.logo} alt="Logo" className="w-8 h-8 object-contain rounded-md" />
+                                          ) : (
+                                              <div className="w-8 h-8 bg-indigo-600 rounded-md flex items-center justify-center font-black text-white text-lg shadow-lg"><FaSchool /></div>
+                                          )}
+                                      </div>
+                                      <div className="flex flex-col items-start justify-center text-left">
+                                          <h4 className="font-black text-[11px] tracking-tight uppercase leading-none">
+                                              {schoolConfig?.name || "EduManage Pro"}
+                                          </h4>
+                                          <p className="text-[6px] font-bold text-white/40 tracking-widest uppercase mt-0.5 truncate max-w-[180px]">
+                                              {schoolConfig?.address || "College Address"}
+                                          </p>
+                                      </div>
                                   </div>
                                   <div className="text-right">
-                                      <p className="text-[7px] font-black text-white/70 uppercase tracking-widest">Blood Group</p>
-                                      <p className="font-black text-[10px] mt-0.5 text-rose-400">{profileData.bloodGroup || 'Unknown'}</p>
+                                      <h4 className="font-black text-[10px] tracking-tight uppercase leading-none">Session</h4>
+                                      <p className="text-[6px] font-bold text-white/40 tracking-widest uppercase mt-0.5">
+                                          {schoolConfig?.sessionStart && schoolConfig?.sessionEnd ? 
+                                              `${new Date(schoolConfig.sessionStart).getFullYear()}-${new Date(schoolConfig.sessionEnd).getFullYear()}` : 
+                                              academicYear
+                                          }
+                                      </p>
                                   </div>
                               </div>
 
-                              <div className="absolute bottom-0 left-0 w-full p-3 bg-white/5 text-center border-t border-white/5">
-                                  <p className="text-[8px] font-bold text-white/100 uppercase tracking-[0.2em]">{user.email}</p>
-                              </div>
-                          </div>
+                              {/* Main Content Area (Landscape Flex) */}
+                              <div className="flex flex-1 gap-5 items-start w-full">
+                                  {/* Left Column: Photo & Name */}
+                                  <div className="w-24 flex-shrink-0 flex flex-col items-center">
+                                      <div className="w-20 h-20 rounded-lg overflow-hidden border-2 border-white/20 shadow-md">
+                                          <img src={formData.profileImage || "https://cdn-icons-png.flaticon.com/512/149/149071.png"} alt="Profile" className="w-full h-full object-cover" />
+                                      </div>
+                                      <h3 className="text-xs font-black tracking-tight uppercase mt-2.5 text-center truncate w-full">{user.name}</h3>
+                                      <span className="font-black text-[7px] uppercase tracking-[0.2em] text-indigo-400 mt-0.5">{user.role}</span>
+                                  </div>
 
-                          {/* Back Side */}
-                          <div id="id-card-back" className="absolute inset-0 w-full h-full bg-white rounded-2xl shadow-2xl backface-hidden rotate-y-180 flex flex-col px-10 py-6 border-2 border-slate-100 text-slate-800">
-                              <div className="flex items-center gap-2 mb-4 border-b border-slate-100">
-                                  <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg"><FaSchool size={12}/></div>
-                                  <h4 className="font-black text-xs text-slate-800 uppercase tracking-widest">Student Guidelines</h4>
-                              </div>
-                              
-                              <div className="flex-1 flex flex-col justify-center space-y-4">
-                                  <ul className="space-y-2.5">
-                                      {[
-                                          "Always carry this ID card while on campus or representing the school.",
-                                          "The card is non-transferable and must be presented on demand by school authorities.",
-                                          "Report any loss of this card to the Admission Office immediately.",
-                                          "Abide by all school rules and maintain academic integrity at all times.",
-                                          "Keep this card safe from heat, moisture, and sharp objects."
-                                      ].map((rule, i) => (
-                                          <li key={i} className="flex gap-3 items-start">
-                                              <span className="w-4 h-4 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-[8px] font-black flex-shrink-0 mt-0.5">{i+1}</span>
-                                              <p className="text-[10px] font-bold text-slate-500 leading-relaxed">{rule}</p>
-                                          </li>
-                                      ))}
-                                  </ul>
-
-                                  <div className="pt-4 border-2 border-dashed border-slate-200">
-                                      <div className="flex items-center justify-between">
-                                          <div className="text-center">
-                                              <div className="w-24 h-10 text-[7px] bg-slate-50 rounded-lg mb-2 border-4 border-slate-100">signature</div>
-                                              <p className="text-[7px] font-black text-slate-400 uppercase">Issuing Authority</p>
-                                          </div>
-                                          <div className="text-right">
-                                              <div className="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center mb-2 mx-auto overflow-hidden border border-slate-100">
-                                                  <div className="text-[6px] font-black text-slate-300 uppercase rotate-45">QR CODE</div>
-                                              </div>
-                                              <p className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">Scan for Verification</p>
-                                          </div>
+                                  {/* Right Column: Details Grid */}
+                                  <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-2 text-left">
+                                      <div>
+                                          <p className="text-[6px] font-black text-white/50 uppercase tracking-widest leading-none">Enrollment</p>
+                                          <p className="font-black text-[9px] mt-0.5 truncate text-white">{isStudent ? profileData.rollNum : 'EMP-...'+profileData._id.toString().slice(-4).toUpperCase()}</p>
+                                      </div>
+                                      <div>
+                                          <p className="text-[6px] font-black text-white/50 uppercase tracking-widest leading-none">Class</p>
+                                          <p className="font-black text-[9px] mt-0.5 text-white">{isStudent ? `${profileData.sClass?.grade}-${profileData.sClass?.section}` : 'Faculty'}</p>
+                                      </div>
+                                      <div>
+                                          <p className="text-[6px] font-black text-white/50 uppercase tracking-widest leading-none">Parent/Guardian</p>
+                                          <p className="font-black text-[9px] mt-0.5 truncate text-white">{profileData.guardianName || 'Not Provided'}</p>
+                                      </div>
+                                      <div>
+                                          <p className="text-[6px] font-black text-white/50 uppercase tracking-widest leading-none">Phone</p>
+                                          <p className="font-black text-[9px] mt-0.5 text-white">{user.phone}</p>
+                                      </div>
+                                      <div className="col-span-2">
+                                          <p className="text-[6px] font-black text-white/50 uppercase tracking-widest leading-none">Address</p>
+                                          <p className="font-black text-[8px] mt-0.5 line-clamp-1 italic text-white/80">{profileData.address || 'Campus Resident'}</p>
+                                      </div>
+                                      <div>
+                                          <p className="text-[6px] font-black text-white/50 uppercase tracking-widest leading-none">Transport</p>
+                                          <p className="font-black text-[8px] mt-0.5 flex items-center gap-1 text-white">
+                                              <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
+                                              {profileData.transportMode || 'By Foot'}
+                                          </p>
+                                      </div>
+                                      <div className="text-right">
+                                          <p className="text-[6px] font-black text-white/50 uppercase tracking-widest leading-none">Blood Group</p>
+                                          <p className="font-black text-[9px] mt-0.5 text-rose-400">{profileData.bloodGroup || 'Unknown'}</p>
                                       </div>
                                   </div>
                               </div>
 
-                              <div className="absolute bottom-3 left-0 w-full text-center">
-                                  <p className="text-[8px] font-black text-indigo-600 uppercase tracking-widest">EduManage • Excellence in Education</p>
+                              {/* Footer Email */}
+                              <div className="w-full mt-2 pt-1 border-t border-white/5 text-center">
+                                  <p className="text-[7px] font-bold text-white/30 uppercase tracking-[0.2em]">{user.email}</p>
+                              </div>
+                          </div>
+
+                          {/* Back Side */}
+                          <div id="id-card-back" className="absolute inset-0 w-full h-full bg-white rounded-2xl shadow-2xl backface-hidden rotate-y-180 flex flex-col p-5 border border-slate-200 text-slate-800 overflow-hidden select-none">
+                              <div className="flex items-center gap-2 pb-2 mb-3 border-b border-slate-100 w-full">
+                                  <div className="p-1 bg-indigo-50 text-indigo-600 rounded-md"><FaSchool size={10}/></div>
+                                  <h4 className="font-black text-[10px] text-slate-800 uppercase tracking-widest">Student Guidelines</h4>
+                              </div>
+                              
+                              <div className="flex-1 flex gap-4 w-full">
+                                  {/* Left Column: Guidelines */}
+                                  <ul className="flex-1 space-y-1.5 text-left">
+                                      {[
+                                          "Always carry this ID card while on campus or representing the school.",
+                                          "The card is non-transferable and must be presented on demand.",
+                                          "Report any loss of this card to the Office immediately.",
+                                          "Abide by all school rules and maintain academic integrity."
+                                      ].map((rule, i) => (
+                                          <li key={i} className="flex gap-2 items-start">
+                                              <span className="w-3.5 h-3.5 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-[7px] font-black flex-shrink-0 mt-0.5">{i+1}</span>
+                                              <p className="text-[8px] font-bold text-slate-500 leading-normal">{rule}</p>
+                                          </li>
+                                      ))}
+                                  </ul>
+
+                                  {/* Right Column: Authority Signature & QR */}
+                                  <div className="w-28 flex-shrink-0 flex flex-col justify-between border-l border-slate-100 pl-3">
+                                      <div className="text-center">
+                                          <div className="w-full h-8 text-[6px] bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100 italic text-slate-400">signature</div>
+                                          <p className="text-[6px] font-black text-slate-400 uppercase mt-1">Issuing Authority</p>
+                                      </div>
+                                      <div className="text-center">
+                                          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center mx-auto overflow-hidden border border-slate-100">
+                                              <div className="text-[4px] font-black text-slate-300 uppercase rotate-45">QR CODE</div>
+                                          </div>
+                                          <p className="text-[5px] font-black text-slate-400 uppercase tracking-tighter mt-1">Scan for Verification</p>
+                                      </div>
+                                  </div>
+                              </div>
+
+                              <div className="w-full mt-2 pt-1 border-t border-slate-100 text-center">
+                                   <p className="text-[7px] font-black text-indigo-600 uppercase tracking-widest">EduManage • Excellence in Education</p>
                               </div>
                           </div>
                       </div>
                   </div>
 
-                  <div className="px-8 py-1 bg-slate-50 border-t flex gap-3">
+                  <div className="px-8 py-4 bg-slate-50 border-t flex gap-3">
                       <button onClick={handlePrintID} className="flex-1 py-3 bg-slate-900 text-white font-black uppercase tracking-widest text-[10px] rounded-[1.5rem] hover:bg-slate-800 transition flex items-center justify-center gap-2 shadow-xl shadow-slate-200">
                           <FaDownload /> Print / Save ID
                       </button>

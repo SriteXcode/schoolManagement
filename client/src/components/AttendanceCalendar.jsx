@@ -106,7 +106,7 @@ const AttendanceCalendar = ({ studentId }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-inner overflow-hidden border">
+    <div className="bg-white rounded-xl shadow-inner overflow-hidden border-4">
       <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
         <button onClick={handlePrevMonth} className="p-2 hover:bg-gray-200 rounded-full transition"><FaChevronLeft /></button>
         <h3 className="font-bold text-gray-800">

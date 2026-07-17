@@ -12,14 +12,24 @@ const StudentExams = () => {
   const [loading, setLoading] = useState(true);
   const [viewingAdmitCard, setViewingAdmitCard] = useState(null); // { name, subjects }
   const [viewingSyllabus, setViewingSyllabus] = useState(null); // { subject, syllabus }
+  const [previewSide, setPreviewSide] = useState('front'); // 'front' | 'back'
   const [filterCategory, setFilterCategory] = useState('All');
   const [filterSubject, setFilterSubject] = useState('All');
+  const [schoolConfig, setSchoolConfig] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       if (!student || !student.sClass) return;
       setLoading(true);
       try {
+        // Fetch School Config (logo, name, address)
+        try {
+            const schoolRes = await api.get('/management/school/config');
+            setSchoolConfig(schoolRes.data);
+        } catch (schoolErr) {
+            console.error("Failed to load school config:", schoolErr);
+        }
+
         // 1. Get All Exams for the class
         const examRes = await api.get(`/exam/${student.sClass._id}`);
         const allExams = examRes.data;
@@ -148,9 +158,40 @@ const StudentExams = () => {
     if (side === 'front') {
         return (
             <div className="text-slate-900 h-full flex flex-col bg-white">
-                <div className="text-center mb-10 pb-6 border-b-4 border-indigo-600">
-                    <h1 className="text-4xl font-black text-indigo-600 mb-1 uppercase">Admit Card</h1>
-                    <p className="font-bold tracking-[0.2em] text-slate-400 uppercase text-xs">Academic Session 2023-2024</p>
+                <div className="flex items-center justify-between border-b-4 border-indigo-600 pb-6 mb-10">
+                    {/* Left side: logo */}
+                    <div className="w-20 h-20 flex-shrink-0 flex items-center justify-center">
+                        {schoolConfig?.logo ? (
+                            <img src={schoolConfig.logo} alt="School Logo" className="w-16 h-16 object-contain" />
+                        ) : (
+                            <svg className="w-16 h-16 text-indigo-600" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="64" height="64" rx="12" fill="#EEF2FF"/>
+                                <path d="M32 12L14 21L32 30L47 22.5V35.5C47 35.5 50 34 50 32V21L32 12Z" fill="#4F46E5"/>
+                                <path d="M20 27.5V39.5C20 44 32 47.5 32 47.5C32 47.5 44 44 44 39.5V27.5L32 33.5L20 27.5Z" fill="#818CF8"/>
+                                <path d="M32 33.5V47.5" stroke="#4F46E5" strokeWidth="2" strokeLinecap="round"/>
+                            </svg>
+                        )}
+                    </div>
+                    {/* Center: School name, address, academic session, admit card */}
+                    <div className="flex-1 text-center pr-20">
+                        <h1 className="text-3xl font-black text-slate-800 tracking-tight uppercase leading-none mb-1">
+                            {schoolConfig?.name || "Excelsior Public School"}
+                        </h1>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+                            {schoolConfig?.address || "100 Innovation Blvd, Academic District, SC 54321"}
+                        </p>
+                        <div className="flex items-center justify-center gap-4 text-xs font-black text-slate-400 uppercase tracking-wider mb-2">
+                            <span>
+                                {schoolConfig?.sessionStart && schoolConfig?.sessionEnd ? 
+                                    `Academic Session: ${new Date(schoolConfig.sessionStart).getFullYear()}-${new Date(schoolConfig.sessionEnd).getFullYear()}` : 
+                                    "Academic Session: 2023-2024"
+                                }
+                            </span>
+                        </div>
+                        <div className="inline-block bg-indigo-600 text-white px-6 py-1 rounded-full text-xs font-black uppercase tracking-widest">
+                            Admit Card
+                        </div>
+                    </div>
                 </div>
 
                 <div className="flex gap-10 mb-10 items-start px-4">
@@ -234,7 +275,7 @@ const StudentExams = () => {
                     <p className="font-bold tracking-[0.2em] text-slate-300 uppercase text-xs">{examName.toUpperCase()} - BACK SIDE REFERENCE</p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 px-10">
+                <div className="grid grid-cols-1 gap-6 px-10 overflow-y-auto max-h-[170mm] flex-1 pb-4">
                     {subjects.map((sub, sIdx) => (
                         <div key={sIdx} className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
                             <h3 className="text-lg font-black text-indigo-600 uppercase mb-4 border-b pb-2">{sub.subject}</h3>
@@ -253,9 +294,74 @@ const StudentExams = () => {
 
   const handleUnifiedPrint = (examData) => {
       const printWindow = window.open('', '_blank');
-      const frontHtml = document.getElementById(`printable-admit-card-front`).innerHTML;
-      const backHtml = document.getElementById(`printable-admit-card-back`).innerHTML;
+      if (!printWindow) {
+          toast.error("Popup blocked! Please allow popups for this site to print.");
+          return;
+      }
       
+      const parseSyllabus = (syllabusStr) => {
+          if (!syllabusStr) return [];
+          const sections = syllabusStr.split(/[;\n]/).filter(s => s.trim());
+          return sections.map(section => {
+              if (section.includes('-')) {
+                  const [topic, subtopicsStr] = section.split('-');
+                  const subtopics = subtopicsStr.split(/[,\~]/).filter(s => s.trim()).map(s => s.trim());
+                  return { topic: topic.trim(), subtopics };
+              }
+              return { topic: section.trim(), subtopics: [] };
+          });
+      };
+
+      const syllabusHtmlForSubject = (syllabusStr) => {
+          const parsed = parseSyllabus(syllabusStr);
+          if (parsed.length === 0) return `<p class="text-slate-400 italic text-xs">Refer to class notes and curriculum documents.</p>`;
+          return `
+              <div class="space-y-3">
+                  ${parsed.map(item => `
+                      <div class="space-y-1">
+                          <h4 class="text-xs font-black text-slate-800 uppercase tracking-tight flex items-center gap-2">
+                              <span class="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>
+                              ${item.topic}
+                          </h4>
+                          ${item.subtopics.length > 0 ? `
+                              <div class="ml-4 flex flex-wrap gap-x-4 gap-y-1">
+                                  ${item.subtopics.map(sub => `
+                                      <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+                                          <span class="text-indigo-300">•</span>
+                                          ${sub}
+                                      </div>
+                                  `).join('')}
+                              </div>
+                          ` : ''}
+                      </div>
+                  `).join('')}
+              </div>
+          `;
+      };
+
+      const studentNameUpper = student?.name ? student.name.toUpperCase() : '';
+      const rollNum = student?.rollNum || '';
+      const gradeSection = student?.sClass ? `${student.sClass.grade}-${student.sClass.section}` : '';
+      const profileImageHtml = student?.profileImage ? 
+          `<img src="${student.profileImage}" alt="Profile" class="w-full h-full object-cover" />` : 
+          `<span class="text-slate-300 font-black text-[10px] uppercase text-center p-4">Student Photo</span>`;
+
+      const examRowsHtml = examData.subjects.map(sub => `
+          <tr>
+              <td class="py-4 font-bold text-xs">${new Date(sub.date).toLocaleDateString()}</td>
+              <td class="py-4 font-black text-indigo-600 uppercase text-xs">${sub.subject}</td>
+              <td class="py-4 font-bold text-slate-600 text-center text-xs">${sub.time || "09:00 AM"}</td>
+              <td class="py-4 border-b border-slate-200"></td>
+          </tr>
+      `).join('');
+
+      const syllabusCardsHtml = examData.subjects.map(sub => `
+          <div class="syllabus-card bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+              <h3 class="text-lg font-black text-indigo-600 uppercase mb-3 border-b pb-2">${sub.subject}</h3>
+              ${syllabusHtmlForSubject(sub.syllabus)}
+          </div>
+      `).join('');
+
       printWindow.document.write(`
         <html>
             <head>
@@ -263,23 +369,156 @@ const StudentExams = () => {
                 <style>
                     @page { size: A4; margin: 0; }
                     body { margin: 0; padding: 0; font-family: sans-serif; -webkit-print-color-adjust: exact; }
-                    .page { width: 210mm; height: 297mm; padding: 20mm; box-sizing: border-box; background: white; page-break-after: always; }
+                    .page-front { 
+                        width: 210mm; 
+                        height: 297mm; 
+                        padding: 20mm; 
+                        box-sizing: border-box; 
+                        background: white; 
+                        page-break-after: always; 
+                        display: flex;
+                        flex-direction: column;
+                        position: relative;
+                    }
+                    .page-back { 
+                        width: 210mm; 
+                        min-height: 297mm; 
+                        padding: 20mm; 
+                        box-sizing: border-box; 
+                        background: white; 
+                        page-break-after: always; 
+                        display: flex;
+                        flex-direction: column;
+                        position: relative;
+                    }
+                    .syllabus-card {
+                        page-break-inside: avoid;
+                        break-inside: avoid;
+                        margin-bottom: 20px;
+                    }
                 </style>
                 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
             </head>
             <body>
-                <div class="page">
-                    ${frontHtml}
+                <div class="page-front text-slate-900 bg-white">
+                    <div class="flex items-center justify-between border-b-4 border-indigo-600 pb-6 mb-10">
+                        <!-- Left side: logo -->
+                        <div class="w-20 h-20 flex-shrink-0 flex items-center justify-center">
+                            ${schoolConfig?.logo ? `
+                                <img src="${schoolConfig.logo}" alt="School Logo" class="w-16 h-16 object-contain" />
+                            ` : `
+                                <svg class="w-16 h-16 text-indigo-600" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="64" height="64" rx="12" fill="#EEF2FF"/>
+                                    <path d="M32 12L14 21L32 30L47 22.5V35.5C47 35.5 50 34 50 32V21L32 12Z" fill="#4F46E5"/>
+                                    <path d="M20 27.5V39.5C20 44 32 47.5 32 47.5C32 47.5 44 44 44 39.5V27.5L32 33.5L20 27.5Z" fill="#818CF8"/>
+                                    <path d="M32 33.5V47.5" stroke="#4F46E5" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            `}
+                        </div>
+                        <!-- Center: School name, address, academic session, admit card -->
+                        <div class="flex-1 text-center pr-20">
+                            <h1 class="text-3xl font-black text-slate-800 tracking-tight uppercase leading-none mb-1">
+                                ${schoolConfig?.name || "Excelsior Public School"}
+                            </h1>
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+                                ${schoolConfig?.address || "100 Innovation Blvd, Academic District, SC 54321"}
+                            </p>
+                            <div class="flex items-center justify-center gap-4 text-xs font-black text-slate-400 uppercase tracking-wider mb-2">
+                                <span>
+                                    ${schoolConfig?.sessionStart && schoolConfig?.sessionEnd ? 
+                                        `Academic Session: ${new Date(schoolConfig.sessionStart).getFullYear()}-${new Date(schoolConfig.sessionEnd).getFullYear()}` : 
+                                        "Academic Session: 2023-2024"
+                                    }
+                                </span>
+                            </div>
+                            <div class="inline-block bg-indigo-600 text-white px-6 py-1 rounded-full text-xs font-black uppercase tracking-widest">
+                                Admit Card
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-10 mb-10 items-start px-4">
+                        <div class="w-32 h-40 bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0">
+                            ${profileImageHtml}
+                        </div>
+                        <div class="flex-1 grid grid-cols-2 gap-y-6 gap-x-10">
+                            <div>
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Student Name</label>
+                                <p class="text-base font-black text-slate-900 truncate">${studentNameUpper}</p>
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Roll Number</label>
+                                <p class="text-base font-black text-slate-900 font-mono">#${rollNum}</p>
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Class & Section</label>
+                                <p class="text-base font-black text-slate-900">${gradeSection}</p>
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Examination</label>
+                                <p class="text-base font-black text-indigo-600 uppercase">${examData.name}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 px-4">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="text-left border-b-2 border-slate-900">
+                                    <th class="py-4 text-[10px] font-black uppercase tracking-widest">Date</th>
+                                    <th class="py-4 text-[10px] font-black uppercase tracking-widest">Subject</th>
+                                    <th class="py-4 text-[10px] font-black uppercase tracking-widest text-center">Time</th>
+                                    <th class="py-4 text-[10px] font-black uppercase tracking-widest text-right">Invigilator</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                ${examRowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-10 p-6 bg-slate-50 rounded-[2rem] border border-slate-100 mx-4">
+                        <h5 class="text-[9px] font-black text-slate-900 uppercase tracking-widest mb-3">Examination Directives</h5>
+                        <ul class="text-[9px] text-slate-500 font-bold space-y-1 list-disc pl-4 leading-relaxed">
+                            <li>Report 30 minutes prior to session commencement.</li>
+                            <li>Possession of this card and Student ID is mandatory.</li>
+                            <li>Prohibited: Digital watches, calculators, and communication devices.</li>
+                            <li>Any form of academic dishonesty will result in disqualification.</li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-auto pt-10 flex justify-between items-end px-10 pb-10">
+                        <div class="text-center">
+                            <div class="w-40 border-b border-slate-900 mb-2"></div>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Student Signature</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-40 border-b border-slate-900 mb-2"></div>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Controller of Exams</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="page">
-                    ${backHtml}
+
+                <div class="page-back text-slate-900 bg-slate-50/30">
+                    <div class="text-center mb-10 pb-6 border-b-4 border-slate-200">
+                        <h1 class="text-3xl font-black text-slate-300 mb-1">EXAMINATION SYLLABUS</h1>
+                        <p class="font-bold tracking-[0.2em] text-slate-300 uppercase text-xs">${examData.name.toUpperCase()} - BACK SIDE REFERENCE</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6 px-10">
+                        ${syllabusCardsHtml}
+                    </div>
+
+                    <div class="mt-auto py-10 text-center">
+                        <p class="text-[8px] font-black text-slate-300 uppercase tracking-[0.5em]">This page is for academic reference only</p>
+                    </div>
                 </div>
                 <script>
                     window.onload = () => {
                         setTimeout(() => {
                             window.print();
                             window.close();
-                        }, 800);
+                        }, 1000);
                     }
                 </script>
             </body>
@@ -295,10 +534,10 @@ const StudentExams = () => {
 
   const SyllabusModal = ({ subject, syllabus, onClose }) => (
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}>
-        <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-            <div className="p-8 bg-indigo-600 text-white">
-                <div className="flex justify-between items-start mb-6">
-                    <div className="bg-white/20 p-3 rounded-2xl">
+        <div className="bg-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+            <div className="px-8 py-4 bg-indigo-600 text-white">
+                <div className="flex justify-between items-start mb-2">
+                    <div className="bg-white/20 p-1 rounded-md">
                         <FaClipboardList size={24}/>
                     </div>
                     <button onClick={onClose} className="text-white/60 hover:text-white transition">
@@ -308,13 +547,13 @@ const StudentExams = () => {
                 <h3 className="text-2xl font-black tracking-tight">{subject}</h3>
                 <p className="text-indigo-100 font-bold text-xs uppercase tracking-widest mt-1">Examination Syllabus</p>
             </div>
-            <div className="p-8">
-                <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 mb-6">
+            <div className="px-8 py-4">
+                <div className="bg-slate-50 rounded-2xl px-4 overflow-y-auto overflow-hidden scrollbar-hide scrolbar-custom max-h-[40vh] border border-slate-100 mb-2">
                     <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-wrap">{syllabus || "No syllabus details available for this test."}</p>
                 </div>
                 <button 
                     onClick={() => { copyToClipboard(syllabus); onClose(); }}
-                    className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-600 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3"
+                    className="w-full py-3 bg-slate-900 text-white rounded-lg font-black uppercase tracking-widest text-[10px] hover:bg-indigo-600 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3"
                 >
                     Copy to Clipboard
                 </button>
@@ -330,16 +569,16 @@ const StudentExams = () => {
   );
 
   return (
-    <div className="space-y-12 pb-20">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+    <div className="space-y-4 pb-20">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pt-6 sticky -top-8 bg-white">
             <div>
-                <h1 className="text-fluid-3xl font-black text-slate-900 tracking-tighter flex items-center gap-4">
-                    <div className="bg-indigo-50 p-2.5 rounded-2xl text-indigo-600">
+                <h1 className="text-fluid-3xl font-black text-slate-900 tracking-tighter flex items-center gap-2">
+                    <div className="bg-indigo-50 p-1.5 rounded-2xl text-indigo-600">
                         <FaClipboardList />
                     </div>
                     Academic Assessments
                 </h1>
-                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2 ml-14">Exams, Results & Credentials</p>
+                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] -mt-2 ml-15 italic">Exams, Results & Credentials</p>
             </div>
             
             <div className="flex bg-white p-1.5 rounded-2xl shadow-soft border border-slate-50">
@@ -357,10 +596,27 @@ const StudentExams = () => {
 
         {/* Admit Card Preview Modal */}
         {viewingAdmitCard && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md overflow-y-auto" onClick={() => setViewingAdmitCard(null)}>
+            <div className="fixed inset-0 z-[100] h-[100vh] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md overflow-y-auto" onClick={e => e.stopPropagation()}>
                 <div className="relative flex flex-col items-center animate-in fade-in zoom-in duration-300 max-w-full" onClick={e => e.stopPropagation()}>
-                    <div className="flex justify-between w-full gap-3 mb-4 px-2">
-                        <div className="text-white/40 text-[10px] font-black uppercase tracking-widest self-center">A4 Preview • Digital Hall Ticket</div>
+                    <div className="flex flex-col md:flex-row justify-between items-center w-full gap-4 mb-4 px-2">
+                        <div className="text-black px-4 py-1.5 rounded-2xl bg-white text-[9px] font-black uppercase tracking-widest self-center">Hall Ticket Preview</div>
+                        
+                        {/* Interactive Side Selector Toggle */}
+                        <div className="flex bg-white/10 backdrop-blur-md p-1 rounded-full border border-white/10 shadow-inner">
+                            <button 
+                                onClick={() => setPreviewSide('front')}
+                                className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${previewSide === 'front' ? 'bg-white text-slate-900 shadow-md scale-105' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+                            >
+                                Front (Admit Card)
+                            </button>
+                            <button 
+                                onClick={() => setPreviewSide('back')}
+                                className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${previewSide === 'back' ? 'bg-white text-slate-900 shadow-md scale-105' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+                            >
+                                Back (Syllabus)
+                            </button>
+                        </div>
+
                         <div className="flex gap-2">
                             <button 
                                 onClick={() => handleUnifiedPrint(viewingAdmitCard)}
@@ -392,29 +648,22 @@ const StudentExams = () => {
                             flexShrink: 0
                         }}>
                              <div className="p-[15mm] h-full bg-white">
-                                <AdmitCardTemplate examName={viewingAdmitCard.name} subjects={viewingAdmitCard.subjects} />
+                                <AdmitCardTemplate examName={viewingAdmitCard.name} subjects={viewingAdmitCard.subjects} side={previewSide} />
                              </div>
                         </div>
-                    </div>
-                </div>
-                
-                {/* Hidden container for print content extraction */}
-                <div id="printable-admit-card" className="hidden">
-                    <div style={{ width: '210mm', minHeight: '297mm', padding: '20mm' }}>
-                        <AdmitCardTemplate examName={viewingAdmitCard.name} subjects={viewingAdmitCard.subjects} />
                     </div>
                 </div>
             </div>
         )}
 
         {activeTab === 'scheduled' ? (
-            <div className="space-y-8">
-                <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className="space-y-2">
+                <p className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
                     <div className="bg-blue-50 p-2 rounded-xl text-blue-600">
                         <FaCalendarAlt />
                     </div>
                     Schedule Timeline
-                </h2>
+                </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {scheduledExams.length > 0 ? (
@@ -426,11 +675,11 @@ const StudentExams = () => {
                                 <div 
                                     key={exam._id} 
                                     onClick={() => setViewingSyllabus({ subject: exam.subject, syllabus: exam.syllabus })}
-                                    className="bg-white p-6 rounded-[2rem] shadow-soft hover:shadow-xl transition-all group border border-transparent hover:border-blue-100 flex flex-col h-full relative overflow-hidden cursor-pointer"
+                                    className="bg-white px-6 py-4 rounded-lg shadow-soft hover:shadow-xl transition-all group border border-transparent hover:border-blue-100 flex flex-col h-full relative overflow-hidden cursor-pointer"
                                 >
-                                    <div className="flex justify-between items-start mb-4">
+                                    <div className="flex justify-between items-start mb-1">
                                         <div className="flex flex- gap-2">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-lg w-fit border border-blue-100/50">Scheduled</span>
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-md w-fit border border-blue-100/50">Scheduled</span>
                                             <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md border w-fit flex items-center gap-1 ${isUrgent ? 'bg-red-50 text-red-600 border-red-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>
                                                 {daysRemaining}
                                             </span>
@@ -439,12 +688,12 @@ const StudentExams = () => {
                                             <FaEye size={12}/>
                                         </div>
                                     </div>
-                                    <h3 className="text-lg font-black text-slate-900 mt-1 group-hover:text-blue-600 transition-colors leading-tight mb-4">
-                                        <span className="text-indigo-500 font-mono mr-2">{exam.time || '09:00 AM'}</span>
+                                    <h3 className="text-md font-black text-slate-900 mt-1 group-hover:text-blue-600 transition-colors leading-tight mb-2">
                                         {exam.name}
+                                        <span className="text-indigo-500 font-mono ml-2">- {exam.time || '09:00 AM'}</span>
                                     </h3>
                                     
-                                    <div className="mt-auto space-y-2.5 pt-4 border-t border-slate-50">
+                                    <div className="mt-auto pt-2 space-y-2 border-t border-slate-50">
                                         <div className="flex justify-between items-center text-xs">
                                             <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Subject</span>
                                             <span className="font-bold text-slate-700">{exam.subject}</span>
@@ -457,7 +706,7 @@ const StudentExams = () => {
                                             <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Max Marks</span>
                                             <span className="font-bold text-slate-700">{exam.maxMarks} pts</span>
                                         </div>
-                                        <div className="pt-2">
+                                        <div className="pt-1">
                                             <button className="text-[9px] font-black uppercase text-indigo-600 flex items-center gap-1">
                                                 <FaClipboardList /> View Syllabus
                                             </button>
@@ -476,20 +725,20 @@ const StudentExams = () => {
             </div>
         ) : activeTab === 'admit-card' ? (
             <div className="space-y-8">
-                 <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                 <p className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
                     <div className="bg-indigo-50 p-2 rounded-xl text-indigo-600">
                         <FaIdCard />
                     </div>
                     Admit Hall Tickets
-                </h2>
+                </p>
                 
                 {Object.keys(groupedExams).length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {Object.entries(groupedExams).map(([examName, subjects], idx) => (
-                            <div key={idx} className="bg-white p-8 rounded-[2rem] shadow-soft border border-slate-50 flex flex-col justify-between group hover:shadow-xl transition-all">
-                                <div className="flex items-start justify-between mb-6">
+                            <div key={idx} className="bg-white px-6 py-4 rounded-lg shadow-soft border border-slate-50 flex flex-col justify-between group hover:shadow-xl transition-all">
+                                <div className="flex items-start justify-between mb-4">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center text-xl font-black group-hover:bg-indigo-600 transition-colors shrink-0">
+                                        <div className="w-10 h-10 bg-slate-900 text-white rounded-lg flex items-center justify-center text-xl font-black group-hover:bg-indigo-600 group-hover:scale-110 transition-all shrink-0">
                                             {idx + 1}
                                         </div>
                                         <div>
@@ -501,17 +750,17 @@ const StudentExams = () => {
                                 
                                 <div className="flex gap-3">
                                     <button 
-                                        onClick={() => setViewingAdmitCard({ name: examName, subjects })}
-                                        className="flex-1 py-3 bg-slate-50 text-slate-600 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-900 hover:text-white transition-all flex items-center justify-center gap-2"
+                                        onClick={() => {
+                                            setPreviewSide('front');
+                                            setViewingAdmitCard({ name: examName, subjects });
+                                        }}
+                                        className="flex-1 py-2.5 bg-slate-50 text-slate-600 rounded-lg font-black uppercase tracking-widest text-[10px] hover:bg-slate-900 hover:text-white transition-all flex items-center justify-center gap-2"
                                     >
                                         <FaEye /> View
                                     </button>
                                     <button 
-                                        onClick={() => {
-                                            setViewingAdmitCard({ name: examName, subjects });
-                                            setTimeout(() => handleUnifiedPrint({ name: examName, subjects }), 100);
-                                        }}
-                                        className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2"
+                                        onClick={() => handleUnifiedPrint({ name: examName, subjects })}
+                                        className="flex-1 py-2.5 bg-indigo-600 text-white rounded-lg font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2"
                                     >
                                         <FaPrint /> Print
                                     </button>
@@ -529,16 +778,16 @@ const StudentExams = () => {
         ) : (
             <div className="space-y-8">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                    <p className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
                         <div className="bg-teal-50 p-2 rounded-xl text-teal-600">
                             <FaPoll />
                         </div>
                         Performance Transcript
-                    </h2>
+                    </p>
 
                     <div className="flex flex-wrap gap-4 w-full md:w-auto">
                         <div className="flex-1 md:w-48">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1.5 ml-1">Category</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5 ml-1">Category</label>
                             <select 
                                 value={filterCategory}
                                 onChange={(e) => setFilterCategory(e.target.value)}
@@ -550,7 +799,7 @@ const StudentExams = () => {
                             </select>
                         </div>
                         <div className="flex-1 md:w-48">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1.5 ml-1">Subject</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5 ml-1">Subject</label>
                             <select 
                                 value={filterSubject}
                                 onChange={(e) => setFilterSubject(e.target.value)}
@@ -582,7 +831,7 @@ const StudentExams = () => {
                             const percentage = hasResults ? (score / exam.maxMarks) * 100 : 0;
                             
                             return (
-                                <div key={exam._id} className="bg-white border border-slate-100 rounded-2xl p-6 hover:shadow-md transition-all space-y-4">
+                                <div key={exam._id} className="bg-white border border-slate-100 rounded-lg px-6 py-4 hover:shadow-md transition-all space-y-4">
                                     {/* Row 1: Exam Type and Status */}
                                     <div className="flex justify-between items-center">
                                         <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${exam.type === 'Main Exam' ? 'bg-indigo-50 text-indigo-600' : 'bg-amber-50 text-amber-600'}`}>

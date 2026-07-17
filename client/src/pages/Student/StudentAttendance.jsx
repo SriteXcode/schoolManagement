@@ -50,7 +50,7 @@ const StudentAttendance = () => {
            </div>
        </div>
 
-       <div className="bg-white px-6 py-2 rounded-lg shadow-md mt-2">
+       <div className="bg-white px-6 py- rounded-lg shadow-md mt-2">
            <h3 className="text-xl font-bold mb-4">Attendance Calendar</h3>
            <AttendanceCalendar studentId={student?._id} />
        </div>

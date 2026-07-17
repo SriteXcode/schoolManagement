@@ -97,9 +97,9 @@ const StudentHomework = () => {
   };
 
   return (
-    <div className="space-y-10 pb-20">
+    <div className="space-y-10">
       {/* Header & Filter Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 sticky -top-4 md:top-0 z-10 bg-slate-50/95 backdrop-blur-md py-4 -mt-4 border border-slate-100/50">
         <div>
           <h1 className="text-fluid-3xl font-black text-slate-900 tracking-tighter flex items-center gap-3">
              <div className="bg-indigo-50 p-2.5 rounded-2xl text-indigo-600">
@@ -107,10 +107,10 @@ const StudentHomework = () => {
              </div>
              Curriculum Tasks
           </h1>
-          <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2 ml-14">Academic Homework & Deadlines</p>
+          <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] -mt-2 ml-19">Academic Homework & Deadlines</p>
         </div>
 
-        <div className="flex items-center gap-3 bg-white p-2 rounded-[2rem] shadow-soft border border-slate-50">
+        <div className="flex items-center gap-3 bg-white p-2 rounded-xl shadow-soft border border-slate-50">
            <div className="flex items-center gap-2 px-4 border-r border-slate-100">
               <FaFilter className="text-slate-400 text-xs" />
               <select 
@@ -136,13 +136,13 @@ const StudentHomework = () => {
 
       {/* Homework Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 -mt-10 md:mt-4">
             {[1, 2, 3].map(i => (
                 <div key={i} className="h-64 bg-white rounded-[2.5rem] animate-pulse shadow-soft"></div>
             ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 -mt-10 md:mt-4">
             {filteredHomework.map(hw => {
                 const daysRemaining = getDaysRemaining(hw.dueDate);
                 const isUrgent = daysRemaining === "Due Today" || daysRemaining === "Due Tomorrow" || daysRemaining === "Overdue" || (parseInt(daysRemaining) <= 3 && hw.myStatus !== 'Completed');
@@ -151,10 +151,10 @@ const StudentHomework = () => {
                     <div 
                         key={hw._id} 
                         onClick={() => setSelectedHw(hw)}
-                        className="bg-white p-6 rounded-[2rem] shadow-soft hover:shadow-xl transition-all group cursor-pointer border border-transparent hover:border-indigo-100 flex flex-col h-full relative overflow-hidden"
+                        className="bg-white px-6 py-4 rounded-xl shadow-soft hover:shadow-xl transition-all group cursor-pointer border-2 border-transparent hover:border-indigo-100 flex flex-col h-full relative overflow-hidden"
                     >
-                        <div className="flex justify-between items-start mb-4">
-                            <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-lg border ${getStatusBg(hw.myStatus)}`}>
+                        <div className="flex justify-between items-start mb-2">
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-lg border ${getStatusBg(hw.myStatus)}`}>
                                 {hw.myStatus || 'Not Started'}
                             </span>
                             <div className="text-slate-300 group-hover:text-indigo-500 transition-colors">
@@ -163,12 +163,12 @@ const StudentHomework = () => {
                         </div>
 
                         <div className="flex-1">
-                            <h4 className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-1">{hw.subject}</h4>
-                            <h3 className="text-lg font-black text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight mb-3">{hw.title}</h3>
-                            <p className="text-slate-500 text-sm leading-relaxed line-clamp-2">{hw.description}</p>
+                            <h4 className="text-sm font-black text-indigo-500 uppercase tracking-widest mb-1">{hw.subject}</h4>
+                            <h3 className="text-md font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight mb-3">{hw.title}</h3>
+                            <p className="text-slate-500 min-h-8 max-h-20 overflow-y-auto overflow-hidden scrollbar-hide custom-scrollbar text-sm leading-relaxed line-clamp-2">{hw.description}</p>
                         </div>
 
-                        <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
+                        <div className="-mt-1 pt-2 flex items-center justify-between">
                             <div className="flex items-center gap-2 flex-wrap">
                                 {hw.myStatus !== 'Completed' && (
                                     <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded flex items-center gap-1 ${isUrgent ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'}`}>
