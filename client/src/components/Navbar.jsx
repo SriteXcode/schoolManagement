@@ -30,14 +30,14 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-white/70 backdrop-blur-xl sticky top-0 z-50 border-b border-slate-100/50">
-        <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
+      <nav className="bg-white/70 backdrop-blur-xl sticky top-0 z-50 border-b-1 text-fluid-xs border-blue-700/50">
+        <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between text-fluid-xs items-center">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-3 text-slate-900 font-bold text-xl text-fluid-xl z-50 tracking-tighter">
-            <div className="bg-indigo-600 p-2 rounded-lg text-white">
-                <FaSchool />
+            <Link to="/" className="flex items-center space-x-2 text-slate-900 font-bold text-xl text-fluid-lg z-50 tracking-tighter">
+            <div className="text-indigo-700">
+                <FaSchool size={32}/>
             </div>
-            <span>EduManage</span>
+            <span className='mt-2'>EduManage</span>
             </Link>
 
             {/* Desktop Menu */}
@@ -54,10 +54,10 @@ const Navbar = () => {
             <div className="hidden  md:flex space-x-3 items-center text-fluid-sm">
                 {!user ? (
                 <>
-                    <Link to="/register" className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100 text-fluid-base">Register</Link>
+                    <Link to="/register" className="px-6 py-1.5 bg-indigo-600 text-white rounded-full font-bold hover:bg-indigo-700 transition duration-300 shadow-lg shadow-indigo-100 text-fluid-sm">Register</Link>
                     <Link 
                      to="/login" 
-                     className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100 text-fluid-base"
+                     className="px-6 py-1.5 bg-indigo-600 text-white rounded-full font-bold hover:bg-indigo-700 transition duration-300 shadow-lg shadow-indigo-100 text-fluid-sm"
                     >
                     Login
                     </Link>
@@ -65,7 +65,7 @@ const Navbar = () => {
                 ) : (
                 <Link 
                     to={getDashboardLink()} 
-                    className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100 text-fluid-base"
+                    className="px-6 py-1.5 bg-indigo-600 text-white rounded-full font-bold hover:bg-indigo-700 transition duration-300 shadow-lg shadow-indigo-100 text-fluid-sm"
                 >
                     Dashboard
                 </Link>
@@ -83,10 +83,10 @@ const Navbar = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed inset-0 bg-white z-40 flex flex-col items-center justify-start p-6 md:hidden"
+            initial={{ opacity: 0, scale: 0.95, translateY:-100 }}
+            animate={{ opacity: 1, scale: 1, translateY:-5 }}
+            exit={{ opacity: 0, scale: 0.95, translateY:-100 }}
+            className="fixed inset-0 bg-white z-40 flex flex-col h-fit rounded-[40px] items-center justify-start p-6 md:hidden"
           >
              <div className="w-full space-y-2 mt-12 flex flex-col items-center">
                 <MobileNavItem to="/" onClick={toggleMobileMenu} label="Home" />
@@ -99,14 +99,14 @@ const Navbar = () => {
                 {!user ? (
                 <>
                 <div className='w-full flex gap-4 mt-4'>
-                    <Link to="/register" onClick={toggleMobileMenu} className="w-1/2 py-4 bg-indigo-600 text-white rounded-lg text-center font-bold text-xl shadow-xl shadow-indigo-100">Register</Link>
-                    <Link to="/login" onClick={toggleMobileMenu} className="w-1/2 py-4 bg-indigo-600 text-white rounded-lg text-center font-bold text-xl shadow-xl shadow-indigo-100">
+                    <Link to="/register" onClick={toggleMobileMenu} className="w-1/2 py-2.5 bg-indigo-600 text-white rounded-full text-center font-bold text-fluid-md shadow-xl shadow-indigo-100">Register</Link>
+                    <Link to="/login" onClick={toggleMobileMenu} className="w-1/2 py-2.5 bg-indigo-600 text-white rounded-full text-center font-bold text-fluid-md shadow-xl shadow-indigo-100">
                         Login
                     </Link>
                 </div>
                 </>
                 ) : (
-                <Link to={getDashboardLink()} onClick={toggleMobileMenu} className="w-full py-5 bg-indigo-600 text-white rounded-lg text-center font-black text-xl shadow-xl shadow-indigo-100">
+                <Link to={getDashboardLink()} onClick={toggleMobileMenu} className="w-full py-2.5 bg-indigo-600 text-white rounded-full text-center font-bold text-fluid-md shadow-xl shadow-indigo-100">
                     Go to Dashboard
                 </Link>
                 )}
@@ -122,7 +122,7 @@ const MobileNavItem = ({ to, onClick, label }) => (
     <Link 
         to={to} 
         onClick={onClick}
-        className="text-xl font-bold text-slate-800 hover:text-indigo-600 transition py-2"
+        className="text-fluid-md font-bold text-slate-800 hover:text-indigo-600 transition py-2"
     >
         {label}
     </Link>
