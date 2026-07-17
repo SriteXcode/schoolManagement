@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Rowdies:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&family=Signika:wght@300..700&display=swap');
+
 @import "tailwindcss";
 
 @theme {
@@ -16,7 +18,7 @@
   /* Override Fonts */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   /* --font-heading: 'Rowdies',Quicksand', sans-serif; */
-  --font-heading: 'Rowdies', sans-serif;
+  --font-heading: 'Signika', sans-serif;
 
   /* Override Indigo with Green Palette */
   --color-indigo-50: #eefdf2;
@@ -85,18 +87,19 @@ body {
 
 h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
   font-family: var(--font-heading);
-  font-weight: 700;
+  font-weight: 650;
   /* color: #fffffff7; */
 }
 
 h1, .h1 {
-  font-size: clamp(1.75rem, 4vw, 2.5rem); /* approx 28pt */
+  font-size: clamp(1.25rem, 3.5vw, 2.5rem); /* approx 28pt */
   line-height: 1.2;
+  font-weight: 600;
 }
 
 h2, .h2 {
   font-family: var(--font-heading);
-  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  font-size: clamp(1.15rem, 2vw, 1.50rem);
   line-height: 1.3;
-  font-weight: 700;
+  font-weight: 550;
 }
