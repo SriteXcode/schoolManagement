@@ -310,15 +310,15 @@ const Home = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-hero font-black text-slate-900 mb-4 tracking-tighter leading-tight"
                 >
-                    Empowering Minds <br className="hidden md:block" />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Shaping Futures</span>
+                    Empowering Minds <br className="md:block" />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-b from-indigo-700 to-purple-500">Shaping Futures</span>
                 </motion.h1>
 
                 <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}
-                    className="text-lg md:text-xl text-slate-500 max-w-2xl mb-6 font-medium leading-relaxed"
+                    className="text-sm px-3 md:text-xl text-slate-500 max-w-2xl mb-6 font-medium leading-relaxed"
                 >
                     Welcome to the digital heart of our institution. A seamless, high-performance platform designed for the scholars of tomorrow.
                 </motion.p>
@@ -329,51 +329,51 @@ const Home = () => {
                     animate={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.3 }}
                     transition={{ delay: 0.6, duration: 0.2 }}
-                    className="w-full max-w-6xl grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 px-4"
+                    className="w-full max-w-6xl grid grid-cols-2 md:grid-cols-4 gap-6 mb-8 md:mb-12"
                 >
                     <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-[inset_0_2px_6px_rgba(0,0,0,0.08)] hover:shadow-[inset_0_2px_4px_rgba(0,255,0,0.4)] border border-slate-100/50 text-center hover:scale-[1.03] hover:rotate-[2deg] transition-all duration-300 group hover:border-emerald-200">
-                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">1200+</h3>
-                        <p className="text-[10px] font-semibold font-black text-slate-600 uppercase tracking-widest mt-1 group-hover:text-emerald-600 transition-colors">Active Scholars</p>
+                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-emerald-900 to-teal-400">1200+</h3>
+                        <p className="text-xs font-semibold font-black text-slate-600 uppercase tracking-widest mt-1 group-hover:text-emerald-600 transition-colors">Active Scholars</p>
                     </div>
                     <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-[inset_0_2px_6px_rgba(0,0,0,0.08)] hover:shadow-[inset_0_2px_4px_rgba(0,255,0,0.4)] border border-slate-100/50 text-center hover:scale-[1.03] hover:rotate-[-2deg] transition-all duration-300 group hover:border-emerald-200">
-                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">85+</h3>
-                        <p className="text-[10px] font-semibold font-black text-slate-600 uppercase tracking-widest mt-1 group-hover:text-emerald-600 transition-colors">Faculty Members</p>
+                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-emerald-900 to-teal-400">85+</h3>
+                        <p className="text-xs font-semibold font-black text-slate-600 uppercase tracking-widest mt-1 group-hover:text-emerald-600 transition-colors">Faculty Members</p>
                     </div>
                     <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-[inset_0_2px_6px_rgba(0,0,0,0.08)] hover:shadow-[inset_0_2px_4px_rgba(0,255,0,0.4)] border border-slate-100/50 text-center hover:scale-[1.03] hover:rotate-[2deg] transition-all duration-300 group hover:border-emerald-200">
-                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">100%</h3>
-                        <p className="text-[10px] font-semibold font-black text-slate-600 uppercase tracking-widest mt-1 group-hover:text-emerald-600 transition-colors">Digital Logs</p>
+                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-emerald-900 to-teal-400">100%</h3>
+                        <p className="text-xs font-semibold font-black text-slate-600 uppercase tracking-widest mt-1 group-hover:text-emerald-600 transition-colors">Digital Logs</p>
                     </div>
                     <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-[inset_0_2px_6px_rgba(0,0,0,0.08)] hover:shadow-[inset_0_2px_4px_rgba(0,255,0,0.4)] border border-slate-100/50 text-center hover:scale-[1.03] hover:rotate-[-2deg] transition-all duration-300 group hover:border-emerald-200">
-                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">25+</h3>
-                        <p className="text-[10px] font-semibold font-black text-slate-600 uppercase tracking-widest mt-1 group-hover:text-emerald-600 transition-colors">Extended Clubs</p>
+                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-emerald-900 to-teal-400">25+</h3>
+                        <p className="text-xs font-semibold font-black text-slate-600 uppercase tracking-widest mt-1 group-hover:text-emerald-600 transition-colors">Extended Clubs</p>
                     </div>
                 </motion.div>
 
                 {/* Vision, Goal & Principal's Word */}
-                <div className="w-full max-w-7xl px-4 grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                    <div className="bg-white p-10 rounded-2xl shadow-lg border border-slate-100 text-left space-y-6 group hover:border-indigo-200 transition-all">
-                        <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                                <FaEye size={28} />
+                <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 md:px-10 md:mb-12">
+                    <div className="bg-white px-4 py-6 md:px-8 rounded-2xl shadow-lg border border-slate-100 text-left space-y-4 group hover:border-indigo-200 transition-all">
+                        <div className="flex items-center ">
+                            <div className="w-12 h-12 rounded-lg flex items-center justify-start text-indigo-600 group-hover:scale-115 transition-all duration-600">
+                                <FaEye size={32} />
                             </div>
-                            <h3 className="text-4xl font-black text-slate-900 uppercase tracking-tighter">Vision</h3>
+                            <h3 className="text-fluid-lg font-black text-slate-900 uppercase tracking-tighter">Vision</h3>
                         </div>
-                        <p className="text-slate-500 font-semibold leading-relaxed">
+                        <p className="text-slate-500 font-semibold text-fluid-sm md:text-fluid-md leading-relaxed">
                             To cultivate a dynamic learning environment where innovation meets tradition, nurturing students to become global leaders who act with integrity and wisdom.
                         </p>
                     </div>
-                    <div className="bg-white p-10 rounded-2xl shadow-lg border border-slate-100 text-left space-y-6 group hover:border-purple-200 transition-all">
-                        <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                    <div className="bg-white px-4 py-6 md:px-8 rounded-2xl shadow-lg border border-slate-100 text-left space-y-4 group hover:border-indigo-200 transition-all">
+                        <div className="flex items-center ">
+                            <div className="w-12 h-12 rounded-lg flex items-center justify-start text-indigo-600 group-hover:scale-115 transition-all duration-600">
                                 <FaBullseye size={28} />
                             </div>
-                            <h3 className="text-4xl font-black text-slate-900 uppercase tracking-tighter">Goal</h3>
+                            <h3 className="text-fluid-lg font-black text-slate-900 uppercase tracking-tighter">Goal</h3>
                         </div>
-                        <p className="text-slate-500 font-semibold leading-relaxed">
+                        <p className="text-slate-500 text-fluid-sm md:text-fluid-md font-semibold leading-relaxed">
                             Providing 100% digital transparency, achieving 98% student placement in top universities, and fostering a culture of continuous skill-based excellence.
                         </p>
                     </div>
-                    <div className="lg:col-span-1 bg-slate-900 p-10 rounded-2xl shadow-lg text-white text-left relative overflow-hidden group">
+                    <div className="lg:col-span-1 bg-slate-900 px-4 py-6 md:px-8 rounded-2xl shadow-lg text-white text-left relative overflow-hidden group">
                         <FaQuoteLeft className="absolute -top-4 -right-4 text-white/10 text-[120px]" />
                         <div className="relative z-10 space-y-6">
                             <div className="flex items-center gap-4">
@@ -385,7 +385,7 @@ const Home = () => {
                                     <p className="text-indigo-400 text-[10px] font-black uppercase tracking-widest mt-1">{principalMessage.designation}</p>
                                 </div>
                             </div>
-                            <p className="text-white/70 font-bold italic leading-relaxed">
+                            <p className="text-white/70 text-fluid-sm md:text-fluid-md font-bold italic leading-relaxed">
                                 "{principalMessagePreview.preview}"
                             </p>
                             {principalMessagePreview.hasMore && (
@@ -401,54 +401,54 @@ const Home = () => {
                 </div>
 
                 {/* Explore Section */}
-                <div className="w-full max-w-6xl mb-14 px-4 text-left">
+                <div className="w-full max-w-6xl mb-8 md:mb-12 px-4 text-left">
                     <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-6 uppercase tracking-tighter">Explore Portal</h2>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
-                        <QuickLink to="/wall-of-fame" label="Wall of Fame" color="bg-orange-50 text-orange-600" />
-                        <QuickLink to="/achievements" label="Achievements" color="bg-emerald-50 text-emerald-600" />
-                        <QuickLink to="/gallery" label="Gallery" color="bg-indigo-50 text-indigo-600" />
-                        <QuickLink to="/calendar" label="Calendar" color="bg-blue-50 text-blue-600" />
-                        <QuickLink to="/notices" label="Notices" color="bg-purple-50 text-purple-600" />
+                        <QuickLink to="/wall-of-fame" label="Wall of Fame" color="bg-orange-50 text-orange-600 text-fluid-sm md:text-fluid-md" />
+                        <QuickLink to="/achievements" label="Achievements" color="bg-emerald-50 text-emerald-600 text-fluid-sm md:text-fluid-md" />
+                        <QuickLink to="/gallery" label="Gallery" color="bg-indigo-50 text-indigo-600 text-fluid-sm md:text-fluid-md" />
+                        <QuickLink to="/calendar" label="Calendar" color="bg-blue-50 text-blue-600 text-fluid-sm md:text-fluid-md" />
+                        <QuickLink to="/notices" label="Notices" color="bg-purple-50 text-purple-600 text-fluid-sm md:text-fluid-md" />
                     </div>
                 </div>
 
                 {/* Prospectus Section */}
-                <div className="w-full max-w-7xl px-4 mb-14">
-                    <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-12 md:p-20 text-left relative overflow-hidden flex flex-col md:flex-row items-center gap-12">
+                <div className="w-full max-w-7xl mb-8 md:mb-12">
+                    <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl px-4 py-6 md:px-12 text-left relative overflow-hidden flex flex-col md:flex-row items-center gap-12">
                         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
 
                         <div className="relative z-10 flex-1 space-y-4">
-                            <span className="px-4 py-1.5 bg-white/10 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10">Academic Brochure {academicYear}</span>
+                            <span className="px-4 py-1.5 bg-white/10 backdrop-blur-md text-white rounded-full text-[10px] font-medium uppercase tracking-widest border border-white/10">Academic Brochure {academicYear}</span>
                             <h2 className="text-white text-4xl md:text-6xl font-black mt-4 tracking-tight leading-none">
                                 Download Our <br /> Official Prospectus
                             </h2>
-                            <p className="text-indigo-100 text-lg md:text-xl font-bold max-w-xl opacity-80">
+                            <p className="text-indigo-100 text-fluid-sm md:text-fluid-md font-medium max-w-xl opacity-80">
                                 Get a detailed look into our curriculum, faculty profiles, and the vibrant campus life that awaits you.
                             </p>
                             <div className="flex flex-wrap gap-4 pt-4">
-                                <button className="px-10 py-5 bg-white text-indigo-600 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-2xl flex items-center gap-3">
-                                    <FaFilePdf size={18} /> Download PDF
+                                <button className="px-6 py-3 bg-white text-indigo-600 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-2xl flex items-center gap-3">
+                                    <FaFilePdf size={12} /> Download PDF
                                 </button>
                                 <button
                                     onClick={() => setShowProspectusPreview(true)}
-                                    className="px-10 py-5 bg-indigo-500/30 text-white rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-indigo-500/50 transition-all border border-white/20 backdrop-blur-md flex items-center gap-3"
+                                    className="px-6 py-3 bg-indigo-500/30 text-white rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-indigo-500/50 transition-all border border-white/20 backdrop-blur-md flex items-center gap-3"
                                 >
                                     <FaEye size={18} /> Instant Preview
                                 </button>
                             </div>
                         </div>
-
-                        <div className="relative z-10 w-full md:w-1/3 aspect-[3/4] bg-white rounded-[12px_4px_12px_4px] shadow-2xl p-2 transform rotate-3 hover:rotate-0 transition-transform duration-700 group cursor-pointer overflow-hidden">
+                        <div className="relative z-10 w-full md:w-1/5 aspect-[3/4] bg-white rounded-[12px_4px_12px_4px] shadow-2xl p-2 transform md:rotate-3 hover:rotate-0 transition-transform duration-700 group cursor-pointer overflow-hidden">
                             <img src="https://images.unsplash.com/photo-1544640808-32ca72ac7f37?auto=format&fit=crop&q=80" alt="Brochure Cover" className="w-full h-full object-cover rounded-[12px_4px_12px_4px]" />
                             <div className="absolute inset-0 bg-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <div className="bg-white p-4 rounded-full text-indigo-600 shadow-xl"><FaInfoCircle size={32} /></div>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
                 {/* Facilities Section */}
-                <div className="w-full max-w-7xl px-4 mb-14 text-left">
+                <div className="w-full max-w-7xl mb-8 md:mb-12 text-left">
                     <div className="max-w-3xl mb-8 px-4">
                         <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">Premier Infrastructure</h2>
                         <p className="text-slate-400 font-black uppercase text-[10px] tracking-widest mt-2 flex items-center gap-2">
@@ -457,25 +457,25 @@ const Home = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        <FacilityCard icon={<FaWifi />} title="Giga-Fiber Campus" desc="Seamless high-speed internet across 100% of campus premises." />
-                        <FacilityCard icon={<FaLaptopCode />} title="Modern IT Labs" desc="Latest workstation nodes with high-end graphical processing units." />
-                        <FacilityCard icon={<FaMicroscope />} title="Advanced Science Hub" desc="Integrated physics, chemistry, and biology research wings." />
-                        <FacilityCard icon={<FaBook />} title="Digital Library" desc="Access to 50,000+ e-journals and physical academic volumes." />
-                        <FacilityCard icon={<FaMusic />} title="Arts & Performance" desc="Dedicated sound-proof studios for music, dance, and theater." />
-                        <FacilityCard icon={<FaBasketballBall />} title="Olympic Sports Wing" desc="All-weather synthetic tracks and multi-sport indoor arenas." />
-                        <FacilityCard icon={<FaSchool />} title="Smart Classrooms" desc="AI-integrated interactive panels and collaborative layouts." />
-                        <FacilityCard icon={<FaLayerGroup />} title="Hybrid Auditiorium" desc="1500+ seating capacity with 4K projection and live streaming." />
+                        <FacilityCard icon={<FaWifi size={24} />} title="Giga-Fiber Campus" desc="Seamless high-speed internet across 100% of campus premises." />
+                        <FacilityCard icon={<FaLaptopCode size={24} />} title="Modern IT Labs" desc="Latest workstation nodes with high-end graphical processing units." />
+                        <FacilityCard icon={<FaMicroscope size={24} />} title="Advanced Science Hub" desc="Integrated physics, chemistry, and biology research wings." />
+                        <FacilityCard icon={<FaBook size={24} />} title="Digital Library" desc="Access to 50,000+ e-journals and physical academic volumes." />
+                        <FacilityCard icon={<FaMusic size={24} />} title="Arts & Performance" desc="Dedicated sound-proof studios for music, dance, and theater." />
+                        <FacilityCard icon={<FaBasketballBall size={24} />} title="Olympic Sports Wing" desc="All-weather synthetic tracks and multi-sport indoor arenas." />
+                        <FacilityCard icon={<FaSchool size={24} />} title="Smart Classrooms" desc="AI-integrated interactive panels and collaborative layouts." />
+                        <FacilityCard icon={<FaLayerGroup size={24} />} title="Hybrid Auditiorium" desc="1500+ seating capacity with 4K projection and live streaming." />
                     </div>
                 </div>
 
                 {/* Extra Programs Section */}
-                <div className="w-full max-w-7xl px-4 mb-14">
-                    <div className="bg-white rounded-4xl p-6 md:p-8 lg:p-10 shadow-soft border border-slate-100 text-left">
+                <div className="w-full max-w-7xl mb-12">
+                    <div className="bg-white rounded-xl px-4 py-6 md:p-8 lg:p-10 shadow-soft border border-slate-100 text-left">
                         <div className="flex flex-col lg:flex-row justify-between items-start gap-12">
                             <div className="lg:w-1/3">
                                 <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Extended Learning <br /> & Skill-Up</h2>
-                                <p className="text-slate-500 font-semibold mt-6 text-lg">Beyond the textbook. We offer specialized programs to build real-world competency.</p>
-                                <div className="mt-10 p-8 bg-indigo-50 rounded-[12px_4px_12px_4px] border border-indigo-100 group hover:bg-indigo-600 transition-all duration-400 ">
+                                <p className="text-slate-500 font-semibold mt-4 text-fluid-sm">Beyond the textbook. We offer specialized programs to build real-world competency.</p>
+                                <div className="mt-6  px-4 py-6 md:p-8 bg-indigo-50 rounded-[12px_4px_12px_4px] border border-indigo-100 group hover:bg-indigo-600 transition-all duration-400 ">
                                     <div className="flex items-center gap-4">
                                     <FaMobileAlt className="text-indigo-600 group-hover:text-white mb-4" size={32} />
                                     
@@ -989,12 +989,12 @@ const Home = () => {
 };
 
 const FacilityCard = ({ icon, title, desc }) => (
-    <div className="bg-white p-8 rounded-2xl shadow-soft hover:shadow-2xl transition-all duration-500 text-left group border border-slate-50 hover:border-indigo-100 relative overflow-hidden">
+    <div className="bg-white px-4 py-6 rounded-2xl shadow-soft hover:shadow-2xl transition-all duration-500 text-left group border border-slate-50 hover:border-indigo-100 relative overflow-hidden">
         <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-50 rounded-full blur-2xl group-hover:bg-indigo-100 transition-colors" />
         <div className="flex items-center gap-4">
-        <div className="mb-6 p-4 bg-slate-50 w-fit rounded-md group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 transform group-hover:rotate-4 group-hover:scale-125 text-slate-400 shadow-sm">{icon}</div>
-        <h3 className="text-lg font-black text-slate-800 mb-6 tracking-tight uppercase leading-none">{title}</h3></div>
-        <p className="text-slate-400 font-semibold text-xs leading-relaxed group-hover:text-slate-500 transition-colors">{desc}</p>
+        <div className="mb-6 w-fit rounded-md group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 transform group-hover:rotate-4 group-hover:scale-125 text-indigo-600 shadow-sm">{icon}</div>
+        <h3 className="text-fluid-md font-bold text-slate-800 mb-6 tracking-tight uppercase leading-none">{title}</h3></div>
+        <p className="text-slate-400 font-semibold text-fluid-sm leading-relaxed group-hover:text-slate-500 transition-colors">{desc}</p>
     </div>
 );
 
@@ -1002,11 +1002,11 @@ const ExtraProgramCard = ({ icon, title, type, desc }) => (
     <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-xl hover:border-indigo-100 transition-all group">
         <div className="flex justify-between items-start mb-4">
             <div className="flex flex-col items-start gap-4">
-            <div className="p-4 bg-white rounded-lg text-indigo-600 shadow-md group-hover:bg-indigo-600 group-hover:text-white transition-all transform group-hover:scale-110">
+            <div className="p-4 rounded-lg text-indigo-600 shadow-md group-hover:bg-indigo-600 group-hover:text-white transition-all transform group-hover:scale-110">
                 {icon}
             </div>
-            <h3 className="text-xl font-black text-slate-800  tracking-tight uppercase">{title}</h3></div>
-            <span className="text-[8px] font-black bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-full uppercase tracking-widest">{type}</span>
+            <h3 className="text-fluid-md font-black text-slate-800  tracking-tight uppercase">{title}</h3></div>
+            <span className="text-fluid-xs font-black bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-full uppercase tracking-widest">{type}</span>
         </div>
         <p className="text-slate-400 font-semibold text-xs leading-relaxed group-hover:text-slate-500 transition-colors">{desc}</p>
     </div>

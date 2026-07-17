@@ -13,7 +13,7 @@
   --text-fluid-2xl: clamp(1.95rem, 1.56vw + 1.56rem, 2.81rem);
   --text-fluid-3xl: clamp(2.44rem, 2.38vw + 1.85rem, 3.75rem);
   --text-fluid-4xl: clamp(3.05rem, 3.54vw + 2.17rem, 5rem);
-  --text-hero: clamp(2.5rem, 8vw + 1rem, 5.5rem);
+  --text-hero: clamp(2.5rem, 9vw + 1rem, 5.5rem);
 
   /* Override Fonts */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
