@@ -413,7 +413,7 @@ const Home = () => {
                 </div>
 
                 {/* Prospectus Section */}
-                <div className="w-full max-w-7xl mb-8 md:mb-12">
+                <div className="w-full max-w-7xl md:px-8 mb-8 md:mb-12">
                     <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl px-4 py-6 md:px-12 text-left relative overflow-hidden flex flex-col md:flex-row items-center gap-12">
                         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
 
@@ -448,7 +448,7 @@ const Home = () => {
                 </div>
 
                 {/* Facilities Section */}
-                <div className="w-full max-w-7xl mb-8 md:mb-12 text-left">
+                <div className="w-full max-w-7xl md:px-8 mb-8 md:mb-12 text-left">
                     <div className="max-w-3xl mb-8 px-4">
                         <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">Premier Infrastructure</h2>
                         <p className="text-slate-400 font-black uppercase text-[10px] tracking-widest mt-2 flex items-center gap-2">
@@ -469,7 +469,7 @@ const Home = () => {
                 </div>
 
                 {/* Extra Programs Section */}
-                <div className="w-full max-w-7xl mb-12">
+                <div className="w-full max-w-7xl md:px-8 mb-12">
                     <div className="bg-white rounded-xl px-4 py-6 md:p-8 lg:p-10 shadow-soft border border-slate-100 text-left">
                         <div className="flex flex-col lg:flex-row justify-between items-start gap-12">
                             <div className="lg:w-1/3">
@@ -516,19 +516,19 @@ const Home = () => {
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-6 md:mb-2 max-w-6xl mx-auto">
                             <div>
                                 <h2 className="text-3xl font-black text-slate-900 tracking-tight">Your Upcoming Schedule</h2>
-                                <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-1">Don't miss out on important dates</p>
+                                <p className="text-slate-400 font-semibold uppercase text-fluid-xs tracking-widest mt-1">Don't miss out on important dates</p>
                             </div>
 
                             <div className="flex bg-white p-1.5 rounded-lg shadow-sm border border-slate-100">
                                 <button
                                     onClick={() => setUpcomingFilter('week')}
-                                    className={`px-6 py-2 rounded-md text-[10px] font-bold uppercase tracking-widest transition-all duration-800 ${upcomingFilter === 'week' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                                    className={`px-6 py-2 rounded-full text-fluid-xs font-bold uppercase tracking-widest transition-all duration-800 ${upcomingFilter === 'week' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
                                 >
                                     Next 7 Days
                                 </button>
                                 <button
                                     onClick={() => setUpcomingFilter('month')}
-                                    className={`px-6 py-2 rounded-md text-[10px] font-bold uppercase tracking-widest transition-all duration-800 ${upcomingFilter === 'month' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
+                                    className={`px-6 py-2 rounded-full text-fluid-xs font-bold uppercase tracking-widest transition-all duration-800 ${upcomingFilter === 'month' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
                                 >
                                     This Month
                                 </button>
@@ -538,14 +538,14 @@ const Home = () => {
                         {loadingUpcoming ? (
                             <div className="py-20 text-center text-slate-300 font-black animate-pulse uppercase tracking-[0.2em]">Syncing Calendar...</div>
                         ) : (
-                            <div className="flex gap-6 overflow-x-auto pb-4 pt-4 px-4 snap-x snap-mandatory scrollbar-hide">
+                            <div className="flex gap-6 overflow-x-auto pb-4 pt-4 snap-x snap-mandatory scrollbar-hide">
                                 {upcomingItems.length > 0 ? upcomingItems.map((item, idx) => (
                                     <motion.div
                                         key={`${item.itemType}-${item._id}`}
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: idx * 0.1 }}
-                                        className={`min-w-[320px] md:min-w-[380px] group p-4 rounded-2xl border transition-all cursor-pointer hover:shadow-2xl hover:bg-white snap-center ${item.itemType === 'Exam' ? 'bg-rose-50/30 border-rose-100' : 'bg-indigo-50/30 border-indigo-100'
+                                        className={`min-w-[300px] md:min-w-[360px] group p-4 rounded-2xl border transition-all cursor-pointer hover:shadow-2xl hover:bg-white snap-center ${item.itemType === 'Exam' ? 'bg-rose-50/30 border-rose-100' : 'bg-indigo-50/30 border-indigo-100'
                                             }`}
                                         onClick={(e) => { e.stopPropagation(); handleMoreDetail(item); }}
                                     >
@@ -605,8 +605,8 @@ const Home = () => {
 
                 {/* Universal Table */}
                 {user && (
-                    <div className="w-full max-w-7xl mb-24 px-4 text-left">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12 max-w-6xl mx-auto">
+                    <div className="w-full max-w-7xl mb-8 md:mb-24 px-4 text-left">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 md:mb-12 max-w-6xl mx-auto">
                             <div>
                                 <h2 className="text-3xl font-black text-slate-900 tracking-tight">Universal Exam Timetable</h2>
                                 <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-1">Cross-class examination schedule matrix</p>
@@ -640,7 +640,7 @@ const Home = () => {
                                     );
 
                                     return (
-                                        <div className="overflow-x-auto">
+                                        <div className="overflow-x-auto overflow-hidden scrollbar-hide custom-scrollbar">
                                             <table className="w-full border-collapse">
                                                 <thead>
                                                     <tr className="bg-slate-900 text-white">
@@ -708,35 +708,35 @@ const Home = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="p-8 md:p-16 md:w-3/5 text-left">
+                    <div className=" px-4 py-8 md:p-16 md:w-3/5 text-left">
                         <form onSubmit={handleSend} className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Legal Name</label>
+                                    <label className="text-fluid-sm font-semibold text-slate-400 uppercase tracking-widest ml-1">Legal Name</label>
                                     <input
                                         type="text" placeholder="John Doe" required
-                                        className="p-5 bg-slate-50 border-none rounded-2xl w-full focus:ring-4 focus:ring-indigo-50 transition-all outline-none font-bold text-sm"
+                                        className="p-5 bg-slate-50 border-none rounded-2xl w-full focus:ring-4 focus:ring-indigo-50 transition-all focus:outline-1 font-bold text-fluid-sm"
                                         value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     />
                                 </div>
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+                                    <label className="text-fluid-sm font-semibold text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
                                     <input
                                         type="email" placeholder="john@example.com" required
-                                        className="p-5 bg-slate-50 border-none rounded-2xl w-full focus:ring-4 focus:ring-indigo-50 transition-all outline-none font-bold text-sm"
+                                        className="p-5 bg-slate-50 border-none rounded-2xl w-full focus:ring-4 focus:ring-indigo-50 transition-all focus:outline-1 font-bold text-fluid-sm"
                                         value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })}
                                     />
                                 </div>
                             </div>
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Your Inquiry</label>
+                                <label className="text-fluid-sm font-semibold text-slate-400 uppercase tracking-widest ml-1">Your Inquiry</label>
                                 <textarea
                                     placeholder="How can we help you today?" rows="2" required
-                                    className="p-5 bg-slate-50 border-none rounded-2xl w-full focus:ring-4 focus:ring-indigo-50 transition-all outline-none font-bold text-sm min-h-[10px]"
+                                    className="p-5 bg-slate-50 border-none rounded-2xl w-full focus:ring-4 focus:ring-indigo-50 transition-all focus:outline-1 font-bold text-fluid-sm min-h-[10px]"
                                     value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })}
                                 ></textarea>
                             </div>
-                            <button className="w-full md:w-auto px-6 py-3 bg-indigo-600 text-lg text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-100">
+                            <button className="w-full md:w-auto px-6 py-2.5 bg-indigo-600 text-fluid-md md:text-fluid-lg text-white font-semibold rounded-full hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-100">
                                 <FaPaperPlane /> Send Message
                             </button>
                         </form>
@@ -980,7 +980,7 @@ const Home = () => {
                 )}
             </AnimatePresence>
 
-            <footer className="p-8 text-center text-slate-400 text-[10px] font-black uppercase leading-6 tracking-[0.5em] border border-slate-100 bg-white">
+            <footer className="p-8 text-center text-slate-400 text-fluid-xs font-black uppercase leading-4 tracking-[0.4em] md:leading-6 md:tracking-[0.5em] border border-slate-100 bg-white">
                 Made with love by Sriii <br />
                 © 2026 EduManage System • Empowering Excellence
             </footer>
@@ -992,7 +992,7 @@ const FacilityCard = ({ icon, title, desc }) => (
     <div className="bg-white px-4 py-6 rounded-2xl shadow-soft hover:shadow-2xl transition-all duration-500 text-left group border border-slate-50 hover:border-indigo-100 relative overflow-hidden">
         <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-50 rounded-full blur-2xl group-hover:bg-indigo-100 transition-colors" />
         <div className="flex items-center gap-4">
-        <div className="mb-6 w-fit rounded-md group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 transform group-hover:rotate-4 group-hover:scale-125 text-indigo-600 shadow-sm">{icon}</div>
+        <div className="mb-6 w-fit rounded-md group-hover:scale-115 transition-all duration-500 transform group-hover:rotate-4 group-hover:scale-125 text-indigo-600">{icon}</div>
         <h3 className="text-fluid-md font-bold text-slate-800 mb-6 tracking-tight uppercase leading-none">{title}</h3></div>
         <p className="text-slate-400 font-semibold text-fluid-sm leading-relaxed group-hover:text-slate-500 transition-colors">{desc}</p>
     </div>
