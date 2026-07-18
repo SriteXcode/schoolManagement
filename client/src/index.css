@@ -77,6 +77,47 @@
   scrollbar-width: none !important;
 }
 
+/* Custom scrollbar styling (applied globally to all scrollable elements) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* slate-300 */
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; /* slate-400 */
+}
+
+/* Custom scrollbar class for explicit declaration */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* slate-300 */
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; /* slate-400 */
+}
+
+/* Firefox support (Firefox doesn't support webkit scrollbars) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.scrollbar-hide {
+  scrollbar-width: none !important;
+}
+
 body {
   font-family: var(--font-sans);
   font-size: clamp(0.9rem, 0.15vw + 0.85rem, 1.05rem); /* approx 14pt - 16pt (15px - 17px) */

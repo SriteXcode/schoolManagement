@@ -393,7 +393,7 @@ const Home = () => {
                                     onClick={() => setShowPrincipalMessage(true)}
                                     className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] border-b border-indigo-400/30 pb-1 hover:text-white hover:border-white transition-all"
                                 >
-                                Read Full Message →
+                                    Read Full Message →
                                 </button>
                             )}
                         </div>
@@ -477,9 +477,9 @@ const Home = () => {
                                 <p className="text-slate-500 font-semibold mt-4 text-fluid-sm">Beyond the textbook. We offer specialized programs to build real-world competency.</p>
                                 <div className="mt-6  px-4 py-6 md:p-8 bg-indigo-50 rounded-[12px_4px_12px_4px] border border-indigo-100 group hover:bg-indigo-600 transition-all duration-400 ">
                                     <div className="flex items-center gap-4">
-                                    <FaMobileAlt className="text-indigo-600 group-hover:text-white mb-4" size={32} />
-                                    
-                                    <p className="text-indigo-900 group-hover:text-white font-bold uppercase text-sm mb-4 tracking-widest ">Platform Update</p></div>
+                                        <FaMobileAlt className="text-indigo-600 group-hover:text-white mb-4" size={32} />
+
+                                        <p className="text-indigo-900 group-hover:text-white font-bold uppercase text-sm mb-4 tracking-widest ">Platform Update</p></div>
                                     <p className="text-indigo-600 group-hover:text-indigo-100 font-semibold text-sm mt-2">Latest v2.4 APK & Web platform now live with 100% transparency logs.</p>
                                 </div>
                             </div>
@@ -662,7 +662,7 @@ const Home = () => {
                                                             {tableDates.map(d => (
                                                                 <td key={d} className="p-2 border-r border-slate-100 text-center">
                                                                     {row.dates[d] ? (
-                                                                        <button 
+                                                                        <button
                                                                             onClick={() => setSelectedExamDetail(row.dates[d])}
                                                                             className="w-full flex flex-col items-center p-3 rounded-2xl hover:bg-indigo-50/60 active:bg-indigo-55 transition-all duration-200 cursor-pointer group/cell focus:outline-none"
                                                                         >
@@ -736,7 +736,7 @@ const Home = () => {
                                     value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })}
                                 ></textarea>
                             </div>
-                            <button className="w-full md:w-auto px-6 py-2.5 bg-indigo-600 text-fluid-md md:text-fluid-lg text-white font-semibold rounded-full hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-100">
+                            <button className="w-full md:w-auto px-6 py-2.5 md:py-3 bg-indigo-600 text-fluid-md md:text-fluid-md text-white font-semibold rounded-full hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-100">
                                 <FaPaperPlane /> Send Message
                             </button>
                         </form>
@@ -920,15 +920,15 @@ const Home = () => {
                                         {new Date(selectedExamDetail.date).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
                                     </div>
                                 </div>
-<div className="flex justify-start items-center gap-4 mb-4" >
+                                <div className="flex justify-start items-center gap-4 mb-4" >
 
-                                <p className="text-xl md:text-4xl font-bold text-slate-900 leading-tight tracking-tight">
-                                    {selectedExamDetail.subject}
-                                </p>
-                                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">
-                                    {selectedExamDetail.name} • {selectedExamDetail.classDetails}
-                                </p>
-</div>
+                                    <p className="text-xl md:text-4xl font-bold text-slate-900 leading-tight tracking-tight">
+                                        {selectedExamDetail.subject}
+                                    </p>
+                                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                                        {selectedExamDetail.name} • {selectedExamDetail.classDetails}
+                                    </p>
+                                </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4 bg-slate-50 p-6 rounded-2xl border border-slate-100/50">
                                     <div className="flex items-center gap-3">
@@ -992,8 +992,8 @@ const FacilityCard = ({ icon, title, desc }) => (
     <div className="bg-white px-4 py-6 rounded-2xl shadow-soft hover:shadow-2xl transition-all duration-500 text-left group border border-slate-50 hover:border-indigo-100 relative overflow-hidden">
         <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-50 rounded-full blur-2xl group-hover:bg-indigo-100 transition-colors" />
         <div className="flex items-center gap-4">
-        <div className="mb-6 w-fit rounded-md group-hover:scale-115 transition-all duration-500 transform group-hover:rotate-4 group-hover:scale-125 text-indigo-600">{icon}</div>
-        <h3 className="text-fluid-md font-bold text-slate-800 mb-6 tracking-tight uppercase leading-none">{title}</h3></div>
+            <div className="mb-6 w-fit rounded-md group-hover:scale-115 transition-all duration-500 transform group-hover:rotate-4 group-hover:scale-125 text-indigo-600">{icon}</div>
+            <h3 className="text-fluid-md font-bold text-slate-800 mb-6 tracking-tight uppercase leading-none">{title}</h3></div>
         <p className="text-slate-400 font-semibold text-fluid-sm leading-relaxed group-hover:text-slate-500 transition-colors">{desc}</p>
     </div>
 );
@@ -1002,10 +1002,10 @@ const ExtraProgramCard = ({ icon, title, type, desc }) => (
     <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-xl hover:border-indigo-100 transition-all group">
         <div className="flex justify-between items-start mb-4">
             <div className="flex flex-col items-start gap-4">
-            <div className="p-4 rounded-lg text-indigo-600 shadow-md group-hover:bg-indigo-600 group-hover:text-white transition-all transform group-hover:scale-110">
-                {icon}
-            </div>
-            <h3 className="text-fluid-md font-black text-slate-800  tracking-tight uppercase">{title}</h3></div>
+                <div className="p-4 rounded-lg text-indigo-600 shadow-md group-hover:bg-indigo-600 group-hover:text-white transition-all transform group-hover:scale-110">
+                    {icon}
+                </div>
+                <h3 className="text-fluid-md font-black text-slate-800  tracking-tight uppercase">{title}</h3></div>
             <span className="text-fluid-xs font-black bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-full uppercase tracking-widest">{type}</span>
         </div>
         <p className="text-slate-400 font-semibold text-xs leading-relaxed group-hover:text-slate-500 transition-colors">{desc}</p>

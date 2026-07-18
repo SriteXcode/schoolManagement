@@ -116,3 +116,29 @@ exports.updateHomework = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.getHomeworkSubmissions = async (req, res) => {
+    try {
+        const { homeworkId } = req.params;
+        const homework = await Homework.findById(homeworkId);
+        if (!homework) {
+            return res.status(404).json({ message: "Homework not found" });
+        }
+
+        const students = await Student.find({ sClass: homework.sClass }).sort({ name: 1 });
+        const statuses = await HomeworkStatus.find({ homework: homeworkId });
+        const statusMap = {};
+        statuses.forEach(s => statusMap[s.student.toString()] = s.status);
+
+        const submissions = students.map(student => ({
+            _id: student._id,
+            name: student.name,
+            rollNum: student.rollNum,
+            status: statusMap[student._id.toString()] || "Not Started"
+        }));
+
+        res.status(200).json({ homework, submissions });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

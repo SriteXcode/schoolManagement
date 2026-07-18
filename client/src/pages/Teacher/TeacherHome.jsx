@@ -92,7 +92,14 @@ const TeacherHome = () => {
                             icon={<FaClipboardCheck />}
                             color="text-emerald-600"
                             bgColor="bg-emerald-50"
-                        />
+                        >
+                            <Link 
+                                to="/teacher/attendance"
+                                className="w-full inline-block text-center py-2.5 px-4 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition shadow-sm"
+                            >
+                                Start Today Attendance
+                            </Link>
+                        </ActionCard>
                         
                         <ActionCard 
                             to="/teacher/homework"
@@ -101,7 +108,22 @@ const TeacherHome = () => {
                             icon={<FaBook />}
                             color="text-indigo-600"
                             bgColor="bg-indigo-50"
-                        />
+                        >
+                            <div className="flex flex-col sm:flex-row gap-2">
+                                <Link 
+                                    to="/teacher/homework?tab=assign"
+                                    className="flex-1 text-center py-2.5 px-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-sm font-semibold"
+                                >
+                                    Assign Today Homework
+                                </Link>
+                                <Link 
+                                    to="/teacher/homework?tab=submissions"
+                                    className="flex-1 text-center py-2.5 px-3 bg-slate-100 text-slate-700 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition font-semibold"
+                                >
+                                    Submissions
+                                </Link>
+                            </div>
+                        </ActionCard>
                     </div>
                 </div>
 
@@ -116,7 +138,7 @@ const TeacherHome = () => {
                         <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
                             <FaMoneyBillWave className="text-emerald-500" /> Recent Pay Slips
                         </h3>
-                        <div className="space-y-4">
+                        <div className="space-y-4 max-h-[300px] overflow-y-auto scrollbar-hide">
                             {salaries.map(record => (
                                 <div key={record._id} className="flex items-center justify-between p-6 bg-slate-50 rounded-3xl border border-transparent hover:border-indigo-100 transition-all group">
                                     <div className="flex items-center gap-4">
@@ -135,7 +157,7 @@ const TeacherHome = () => {
                                         </div>
                                         <button 
                                             onClick={() => setViewReceipt(record)}
-                                            className="p-3 bg-white text-indigo-600 rounded-xl shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-indigo-600 hover:text-white"
+                                            className="p-3 bg-white text-indigo-600 rounded-xl shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-indigo-600 hover:text-white cursor-pointer"
                                         >
                                             <FileText size={18} />
                                         </button>
@@ -238,7 +260,7 @@ const TeacherHome = () => {
 
             {/* Notice Board */}
             <div className="lg:col-span-1">
-                <div className="bg-white rounded-[2.5rem] shadow-soft p-8 h-full">
+                <div className="bg-white rounded-[2.5rem] shadow-soft p-8 h-full overflow-hidden">
                     <h2 className="text-2xl font-black text-slate-900 mb-8 flex items-center gap-3 tracking-tight">
                         <div className="bg-orange-50 p-2 rounded-xl text-orange-500 text-lg">
                             <FaBullhorn />
@@ -246,7 +268,7 @@ const TeacherHome = () => {
                         Notices
                     </h2>
                     
-                    <div className="space-y-6 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
+                    <div className="space-y-6 max-h-[600px] overflow-y-auto scrollbar-hide pr-2">
                         {notices.map(notice => (
                             <div key={notice._id} className="p-5 bg-slate-50 rounded-3xl hover:bg-white hover:shadow-md transition-all group">
                                 <div className="flex justify-between items-start mb-3">
@@ -273,17 +295,20 @@ const TeacherHome = () => {
   );
 };
 
-const ActionCard = ({ to, title, desc, icon, color, bgColor }) => (
-    <Link to={to} className="p-8 bg-white rounded-[2rem] shadow-soft hover:shadow-soft-xl transition-all group flex flex-col h-full border border-transparent hover:border-slate-100">
-        <div className={`w-14 h-14 rounded-2xl ${bgColor} ${color} flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300`}>
-            {icon}
-        </div>
-        <h3 className="text-xl font-black text-slate-900 mb-3 tracking-tight">{title}</h3>
-        <p className="text-slate-500 text-sm leading-relaxed flex-1">{desc}</p>
-        <div className="mt-6 flex items-center text-xs font-black uppercase tracking-widest text-indigo-600 group-hover:translate-x-2 transition-transform">
+const ActionCard = ({ to, title, desc, icon, color, bgColor, children }) => (
+    <div className="p-8 bg-white rounded-[2rem] shadow-soft hover:shadow-soft-xl transition-all group flex flex-col h-full border border-transparent hover:border-slate-100 text-left overflow-hidden relative">
+        <Link to={to} className="flex-1">
+            <div className={`w-14 h-14 rounded-2xl ${bgColor} ${color} flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300`}>
+                {icon}
+            </div>
+            <h3 className="text-xl font-black text-slate-900 mb-3 tracking-tight">{title}</h3>
+            <p className="text-slate-500 text-sm leading-relaxed mb-4">{desc}</p>
+        </Link>
+        {children && <div className="mt-2 relative z-10">{children}</div>}
+        <Link to={to} className="mt-6 flex items-center text-xs font-black uppercase tracking-widest text-indigo-600 group-hover:translate-x-2 transition-transform relative z-10">
             Go to {title} <span className="ml-2">→</span>
-        </div>
-    </Link>
+        </Link>
+    </div>
 );
 
 export default TeacherHome;

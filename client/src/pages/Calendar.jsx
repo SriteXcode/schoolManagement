@@ -214,9 +214,9 @@ const Calendar = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 p-4 sm:p-6 md:p-8 lg:pl-12 lg:pt-2">
-            <div className="max-w-7xl mx-auto md:grid grid-cols-[1.5fr_1fr] gap-12 space-y-6 sm:space-y-12">
+            <div className="max-w-7xl mx-auto md:grid grid-cols-[1.5fr_1fr] gap-12 space-y-6 sm:space-y-12 md:space-y-0">
                 {/* Responsive Header */}
-                <div className='flex flex-col gap-4'>
+                <div className='flex flex-col gap-4 min-w-0 w-full'>
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-start gap-2">
                         <div className="text-left">
                             <p className="text-xl sm:text-xl md:text-xl font-bold text-slate-900 tracking-tight flex items-center sm:gap-4">
@@ -277,7 +277,7 @@ const Calendar = () => {
                 </div>
 
                 {/* Upcoming Section */}
-                <div className="space-y-8">
+                <div className="space-y-8 min-w-0 w-full">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mx-4 gap-6">
                         <div className="text-left">
                             <p className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Upcoming Schedule</p>
@@ -288,7 +288,7 @@ const Calendar = () => {
                             <select
                                 value={upcomingFilter}
                                 onChange={(e) => setUpcomingFilter(e.target.value)}
-                                className="px-4 py-2 pr-8 rounded-lg bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                className="px-4 py-2 pr-8 rounded-lg bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-50"
                             >
                                 <option value="week">Week</option>
                                 <option value="month">Month</option>
@@ -296,7 +296,7 @@ const Calendar = () => {
                         </div>
                     </div>
 
-                    <div className="flex gap-6 overflow-x-auto pb-4 pt-4 px-4 snap-x snap-mandatory scrollbar-hide">
+                    <div className="flex gap-6 overflow-x-auto pb-4 pt-4 px-4 snap-x snap-mandatory scrollbar-hide w-full min-w-0">
                         {upcomingItems.length > 0 ? upcomingItems.map((item, idx) => (
                             <motion.div
                                 key={`${item.itemType}-${item._id}`}
